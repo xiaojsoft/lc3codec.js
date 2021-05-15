@@ -37,17 +37,21 @@ const IsUInt32 =
  *  @throws {LC3IllegalParameterError}
  *    - N is not an unsigned 32-bit integer, or 
  *    - K is not a non-negative integer, or 
- *    - Vector size mismatches (with N).
+ *    - Vector size mismatches (with N), or 
+ *    - Point buffer size mismatches (with N).
  *  @param {Number} N 
  *    - The parameter N.
  *  @param {Number} K 
  *    - The parameter K.
  *  @param {Number[]} X 
  *    - The vector.
- *  @returns 
+ *  @param {?(Number[])} [R]
+ *    - The point buffer (used for reducing array allocation, set to NULL if 
+ *      not needed).
+ *  @returns {Number[]}
  *    - The point within PVQ(N, K).
  */
-function PVQSearch(N, K, X) {
+function PVQSearch(N, K, X, R = null) {
     //  Check N.
     if (!IsUInt32(N)) {
         throw new LC3IllegalParameterError(
@@ -69,6 +73,18 @@ function PVQSearch(N, K, X) {
         );
     }
 
+    //  Check the size of R.
+    if (R !== null) {
+        if (R.length != N) {
+            throw new LC3IllegalParameterError(
+                "Point buffer size mismatches (with N)."
+            );
+        }
+    } else {
+        //  Initiate R[n].
+        R = new Array(N);
+    }
+
     //  Prepare S[n] = sgn(X[n]), XabsSum = sum(|X[n]|).
     let S = new Array(N);
     let XabsSum = 0;
@@ -81,9 +97,6 @@ function PVQSearch(N, K, X) {
         }
         XabsSum += X[i];
     }
-
-    //  Initiate R[n].
-    let R = new Array(N);
 
     //  Preproject (when K/N > 0.5).
     let k_begin = 0;
@@ -124,15 +137,61 @@ function PVQSearch(N, K, X) {
         ++(R[n_best]);
     }
 
-    //  Re-apply S[n] to R[n].
+    //  Re-apply S[n] to X[n] and R[n].
     for (let i = 0; i < N; ++i) {
+        X[i] *= S[i];
         R[i] *= S[i];
     }
 
     return R;
 }
 
+/**
+ *  Normalize a point of PVQ(N, K).
+ * 
+ *  @throws {LC3IllegalParameterError}
+ *    - Normalized point buffer size mismatches (with the size of X).
+ *  @param {Number[]} X 
+ *    - The point to be normalized.
+ *  @param {?(Number[])} [Y] 
+ *    - The normalized point buffer (used for reducing array allocation, set to 
+ *      NULL if not needed).
+ *  @returns {Number[]}
+ *    - The normalized point.
+ */
+function PVQNormalize(X, Y = null) {
+    let N = X.length;
+
+    //  Check the size of Y.
+    if (Y !== null) {
+        if (Y.length != N) {
+            throw new LC3IllegalParameterError(
+                "Normalized point buffer size mismatches (with the size of X)."
+            );
+        }
+    } else {
+        //  Initiate Y[n].
+        Y = new Array(N);
+    }
+
+    //  Get the normalization factor.
+    let Fnorm = 0;
+    for (let i = 0; i < N; ++i) {
+        let Xi = X[i];
+        Fnorm += Xi * Xi;
+    }
+    Fnorm = Math.sqrt(Fnorm);
+
+    //  Normalize.
+    for (let i = 0; i < N; ++i) {
+        Y[i] = X[i] / Fnorm;
+    }
+
+    return Y;
+}
+
 //  Export public APIs.
 module.exports = {
-    "PVQSearch": PVQSearch
+    "PVQSearch": PVQSearch,
+    "PVQNormalize": PVQNormalize
 };
