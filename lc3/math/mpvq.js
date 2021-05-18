@@ -97,12 +97,14 @@ function MPVQ(Nmax, Kmax) {
      *    - SUM{x[n]} exceeds Kmax.
      *  @param {Number[]} X
      *    - The vector.
+     *  @param {Number[]} [R]
+     *    - The returned array buffer (used for reducing array allocation).
      *  @returns {[Number, Number]}
      *    - An array (denotes as R[0...1]), where:
      *      - R[0] is the MPVQ leading sign indication (LS_ind).
      *      - R[1] is the MPVQ index.
      */
-    this.enumerate = function(X) {
+    this.enumerate = function(X, R = [null, null]) {
         //  (Get and) check N.
         let N = X.length;
         if (N > Nmax) {
@@ -144,7 +146,10 @@ function MPVQ(Nmax, Kmax) {
             }
         }
 
-        return [next_sign_ind, index];
+        R[0] = next_sign_ind;
+        R[1] = index;
+
+        return R;
     };
 
     /**
@@ -155,7 +160,8 @@ function MPVQ(Nmax, Kmax) {
      *    - N exceeds Nmax, or 
      *    - K is not a non-negative integer, or 
      *    - K exceeds Kmax, or 
-     *    - MPVQ index is not a non-negative integer.
+     *    - MPVQ index is not a non-negative integer, or 
+     *    - Vector size mismatches.
      *  @param {Number} N 
      *    - The size of the vector (i.e. N).
      *  @param {Number} K 
@@ -164,10 +170,12 @@ function MPVQ(Nmax, Kmax) {
      *    - The MPVQ leading sign indication.
      *  @param {Number} index 
      *    - The MPVQ index.
+     *  @param {Number[]} vec
+     *    - The returned vector buffer (used for reducing array allocation).
      *  @returns {Number[]}
      *    - The vector.
      */
-    this.deenumerate = function(N, K, LS_ind, index) {
+    this.deenumerate = function(N, K, LS_ind, index, vec = new Array(N)) {
         //  Check N.
         if (!IsUInt32(N)) {
             throw new LC3IllegalParameterError(
@@ -199,8 +207,20 @@ function MPVQ(Nmax, Kmax) {
             );
         }
 
+        //  Check the vector size.
+        if (vec.length != N) {
+            throw new LC3IllegalParameterError(
+                "Vector size mismatches."
+            );
+        }
+
+        //  Convert LS_ind.
+        if (LS_ind != 0) {
+            LS_ind = -1;
+        }
+
         //  Do step 522 (Fig. 13).
-        let vec = new Array(N);
+        // let vec = new Array(N);
         for (let n = 0; n < N; ++n) {
             vec[n] = 0;
         }
@@ -223,26 +243,25 @@ function MPVQ(Nmax, Kmax) {
             //  (Tree search) Do step 562 (Fig. 14).
             let low = 0;
             let high = k_max_local;
-            let amp_offset = MPVQ_offsets[n][high], k_test = high;
-            while (high >= low /*  Do step 574 (Fig. 14)  */) {
-                //  Do step 564 (Fig. 14).
-                k_test = ((low + high) >>> 1);
-                amp_offset = MPVQ_offsets[n][k_test];
 
-                if (amp_offset == index /*  Do step 570 (Fig. 14)  */) {
-                    break;
-                } else if (amp_offset < index /*  Do step 566 (Fig. 14)  */) {
-                    low = k_test + 1;
+            //  Rewrite (corrected) bi-search version of step 566, 570, 574 
+            //  (Fig. 14).
+            while (low < high) {
+                let mid = Math.ceil((low + high) / 2);
+                let amp_offset = MPVQ_offsets[n][mid];
+
+                if (amp_offset > index) {
+                    high = mid - 1;
                 } else {
-                    high = k_test - 1;
+                    low = mid;
                 }
             }
 
             //  Do step 576 (Fig. 14).
-            let k_delta = k_max_local - k_test;
+            let k_delta = k_max_local - low;
 
             //  Do step 534 (Fig. 13).
-            index -= amp_offset;
+            index -= MPVQ_offsets[n][low];
 
             if (k_delta != 0 /*  Do step 536 (Fig. 13)  */) {
                 //  Do step 538 (Fig. 13).
@@ -253,7 +272,6 @@ function MPVQ(Nmax, Kmax) {
                 }
 
                 //  Do step 584, 586, 588, 590 (Fig. 15).
-                //  GET NEXT LEAD SIGN...
                 if ((index & 1) != 0) {
                     LS_ind = -1;
                 } else {
