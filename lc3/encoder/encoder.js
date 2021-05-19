@@ -949,18 +949,17 @@ function Impl_AcEncFinish(bytes, ctx) {
             ++(bits);
         }
         let mask = (0x00ffffff >>> bits);
-        let inv_mask = ((0xffffffff ^ mask) >>> 0);
         let val = st_low + mask;
         let over1 = (val >>> 24);
         let high = st_low + st_range;
         let over2 = (high >>> 24);
         high = ((high & 0x00ffffff) >>> 0);
-        val = (((val & 0x00ffffff) & inv_mask) >>> 0);
+        val = (((val & 0x00ffffff) & (0xffffffff ^ mask)) >>> 0);
         if (over1 == over2) {
             if (val + mask >= high) {
                 ++(bits);
                 mask >>>= 1;
-                val = ((((st_low + mask) & 0x00ffffff) & inv_mask) >>> 0);
+                val = ((((st_low + mask) & 0x00ffffff) & (0xffffffff ^ mask)) >>> 0);
             }
             if (val < st_low) {
                 st_carry = 1;
