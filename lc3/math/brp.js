@@ -45,7 +45,7 @@ function NewBitReversalPermutate(nbits) {
         let k = 1;
         for (let q = 1; q <= nbits; ++q) {
             for (let i = 0; i < l; ++i) {
-                if ((k & 1) == 1) {
+                if (((k & 1) >>> 0) == 1) {
                     t[k] = t[k - 1] + msb;
                 } else {
                     t[k] = (t[k >>> 1] >>> 1);

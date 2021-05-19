@@ -70,7 +70,7 @@ function FFTCooleyTukeyTransformer(stageCnt) {
     //
 
     //  Get the bit reversal permutation used by FFTArrayBitReversalSwap2().
-    let brvtable = NewBitReversalPermutate((stageCnt >> 1) >>> 0);
+    let brvtable = NewBitReversalPermutate(stageCnt >>> 1);
 
     //  Get the block size.
     let blksize = ((1 << stageCnt) >>> 0);
@@ -205,30 +205,30 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
     let m = (nbits >> 1);
     let mp1 = m + 1;
     // let brv_m = NewBitReversalPermutate(m);
-    let inv = (1 << nbits) - 1;
-    let pow_2_m = (1 << m);
+    let inv = ((1 << nbits) >>> 0) - 1;
+    let pow_2_m = ((1 << m) >>> 0);
     let pow_2_ms1 = (pow_2_m >> 1);
-    if ((nbits & 1) == 0) {
+    if (((nbits & 1) >>> 0) == 0) {
         for (let a = 0; a < pow_2_ms1; ++a) {
             for (let b = 0; b < a; ++b) {
-                let i = (b << m) + brv_m[a];
-                let ri = (a << m) + brv_m[b];
+                let i = ((b << m) >>> 0) + brv_m[a];
+                let ri = ((a << m) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
                 FFTArraySwap2(arr1, arr2, inv ^ ri, inv ^ i);
             }
         }
         for (let a = pow_2_ms1; a < pow_2_m; ++a) {
             for (let b = 0; b < pow_2_ms1; ++b) {
-                let i = (b << m) + brv_m[a];
-                let ri = (a << m) + brv_m[b];
+                let i = ((b << m) >>> 0) + brv_m[a];
+                let ri = ((a << m) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
             }
         }
     } else {
         for (let a = 0; a < pow_2_ms1; ++a) {
             for (let b = 0; b < a; ++b) {
-                let i = (b << mp1) + brv_m[a];
-                let ri = (a << mp1) + brv_m[b];
+                let i = ((b << mp1) >>> 0) + brv_m[a];
+                let ri = ((a << mp1) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
                 FFTArraySwap2(arr1, arr2, inv ^ ri, inv ^ i);
                 i += pow_2_m;
@@ -239,8 +239,8 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
         }
         for (let a = pow_2_ms1; a < pow_2_m; ++a) {
             for (let b = 0; b < pow_2_ms1; ++b) {
-                let i = (b << mp1) + brv_m[a];
-                let ri = (a << mp1) + brv_m[b];
+                let i = ((b << mp1) >>> 0) + brv_m[a];
+                let ri = ((a << mp1) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
                 FFTArraySwap2(arr1, arr2, i + pow_2_m, ri + pow_2_m);
             }

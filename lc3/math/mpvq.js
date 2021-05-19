@@ -272,7 +272,7 @@ function MPVQ(Nmax, Kmax) {
                 }
 
                 //  Do step 584, 586, 588, 590 (Fig. 15).
-                if ((index & 1) != 0) {
+                if (((index & 1) >>> 0) != 0) {
                     LS_ind = -1;
                 } else {
                     LS_ind = 0;
