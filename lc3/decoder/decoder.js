@@ -314,6 +314,11 @@ function LC3Decoder(Nms, Fs) {
         bec = new LC3BEC(false), 
         rbuf = new Array(NF)
     ) {
+        //  Ensure the returning array buffer size.
+        while (rbuf.length < NF) {
+            rbuf.push(0);
+        }
+
         let nbytes = bytes.length;
         let nbits = ((nbytes << 3) >>> 0);
         // console.log("nbytes=" + nbytes.toString());
