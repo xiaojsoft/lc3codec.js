@@ -17,6 +17,8 @@ const Lc3EcEncoder =
     require("./../lc3/encoder/encoder");
 const Lc3DcDecoder = 
     require("./../lc3/decoder/decoder");
+const Lc3DcBec = 
+    require("./../lc3/decoder/bec");
 const Lc3Error = 
     require("./../lc3/error");
 
@@ -29,6 +31,8 @@ const LC3Encoder =
     Lc3EcEncoder.LC3Encoder;
 const LC3Decoder = 
     Lc3DcDecoder.LC3Decoder;
+const LC3BEC = 
+    Lc3DcBec.LC3BEC;
 const LC3Error = 
     Lc3Error.LC3Error;
 const LC3IllegalParameterError = 
@@ -50,7 +54,9 @@ module.exports = {
     },
     "Decoder": {
         "LC3Decoder": 
-            LC3Decoder
+            LC3Decoder,
+        "LC3BEC": 
+            LC3BEC
     },
     "Error": {
         "LC3Error": 
