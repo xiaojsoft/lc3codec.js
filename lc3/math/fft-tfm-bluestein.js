@@ -50,7 +50,7 @@ function FFTBluesteinTransformer(N) {
     //  Let parent class initialize.
     IFFTTransformer.call(this);
 
-    //  Check the stage count.
+    //  Check the block size.
     if (!IsUInt32(N)) {
         throw new LC3IllegalParameterError(
             "Block size is not an unsigned 32-bit integer."
@@ -88,7 +88,7 @@ function FFTBluesteinTransformer(N) {
     let B_RE = new Array(M);
     let B_IM = new Array(M);
 
-    //  Twiddle factor (TW[n] = e ^ (2pi * (n ^ 2) / N)) (for 0 <= n < N).
+    //  Twiddle factor (TW[n] = e ^ (pi * (n ^ 2) / N)) (for 0 <= n < N).
     let TW_RE = new Array(N);
     let TW_IM = new Array(N);
     for (let n = 0, m = M; n < N; ++n, --m) {
@@ -150,6 +150,7 @@ function FFTBluesteinTransformer(N) {
             A_IM[n] = xn_im * twn_re + xn_re * twn_im;
         }
         for (let n = N; n < M; ++n) {
+            //  a[n] = 0 (for N <= n < M).
             A_RE[n] = 0;
             A_IM[n] = 0;
         }
