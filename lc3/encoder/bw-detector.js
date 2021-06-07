@@ -159,6 +159,7 @@ function LC3BandwidthDetector(Fs, Nms) {
             Esum /= (bwstop - bwstart + 1);
             if (Esum >= TQ[k]) {
                 bw0 = k + 1;
+                break;
             }
         }
 
@@ -172,7 +173,11 @@ function LC3BandwidthDetector(Fs, Nms) {
                 n <= Ibwstart[bw0] + 1; 
                 ++n
             ) {
-                let C = Math.log10((1e-31) + EB[n - Lbw0] / EB[n]);
+                let EB_n = EB[n];
+                if (EB_n < 1e-31) {
+                    EB_n = 1e-31;
+                }
+                let C = Math.log10((1e-31) + EB[n - Lbw0] / EB_n);
                 if (C > Cmax) {
                     Cmax = C;
                 }
