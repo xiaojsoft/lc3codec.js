@@ -95,7 +95,7 @@ function MDCT(M) {
         U_sin[k] = Math.sin(U_k);
         U_cos[k] = Math.cos(U_k);
 
-        let R_k = (Math.PI * (k + 0.5)) / N;
+        let R_k = PiDivN * (k + 0.5);
         R_sin[k] = Math.sin(R_k);
         R_cos[k] = Math.cos(R_k);
     }
@@ -244,7 +244,8 @@ function IMDCT(M) {
     //  Derive M0 = (1 / 2 + M / 2).
     let M0 = 0.5 + (M / 2);
 
-    //  Pre-twiddle factor (PRETW[n] = e ^ (j * n * M0 * 2pi / N)) (for 0 <= n < N).
+    //  Pre-twiddle factor (PRETW[n] = e ^ (j * n * M0 * 2pi / N)) 
+    //  (for 0 <= n < N).
     let PRETW_re = new Array(N);
     let PRETW_im = new Array(N);
 

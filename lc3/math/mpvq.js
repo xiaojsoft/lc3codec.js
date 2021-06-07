@@ -57,6 +57,7 @@ function MPVQ(Nmax, Kmax) {
             "Kmax is not a non-negative integer."
         );
     }
+
     //
     //  Members.
     //
