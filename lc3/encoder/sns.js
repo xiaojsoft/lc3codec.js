@@ -68,7 +68,7 @@ const FATT_TBL = [
     0.5, 0.3
 ];
 
-//  Minimum noise floor (= 2 ^ 32, Eq. 23).
+//  Minimum noise floor (= 2 ^ -32, Eq. 23).
 const NSFLOOR_MIN = 2.3283064365386963e-10;
 const DCTII_16x16 = Lc3TblSns.DCTII_16x16;
 const HFCB = Lc3TblSns.HFCB;
