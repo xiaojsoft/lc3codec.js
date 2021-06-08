@@ -368,7 +368,11 @@ function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
             //  The order of the quantized reflection coefficients shall be 
             //  calculated using:
             let RCorderS1 = 7;
-            for (; RCorderS1 >= 0 && RCq_f[RCorderS1] == 0; --RCorderS1) {
+            for (
+                ; 
+                RCorderS1 >= 0 && Math.abs(RCq_f[RCorderS1]) < 1e-31; 
+                --RCorderS1
+            ) {
                 //  Dummy.
             }
             RCorder[f] = RCorderS1 + 1;
