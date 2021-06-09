@@ -198,7 +198,7 @@ function LC3SpectralQuantization(Nms, Fs, NE) {
             }
         }
         let gg_min;                                                //  Eq. 112
-        if (Xf_max == 0) {
+        if (Xf_max < 1e-31) {
             gg_min = 0;
         } else {
             gg_min = Math.ceil(
@@ -241,7 +241,7 @@ function LC3SpectralQuantization(Nms, Fs, NE) {
         //  The quantized gain index shall be limited such that the quantized 
         //  spectrum stays within the range [-32768, 32767].
         let reset_offset;
-        if (gg_ind < gg_min || Xf_max == 0) {
+        if (gg_ind < gg_min || Xf_max < 1e-31) {
             gg_ind = gg_min;
             reset_offset = 1;
         } else {
