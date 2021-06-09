@@ -470,7 +470,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
                 //  If pitch_fr < 0 then both pitch_int and pitch_fr shall be 
                 //  modified.
                 if (pitch_fr < 0) {                                //  Eq. 101
-                    ++(pitch_int);
+                    --(pitch_int);
                     pitch_fr += 4;
                 }             
             }
