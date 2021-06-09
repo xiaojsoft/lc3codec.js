@@ -342,10 +342,11 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         // console.log("T2=" + T2.toString());
 
         //  Final estimate of the pitch-lag in the current frame. 
-        let T1norm, T2norm;
+        let T1norm_numer = 0, T1norm_denom = 0;
+        let T2norm_numer = 0, T2norm_denom = 0;
         {                                                       //  Eq. 91, 92
-            let T1norm_numer = 0, T1norm_denom1 = 0, T1norm_denom2 = 0;
-            let T2norm_numer = 0, T2norm_denom1 = 0, T2norm_denom2 = 0;
+            let T1norm_denom1 = 0, T1norm_denom2 = 0;
+            let T2norm_denom1 = 0, T2norm_denom2 = 0;
 
             for (let n = 0, i1 = -T1, i2 = -T2; n < corrlen; ++n, ++i1, ++i2) {
                 let c1 = x6p4_win.get(n);
@@ -360,23 +361,42 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
                 T2norm_denom1 += c1 * c1;
                 T2norm_denom2 += c2 * c2;
             }
-            T1norm = T1norm_numer / Math.sqrt(T1norm_denom1 * T1norm_denom2);
-            T2norm = T2norm_numer / Math.sqrt(T2norm_denom1 * T2norm_denom2);
+
+            if (T1norm_numer < 0) {
+                T1norm_numer = 0;
+                T1norm_denom = 1;
+            } else {
+                T1norm_denom = Math.sqrt(T1norm_denom1 * T1norm_denom2);
+                if (T1norm_denom < 1e-31) {
+                    T1norm_denom = 1e-31;
+                }
+            }
+
+            if (T2norm_numer < 0) {
+                T2norm_numer = 0;
+                T2norm_denom = 1;
+            } else {
+                T2norm_denom = Math.sqrt(T2norm_denom1 * T2norm_denom2);
+                if (T2norm_denom < 1e-31) {
+                    T2norm_denom = 1e-31;
+                }
+            }
         }
-        T1norm = Math.max(0, T1norm);
-        T2norm = Math.max(0, T2norm);
-        // console.log("normcorr1=" + T1norm.toString());
-        // console.log("normcorr2=" + T2norm.toString());
+        // console.log("normcorr1=" + (T1norm_numer / T1norm_denom).toString());
+        // console.log("normcorr2=" + (T2norm_numer / T2norm_denom).toString());
 
         //  The final estimate of the pitch-lag in the current frame is then 
         //  given by:
         let normcorr;
-        if (T2norm <= 0.85 * T1norm) {                              //  Eq. 91
+        if (                                                        //  Eq. 91
+            T2norm_numer * T1norm_denom <= 
+            0.85 * T1norm_numer * T2norm_denom
+        ) {
             Tcurr = T1;
-            normcorr = T1norm;
+            normcorr = T1norm_numer / T1norm_denom;
         } else {
             Tcurr = T2;
-            normcorr = T2norm;
+            normcorr = T2norm_numer / T2norm_denom;
         }
         // console.log("Tcurr=" + Tcurr.toString());
         // console.log("normcorr=" + normcorr.toString());
