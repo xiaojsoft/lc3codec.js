@@ -518,7 +518,11 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
                 nc_denom1 += t1 * t1;
                 nc_denom2 += t2 * t2;
             }
-            nc_ltpf = nc_numer / Math.sqrt(nc_denom1 * nc_denom2);
+            nc_denom1 = Math.sqrt(nc_denom1 * nc_denom2);
+            if (nc_denom1 < 1e-31) {
+                nc_denom1 = 1e-31;
+            }
+            nc_ltpf = nc_numer / nc_denom1;
             // console.log("nc_ltpf=" + nc_ltpf.toString());
 
             //  Calculate pitch.
@@ -536,7 +540,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
                 nn_flag == 0 &&     /*  The value of ltpf_active is set to 0  */
                                     /*  if the near_nyquist_flag in Section   */
                                     /*  3.3.4.5 is 1.                         */
-                gain_ltpf != 0
+                gain_ltpf >= 1e-31
             ) {
                 if (
                     (
