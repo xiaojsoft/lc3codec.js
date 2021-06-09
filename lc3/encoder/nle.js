@@ -103,7 +103,10 @@ function LC3NoiseLevelEstimation(Nms, NE) {
                     ++(LNF_denom);
                 }
             }
-
+        }
+        if (LNF_denom == 0) {
+            LNF_numer = 0;
+            LNF_denom = 1;
         }
 
         FNF = Math.round(8 - 16 * (LNF_numer / LNF_denom));        //  Eq. 118
