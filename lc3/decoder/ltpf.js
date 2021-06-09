@@ -93,6 +93,16 @@ const TAB_LTPF_DEN_TBL = [
     TAB_LTPF_DEN_48000
 ];
 
+//  History size of x_ltpf_hat[] window.
+const X_LTPF_HAT_WIN_HISTORY_SIZE = [
+    [
+        300, 300, 300, 320, 480, 480
+    ],
+    [
+        300, 300, 360, 480, 720, 720
+    ]
+];
+
 //
 //  Public classes.
 //
@@ -114,7 +124,7 @@ function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
     //
 
     //  Internal index of Nms, Fs.
-    // let index_Nms = Nms.getInternalIndex();
+    let index_Nms = Nms.getInternalIndex();
     let index_Fs = Fs.getInternalIndex();
 
     //  Algorithm contexts.
@@ -145,7 +155,11 @@ function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
     let tab_ltpf_den_fs = TAB_LTPF_DEN_TBL[index_Fs];
 
     let x_hat_win = new LC3SlideWindow(NF, L_num, 0);
-    let x_ltpf_hat_win = new LC3SlideWindow(NF, 300, 0);
+    let x_ltpf_hat_win = new LC3SlideWindow(
+        NF, 
+        X_LTPF_HAT_WIN_HISTORY_SIZE[index_Nms][index_Fs], 
+        0
+    );
     let x_ltpf_hat_emptyframe = new Array(NF);
     for (let k = 0; k < NF; ++k) {
         x_ltpf_hat_emptyframe[k] = 0;

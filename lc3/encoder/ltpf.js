@@ -163,7 +163,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
 
     let xs_win = new LC3SlideWindow(Nf, Nf, 0);
     let x12p8D_win = new LC3SlideWindow(D_LTPF + len12p8, 300, 0);
-    let x6p4_win = new LC3SlideWindow(len6p4, len12p8, 0);
+    let x6p4_win = new LC3SlideWindow(len6p4, 150, 0);
 
     let h50_z1 = 0;
     let h50_z2 = 0;
@@ -249,14 +249,14 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         // console.log("x12.8[n]=" + buf_12p8.toString());
 
         //  High-pass filtering (3.3.9.4).
-        for (let n = 0, p = D_LTPF; n < len12p8; ++n, ++p) {        //  Eq. 83
+        for (let n = 0; n < len12p8; ++n) {                         //  Eq. 83
             let w =   buf_12p8[n] + h50_z1 * H50_A1 + h50_z2 * H50_A2;
             let y = w * H50_B0 + h50_z1 * H50_B1 + h50_z2 * H50_B2;
             h50_z2 = h50_z1;
             h50_z1 = w;
             buf_12p8[n] = y;
         }
-        x12p8D_win.append(buf_12p8);
+        x12p8D_win.append(buf_12p8);                                //  Eq. 84
 
         //  Pitch detection algorithm (3.3.9.5).
         for (let n = 0, nMul2 = 0; n < len6p4; ++n, nMul2 += 2) {   //  Eq. 85
@@ -278,7 +278,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         // }
         // console.log("R6.4[n]=" + R6p4.toString());
 
-        for (let k = 0; k < len6p4; ++k) {
+        for (let k = 0; k < len6p4; ++k) {                          //  Eq. 86
             R6p4_corrwin1_re[k] = x6p4_win.get(k);
             R6p4_corrwin1_im[k] = 0;
         }
