@@ -898,8 +898,22 @@ specloop:
         //  SNS decoder (3.4.7).
         let X_hat = null;
         if (!bec.isMarked()) {
-            sns.update(ind_LF, ind_HF, shape_j, gain_i, LS_indA, idxA, LS_indB, idxB, Xs);
-            X_hat = sns.getSpectrumCoefficients();
+            let succeed = sns.update(
+                ind_LF, 
+                ind_HF, 
+                shape_j, 
+                gain_i, 
+                LS_indA, 
+                idxA, 
+                LS_indB, 
+                idxB, 
+                Xs
+            );
+            if (succeed) {
+                X_hat = sns.getSpectrumCoefficients();
+            } else {
+                bec.mark();
+            }
         }
         // console.log("X_hat_ss[]=" + X_hat);
 

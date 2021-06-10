@@ -162,6 +162,7 @@ function MPVQ(Nmax, Kmax) {
      *    - K is not a non-negative integer, or 
      *    - K exceeds Kmax, or 
      *    - MPVQ index is not a non-negative integer, or 
+     *    - MPVQ index is illegal, or 
      *    - Vector size mismatches.
      *  @param {Number} N 
      *    - The size of the vector (i.e. N).
@@ -283,6 +284,10 @@ function MPVQ(Nmax, Kmax) {
                 //  Do step 542 (Fig. 13).
                 k_max_local -= k_delta;
             }
+        }
+
+        if (index != 0) {
+            throw new LC3IllegalParameterError("MPVQ index is illegal.");
         }
 
         return vec;

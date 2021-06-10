@@ -94,6 +94,8 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
      *    - The `ind_LF` parameter.
      *  @param {Number[]} Xs_hat 
      *    - The shaped spectrum coefficients.
+     *  @returns {Boolean}
+     *    - True if succeed.
      */
     this.update = function(
         ind_LF, 
@@ -125,8 +127,12 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
         // console.log("shape_j=" + shape_j);
         switch (shape_j) {
         case 0:
-            MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
-            MPVQ_16x10.deenumerate(6, 1, LS_indB, idxB, mpvq_buf_x6);
+            try {
+                MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
+                MPVQ_16x10.deenumerate(6, 1, LS_indB, idxB, mpvq_buf_x6);
+            } catch(error) {
+                return false;
+            }
             for (let n = 0; n < 10; ++n) {
                 y_shape_j[n] = mpvq_buf_x10[n];
             }
@@ -135,7 +141,11 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
             }
             break;
         case 1:
-            MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
+            try {
+                MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
+            } catch(error) {
+                return false;
+            }
             for (let n = 0; n < 10; ++n) {
                 y_shape_j[n] = mpvq_buf_x10[n];
             }
@@ -144,10 +154,18 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
             }
             break;
         case 2:
-            MPVQ_16x10.deenumerate(16, 8, LS_indA, idxA, y_shape_j);
+            try {
+                MPVQ_16x10.deenumerate(16, 8, LS_indA, idxA, y_shape_j);
+            } catch(error) {
+                return false;
+            }
             break;
         case 3:
-            MPVQ_16x10.deenumerate(16, 6, LS_indA, idxA, y_shape_j);
+            try {
+                MPVQ_16x10.deenumerate(16, 6, LS_indA, idxA, y_shape_j);
+            } catch(error) {
+                return false;
+            }
             break;
         default:
             throw LC3BugError("Bad shape_j.");
@@ -230,6 +248,8 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
             }
         }
         // console.log("X_hat[]=" + X_hat.toString());
+
+        return true;
     };
 
     /**
