@@ -168,7 +168,7 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
             }
             break;
         default:
-            throw LC3BugError("Bad shape_j.");
+            throw new LC3BugError("Bad shape_j.");
         }
         // console.log("y_shape_j[]=" + y_shape_j.toString());
 
