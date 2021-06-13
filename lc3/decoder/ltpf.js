@@ -399,7 +399,7 @@ function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
         }
 
         //  Dump data.
-        x_ltpf_hat_win.copyTo(x_ltpf_hat, 0, 0, NF);
+        x_ltpf_hat_win.bulkGet(x_ltpf_hat, 0, 0, NF);
 
         //  Memorize old contexts.
         mem_ltpf_active = ltpf_active;
