@@ -249,7 +249,12 @@ function MPVQ(Nmax, Kmax) {
             //  Rewrite (corrected) bi-search version of step 566, 570, 574 
             //  (Fig. 14).
             while (low < high) {
-                let mid = Math.ceil((low + high) / 2);
+                //  mid = ceil((low + high) / 2)
+                let mid = low + high;
+                if ((mid & 1) != 0) {
+                    ++(mid);
+                }
+                mid >>>= 1;
                 let amp_offset = MPVQ_offsets[n][mid];
 
                 if (amp_offset > index) {
