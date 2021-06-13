@@ -175,7 +175,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
     let buf_12p8 = new Array(len12p8);
     let buf_6p4 = new Array(len6p4);
     
-    let R6p4_corrfft_size = KWIDTH + len6p4;
+    let R6p4_corrfft_size = KWIDTH + len6p4 - 1;
     let R6p4_corrfft = new FFT(R6p4_corrfft_size);
     let R6p4_corrwin1_re = new Array(R6p4_corrfft_size);
     let R6p4_corrwin1_im = new Array(R6p4_corrfft_size);
@@ -285,10 +285,10 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         //  Eq. 86
         //
         //  The description of the algorithm below can be found at:
-        //  https://drive.google.com/file/d/1dZAhud_iM8QmI2uDRyuNd2-XERDJ2ViX/
+        //  https://drive.google.com/file/d/1VrbLWjN4ZI1HpYDhpYuDfglhXoQnqUed/
         x6p4_win.bulkGet(R6p4_corrwin1_re, 0, 0, len6p4);
         x6p4_win.bulkGet(R6p4_corrwin2_re, 0, 1 - KWIDTH - KMIN, KWIDTH);
-        x6p4_win.bulkGet(R6p4_corrwin2_re, KWIDTH, 1 - KMIN, len6p4);
+        x6p4_win.bulkGet(R6p4_corrwin2_re, KWIDTH, 1 - KMIN, len6p4 - 1);
         ArrayFlip(R6p4_corrwin2_re, 0, KWIDTH);
         ArrayFlip(R6p4_corrwin2_re, KWIDTH, R6p4_corrfft_size);
         for (let k = 0; k < len6p4; ++k) {
