@@ -15,6 +15,8 @@ const Lc3Fs =
     require("./../common/fs");
 const Lc3SlideWin = 
     require("./../common/slide_window");
+const Lc3ArrayUtil = 
+    require("./../common/array_util");
 const Lc3LtpfCommon = 
     require("./../common/ltpf-common");
 const Lc3Fft = 
@@ -39,6 +41,8 @@ const FFT =
 //  Imported functions.
 const GetGainParameters = 
     Lc3LtpfCommon.GetGainParameters;
+const ArrayFlip = 
+    Lc3ArrayUtil.ArrayFlip;
 
 //  Imported constants.
 const TAB_RESAMP_FILTER = 
@@ -171,7 +175,7 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
     let buf_12p8 = new Array(len12p8);
     let buf_6p4 = new Array(len6p4);
     
-    let R6p4_corrfft_size = KWIDTH + len6p4 - 1;
+    let R6p4_corrfft_size = KWIDTH + len6p4;
     let R6p4_corrfft = new FFT(R6p4_corrfft_size);
     let R6p4_corrwin1_re = new Array(R6p4_corrfft_size);
     let R6p4_corrwin1_im = new Array(R6p4_corrfft_size);
@@ -278,31 +282,25 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         // }
         // console.log("R6.4[n]=" + R6p4.toString());
 
-        for (let k = 0; k < len6p4; ++k) {                          //  Eq. 86
-            R6p4_corrwin1_re[k] = x6p4_win.get(k);
+        //  Eq. 86
+        //
+        //  The description of the algorithm below can be found at:
+        //  https://drive.google.com/file/d/1dZAhud_iM8QmI2uDRyuNd2-XERDJ2ViX/
+        x6p4_win.bulkGet(R6p4_corrwin1_re, 0, 0, len6p4);
+        x6p4_win.bulkGet(R6p4_corrwin2_re, 0, 1 - KWIDTH - KMIN, KWIDTH);
+        x6p4_win.bulkGet(R6p4_corrwin2_re, KWIDTH, 1 - KMIN, len6p4);
+        ArrayFlip(R6p4_corrwin2_re, 0, KWIDTH);
+        ArrayFlip(R6p4_corrwin2_re, KWIDTH, R6p4_corrfft_size);
+        for (let k = 0; k < len6p4; ++k) {
             R6p4_corrwin1_im[k] = 0;
+            R6p4_corrwin2_im[k] = 0;
         }
         for (let k = len6p4; k < R6p4_corrfft_size; ++k) {
             R6p4_corrwin1_re[k] = 0;
             R6p4_corrwin1_im[k] = 0;
+            R6p4_corrwin2_im[k] = 0;
         }
         R6p4_corrfft.transform(R6p4_corrwin1_re, R6p4_corrwin1_im);
-        for (let k = 0, p = -KMIN; k < len6p4; ++k, --p) {
-            R6p4_corrwin2_re[k] = x6p4_win.get(p);
-            R6p4_corrwin2_im[k] = 0;
-        }
-        for (
-            let k = R6p4_corrfft_size - 1, p = 1 - KMIN; 
-            k >= len6p4; 
-            --k, ++p
-        ) {
-            if (p >= len6p4) {
-                R6p4_corrwin2_re[k] = 0;
-            } else {
-                R6p4_corrwin2_re[k] = x6p4_win.get(p);
-            }
-            R6p4_corrwin2_im[k] = 0;
-        }
         R6p4_corrfft.transform(R6p4_corrwin2_re, R6p4_corrwin2_im);
         for (let k = 0; k < R6p4_corrfft_size; ++k) {
             let a_re = R6p4_corrwin1_re[k], a_im = R6p4_corrwin1_im[k];
