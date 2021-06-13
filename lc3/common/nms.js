@@ -11,6 +11,7 @@
 /**
  *  LC3 frame duration.
  * 
+ *  @constructor
  *  @param {Number} us 
  *    - The frame duration in microseconds.
  *  @param {Number} intrid

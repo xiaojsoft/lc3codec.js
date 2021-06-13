@@ -63,6 +63,8 @@ const GGADJ_T3 = [850, 1700, 2550, 3400, 4250];
  *    - The frame duration.
  *  @param {InstanceType<typeof LC3SampleRate>} Fs 
  *    - The sample rate.
+ *  @param {Number} NE
+ *    - The number of encoded spectral lines.
  */
 function LC3SpectralQuantization(Nms, Fs, NE) {
     //

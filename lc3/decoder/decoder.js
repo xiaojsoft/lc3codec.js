@@ -964,6 +964,8 @@ specloop:
  *    - The bytes buffer.
  *  @param {Array} cursor 
  *    - The cursor.
+ *  @returns {Number}
+ *    - The bit.
  */
 function Impl_ReadBit(bytes, cursor) {
     //  Load cursor members.
@@ -999,6 +1001,8 @@ function Impl_ReadBit(bytes, cursor) {
  *    - The cursor.
  *  @param {Number} numbits
  *    - The count of bits.
+ *  @returns {Number}
+ *    - The value.
  */
 function Impl_ReadUInt(bytes, cursor, numbits) {
     //  Load cursor members.
@@ -1072,6 +1076,8 @@ function Impl_AcDecInit(bytes, ac_ctx, bec) {
  *    - The count of symbols.
  *  @param {InstanceType<typeof LC3BEC>} bec
  *    - The BEC context.
+ *  @returns {Number}
+ *    - The value.
  */
 function Impl_AcDecode(bytes, ac_ctx, cum_freqs, sym_freqs, numsym) {
     //  Load context members.

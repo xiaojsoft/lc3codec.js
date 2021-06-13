@@ -34,7 +34,7 @@ const NN_thresh = 30;
  *  @param {Number} Nf 
  *    - The frame size.
  *  @param {Number} NB
- *    - The numer of bands.
+ *    - The number of bands.
  *  @param {Number} Z 
  *    - The number of leading zeros in MDCT window.
  *  @param {Number[]} W

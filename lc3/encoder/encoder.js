@@ -338,6 +338,8 @@ function LC3Encoder(Nms, Fs) {
      *  @param {Buffer} [bytesbuf]
      *    - The preallocated bytes buffer (used for reducing buffer allocation, 
      *      must contain at least `nbytes` bytes).
+     *  @returns {Buffer}
+     *    - The bytes buffer that contains the encoded frame.
      */
     this.encode = function(xs, nbytes, bytesbuf = Buffer.alloc(400)) {
         //  Check the frame size.

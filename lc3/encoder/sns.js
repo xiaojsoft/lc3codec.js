@@ -92,7 +92,7 @@ const MPVQ_16x10 = new MPVQ(16, 10);
  *    - The sample rate.
  *  @param {Number[]} Ifs
  *    - The band indices.
- *  @param {Number[]} NB
+ *  @param {Number} NB
  *    - The number of bands.
  */
 function LC3SpectralNoiseShapingEncoder(Nf, Nms, Fs, Ifs, NB) {
