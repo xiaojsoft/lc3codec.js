@@ -708,7 +708,7 @@ specloop:
                             i <= iEnd; 
                             ++i
                         ) {
-                            if (Math.abs(Xq[i]) >= 1e-6) {
+                            if (Math.abs(Xq[i]) >= 1e-31) {
                                 INF_flag = false;
                                 break;
                             }
