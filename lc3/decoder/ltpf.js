@@ -172,6 +172,8 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
 
     let p_int_mem = 0, p_fr_mem = 0;
 
+    let vec = new Array(Math.max(L_num, L_den) + 1);
+
     //
     //  Public methods.
     //
@@ -256,26 +258,25 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
 
         //  First 2.5ms samples:
         if (ltpf_active == 0 && mem_ltpf_active == 0) {
-            for (let n = 0; n < norm; ++n) {                       //  Eq. 130
-                x_ltpf_hat_win.set(n, x_hat[n]);
-            }
+            //  First case.
+            x_ltpf_hat_win.bulkSet(x_hat, 0, 0, norm);             //  Eq. 130
         } else if (ltpf_active == 1 && mem_ltpf_active == 0) {
+            //  Second case.
             x_ltpf_hat_win.set(0, x_hat[0]);                       //  Eq. 131
             for (let n = 1; n < norm; ++n) {
                 let tmp = 0;
-                for (
-                    let k1 = 0, k2 = n; 
-                    k1 <= L_num; 
-                    ++k1, --k2
-                ) {
-                    tmp += C_num[k1] * x_hat_win.get(k2);
+                x_hat_win.bulkGet(vec, 0, n - L_num, L_num + 1);
+                for (let k = 0; k <= L_num; ++k) {
+                    tmp += C_num[k] * vec[L_num - k];
                 }
-                for (
-                    let k1 = 0, k2 = n - p_int + L_den_div2; 
-                    k1 <= L_den; 
-                    ++k1, --k2
-                ) {
-                    tmp -= C_den[k1] * x_ltpf_hat_win.get(k2);
+                x_ltpf_hat_win.bulkGet(
+                    vec, 
+                    0, 
+                    n - p_int - L_den_div2, 
+                    L_den + 1
+                );
+                for (let k = 0; k <= L_den; ++k) {
+                    tmp -= C_den[k] * vec[L_den - k];
                 }
                 tmp = x_hat[n] - tmp * n / norm;
                 x_ltpf_hat_win.set(n, tmp);
@@ -284,19 +285,18 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
             //  Third case.
             for (let n = 0; n < norm; ++n) {                       //  Eq. 132
                 let tmp = 0;
-                for (
-                    let k1 = 0, k2 = n; 
-                    k1 <= L_num; 
-                    ++k1, --k2
-                ) {
-                    tmp += C_num_mem[k1] * x_hat_win.get(k2);
+                x_hat_win.bulkGet(vec, 0, n - L_num, L_num + 1);
+                for (let k = 0; k <= L_num; ++k) {
+                    tmp += C_num_mem[k] * vec[L_num - k];
                 }
-                for (
-                    let k1 = 0, k2 = n - p_int_mem + L_den_div2; 
-                    k1 <= L_den; 
-                    ++k1, --k2
-                ) {
-                    tmp -= C_den_mem[k1] * x_ltpf_hat_win.get(k2);
+                x_ltpf_hat_win.bulkGet(
+                    vec, 
+                    0, 
+                    n - p_int_mem - L_den_div2, 
+                    L_den + 1
+                );
+                for (let k = 0; k <= L_den; ++k) {
+                    tmp -= C_den_mem[k] * vec[L_den - k];
                 }
                 tmp = x_hat[n] - tmp * (1 - n / norm);
                 x_ltpf_hat_win.set(n, tmp);
@@ -306,19 +306,18 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
                 //  Fourth case.
                 for (let n = 0; n < norm; ++n) {                   //  Eq. 133
                     let tmp = x_hat[n];
-                    for (
-                        let k1 = 0, k2 = n; 
-                        k1 <= L_num; 
-                        ++k1, --k2
-                    ) {
-                        tmp -= C_num[k1] * x_hat_win.get(k2);
+                    x_hat_win.bulkGet(vec, 0, n - L_num, L_num + 1);
+                    for (let k = 0; k <= L_num; ++k) {
+                        tmp -= C_num[k] * vec[L_num - k];
                     }
-                    for (
-                        let k1 = 0, k2 = n - p_int + L_den_div2; 
-                        k1 <= L_den; 
-                        ++k1, --k2
-                    ) {
-                        tmp += C_den[k1] * x_ltpf_hat_win.get(k2);
+                    x_ltpf_hat_win.bulkGet(
+                        vec, 
+                        0, 
+                        n - p_int - L_den_div2, 
+                        L_den + 1
+                    );
+                    for (let k = 0; k <= L_den; ++k) {
+                        tmp += C_den[k] * vec[L_den - k];
                     }
                     x_ltpf_hat_win.set(n, tmp);
                 }
@@ -326,27 +325,28 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
                 //  Fifth case.
                 for (let n = 0; n < norm; ++n) {                   //  Eq. 134
                     let tmp = 0;
-                    for (
-                        let k1 = 0, k2 = n; 
-                        k1 <= L_num; 
-                        ++k1, --k2
-                    ) {
-                        tmp += C_num_mem[k1] * x_hat_win.get(k2);
+                    x_hat_win.bulkGet(vec, 0, n - L_num, L_num + 1);
+                    for (let k = 0; k <= L_num; ++k) {
+                        tmp += C_num_mem[k] * vec[L_num - k];
                     }
-                    for (
-                        let k1 = 0, k2 = n - p_int_mem + L_den_div2; 
-                        k1 <= L_den; 
-                        ++k1, --k2
-                    ) {
-                        tmp -= C_den_mem[k1] * x_ltpf_hat_win.get(k2);
+                    x_ltpf_hat_win.bulkGet(
+                        vec, 
+                        0, n - p_int_mem - L_den_div2, 
+                        L_den + 1
+                    );
+                    for (let k = 0; k <= L_den; ++k) {
+                        tmp -= C_den_mem[k] * vec[L_den - k];
                     }
                     tmp = x_hat[n] - tmp * (1 - n / norm);
                     x_ltpf_hat_win.set(n, tmp);
                 }
 
-                for (let m = -L_num, k = 0; m < norm; ++m, ++k) {  //  Eq. 135
-                    x_ltpf_hat_tmpbuf[k] = x_ltpf_hat_win.get(m);
-                }
+                x_ltpf_hat_win.bulkGet(                            //  Eq. 135
+                    x_ltpf_hat_tmpbuf, 
+                    0, 
+                    -L_num, 
+                    x_ltpf_hat_tmpbuf.length
+                );
 
                 x_ltpf_hat_win.set(0, x_ltpf_hat_tmpbuf[L_num]);   //  Eq. 136
                 for (let n = 1; n < norm; ++n) {
@@ -358,12 +358,14 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
                     ) {
                         tmp += C_num[k1] * x_ltpf_hat_tmpbuf[k2];
                     }
-                    for (
-                        let k1 = 0, k2 = n - p_int + L_den_div2; 
-                        k1 <= L_den; 
-                        ++k1, --k2
-                    ) {
-                        tmp -= C_den[k1] * x_ltpf_hat_win.get(k2);
+                    x_ltpf_hat_win.bulkGet(
+                        vec, 
+                        0, 
+                        n - p_int - L_den_div2, 
+                        L_den + 1
+                    );
+                    for (let k = 0; k <= L_den; ++k) {
+                        tmp -= C_den[k] * vec[L_den - k];
                     }
                     tmp = x_ltpf_hat_tmpbuf[n + L_num] - tmp * n / norm;
                     x_ltpf_hat_win.set(n, tmp);
@@ -374,26 +376,23 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
         //  Remainder of the frame (3.4.9.3).
         if (ltpf_active == 0) {
             //  First case.
-            for (let n = norm; n < NF; ++n) {                      //  Eq. 137
-                x_ltpf_hat_win.set(n, x_hat[n]);
-            }
+            x_ltpf_hat_win.bulkSet(x_hat, norm, norm, NF - norm);  //  Eq. 137
         } else {
             //  Second case.
             for (let n = norm; n < NF; ++n) {                      //  Eq. 138
                 let tmp = x_hat[n];
-                for (
-                    let k1 = 0, k2 = n; 
-                    k1 <= L_num; 
-                    ++k1, --k2
-                ) {
-                    tmp -= C_num[k1] * x_hat_win.get(k2);
+                x_hat_win.bulkGet(vec, 0, n - L_num, L_num + 1);
+                for (let k = 0; k <= L_num; ++k) {
+                    tmp -= C_num[k] * vec[L_num - k];
                 }
-                for (
-                    let k1 = 0, k2 = n - p_int + L_den_div2; 
-                    k1 <= L_den; 
-                    ++k1, --k2
-                ) {
-                    tmp += C_den[k1] * x_ltpf_hat_win.get(k2);
+                x_ltpf_hat_win.bulkGet(
+                    vec, 
+                    0, 
+                    n - p_int - L_den_div2, 
+                    L_den + 1
+                );
+                for (let k = 0; k <= L_den; ++k) {
+                    tmp += C_den[k] * vec[L_den - k];
                 }
                 x_ltpf_hat_win.set(n, tmp);
             }

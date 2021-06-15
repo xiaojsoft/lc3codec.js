@@ -175,6 +175,7 @@ function LC3LongTermPostfilter(Nms, Fs) {
 
     let buf_12p8 = new Array(len12p8);
     let buf_6p4 = new Array(len6p4);
+    let buf_downsamp = new Array(5);
     let buf_resamp = new Array(reslen);
 
     let R6p4_corrfft_size = KWIDTH + len6p4 - 1;
@@ -299,12 +300,13 @@ function LC3LongTermPostfilter(Nms, Fs) {
             //  of 2 to 6.4kHz:
 
             //  Eq. 85
-            for (let n = 0, nMul2 = 0; n < len6p4; ++n, nMul2 += 2) {
-                buf_6p4[n] = 0.1236796411180537 * x12p8D_win.get(nMul2 - 3) + 
-                             0.2353512128364889 * x12p8D_win.get(nMul2 - 2) + 
-                             0.2819382920909148 * x12p8D_win.get(nMul2 - 1) + 
-                             0.2353512128364889 * x12p8D_win.get(nMul2) + 
-                             0.1236796411180537 * x12p8D_win.get(nMul2 + 1);
+            for (let n = 0, off = -3; n < len6p4; ++n, off += 2) {
+                x12p8D_win.bulkGet(buf_downsamp, 0, off, 5);
+                buf_6p4[n] = 0.1236796411180537 * buf_downsamp[0] + 
+                             0.2353512128364889 * buf_downsamp[1] + 
+                             0.2819382920909148 * buf_downsamp[2] + 
+                             0.2353512128364889 * buf_downsamp[3] + 
+                             0.1236796411180537 * buf_downsamp[4];
             }
             x6p4_win.append(buf_6p4);
         }
