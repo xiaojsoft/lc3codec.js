@@ -215,6 +215,18 @@ function LC3Encoder(Nms, Fs) {
             );
         }
 
+        //  Clip the input signal (Eq. 5).
+        for (let n = 0; n < NF; ++n) {
+            let tmp = xs[n];
+            if (tmp > 32767) {
+                xs[n] = 32767;
+            } else if (tmp < -32768) {
+                xs[n] = -32768;
+            } else {
+                //  Nothing.
+            }
+        }
+
         //  Calculate bit count.
         let nbits = ((nbytes << 3) >>> 0);
 
