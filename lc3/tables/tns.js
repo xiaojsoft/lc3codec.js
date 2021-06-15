@@ -158,6 +158,148 @@ const AC_TNS_COEF_CUMFREQ = [
     ]
 ];
 
+//  Nms, Pbw to num_tns_filters:
+const TNS_PARAM_NUM_TNS_FILTERS = [
+    [
+        1, 1, 1, 2, 2
+    ],
+    [
+        1, 1, 1, 2, 2
+    ]
+];
+
+//  Nms, Pbw to start_freq[f]:
+const TNS_PARAM_START_FREQ = [
+    [
+        [ 12,   0],
+        [ 12,   0],
+        [ 12,   0],
+        [ 12, 160],
+        [ 12, 200]
+    ],
+    [
+        [  9,   0],
+        [  9,   0],
+        [  9,   0],
+        [  9, 120],
+        [  9, 150]
+    ]
+];
+
+//  Nms, Pbw to stop_freq[f]:
+const TNS_PARAM_STOP_FREQ = [
+    [
+        [ 80,   0],
+        [160,   0],
+        [240,   0],
+        [160, 320],
+        [200, 400]
+    ],
+    [
+        [ 60,   0],
+        [120,   0],
+        [180,   0],
+        [120, 240],
+        [150, 300]
+    ]
+];
+
+//  Nms, Pbw to sub_start[f][s]:
+const TNS_PARAM_SUB_START = [
+    [
+        [
+            [ 12,  34,  57],
+            [  0,   0,   0]
+        ],
+        [
+            [ 12,  61, 110],
+            [  0,   0,   0]
+        ],
+        [
+            [ 12,  88, 164],
+            [  0,   0,   0]
+        ],
+        [
+            [ 12,  61, 110],
+            [160, 213, 266]
+        ],
+        [
+            [ 12,  74, 137],
+            [200, 266, 333]
+        ]
+    ],
+    [
+        [
+            [  9,  26,  43],
+            [  0,   0,   0],
+        ],
+        [
+            [  9,  46,  83],
+            [  0,   0,   0],
+        ],
+        [
+            [  9,  66, 123],
+            [  0,   0,   0],
+        ],
+        [
+            [  9,  46,  82],
+            [120, 159, 200],
+        ],
+        [
+            [  9,  56, 103],
+            [150, 200, 250],
+        ],
+    ]
+];
+
+//  Nms, Pbw to sub_stop[f][s]:
+const TNS_PARAM_SUB_STOP = [
+    [
+        [
+            [ 34,  57,  80],
+            [  0,   0,   0]
+        ],
+        [
+            [ 61, 110, 160],
+            [  0,   0,   0]
+        ],
+        [
+            [ 88, 164, 240],
+            [  0,   0,   0]
+        ],
+        [
+            [ 61, 110, 160],
+            [213, 266, 320]
+        ],
+        [
+            [ 74, 137, 200],
+            [266, 333, 400]
+        ]
+    ],
+    [
+        [
+            [ 26,  43,  60],
+            [  0,   0,   0]
+        ],
+        [
+            [ 46,  83, 120],
+            [  0,   0,   0]
+        ],
+        [
+            [ 66, 123, 180],
+            [  0,   0,   0]
+        ],
+        [
+            [ 46,  82, 120],
+            [159, 200, 240]
+        ],
+        [
+            [ 56, 103, 150],
+            [200, 250, 300]
+        ]
+    ]
+];
+
 //  Export public APIs.
 module.exports = {
     "AC_TNS_ORDER_BITS": AC_TNS_ORDER_BITS,
@@ -165,5 +307,10 @@ module.exports = {
     "AC_TNS_ORDER_CUMFREQ": AC_TNS_ORDER_CUMFREQ,
     "AC_TNS_COEF_BITS": AC_TNS_COEF_BITS,
     "AC_TNS_COEF_FREQ": AC_TNS_COEF_FREQ,
-    "AC_TNS_COEF_CUMFREQ": AC_TNS_COEF_CUMFREQ
+    "AC_TNS_COEF_CUMFREQ": AC_TNS_COEF_CUMFREQ,
+    "TNS_PARAM_NUM_TNS_FILTERS": TNS_PARAM_NUM_TNS_FILTERS,
+    "TNS_PARAM_START_FREQ": TNS_PARAM_START_FREQ,
+    "TNS_PARAM_STOP_FREQ": TNS_PARAM_STOP_FREQ,
+    "TNS_PARAM_SUB_START": TNS_PARAM_SUB_START,
+    "TNS_PARAM_SUB_STOP": TNS_PARAM_SUB_STOP
 };

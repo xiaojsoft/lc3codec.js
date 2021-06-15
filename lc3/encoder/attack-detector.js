@@ -24,6 +24,16 @@ const LC3FrameDuration =
 //  Constants.
 //
 
+//  Nms, Fs to attack detection test condition (lowest limit).
+const ATK_TESTCOND_LOW = [
+    [0, 0, 0, 81, 100, 100],
+    [0, 0, 0, 61, 75, 75]
+];
+const ATK_TESTCOND_HIGH = [
+    [0, 0, 0, 401, 401, 401],
+    [0, 0, 0, 150, 150, 150]
+];
+
 //  MF = 16 * Nms (see Eq. 14).
 const MF_TBL = [
     160, 120
@@ -47,12 +57,12 @@ const NFDIVMF_TBL = [
  *  LC3 attack detector.
  * 
  *  @constructor
- *  @param {InstanceType<typeof LC3SampleRate>} Fs 
- *    - The sample rate.
  *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
  *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3AttackDetector(Fs, Nms) {
+function LC3AttackDetector(Nms, Fs) {
     //
     //  Members.
     //
@@ -61,13 +71,14 @@ function LC3AttackDetector(Fs, Nms) {
     let index_Fs = Fs.getInternalIndex();
     let index_Nms = Nms.getInternalIndex();
 
-    //  Detector parameters.
+    //  Table lookup.
     let Mf = MF_TBL[index_Nms];
     let NfDivMf = NFDIVMF_TBL[index_Fs];
     let Nblocks = NBLOCKS_TBL[index_Nms];
-    let FsVal = Fs.getSampleRate();
     let Tatt = (Nblocks >>> 1);
     // let Nf = NfDivMf * Mf;
+    let tclow = ATK_TESTCOND_LOW[index_Nms][index_Fs];
+    let tchigh = ATK_TESTCOND_HIGH[index_Nms][index_Fs];
 
     //  Attack flag.
     let Fatt = 0;
@@ -98,20 +109,7 @@ function LC3AttackDetector(Fs, Nms) {
      */
     this.update = function(xs, nbytes) {
         //  Skip if inactive.
-        if (!(
-            (
-                Nms === LC3FrameDuration.NMS_10000US && (
-                    (FsVal == 32000 && nbytes > 80) || 
-                    (FsVal >= 44100 && nbytes >= 100)
-                )
-            ) || 
-            (
-                Nms === LC3FrameDuration.NMS_07500US && (
-                    (FsVal == 32000 && nbytes >= 61 && nbytes < 150) || 
-                    (FsVal >= 44100 && nbytes >= 75 && nbytes < 150)
-                )
-            )
-        )) {
+        if (nbytes < tclow || nbytes >= tchigh) {
             Fatt = 0;
             return;
         }
@@ -123,10 +121,10 @@ function LC3AttackDetector(Fs, Nms) {
         let Patt = -1;
         for (let n = 0; n < Mf; ++n) {
             //  Downsample (Eq.14).
-            let base = NfDivMf * n;
+            let offset = NfDivMf * n;
             let Xatt_n = 0;
             for (let m = 0; m < NfDivMf; ++m) {
-                Xatt_n += xs[base + m];
+                Xatt_n += xs[offset + m];
             }
 
             //  Apply high pass FIR filter (Eq.15).

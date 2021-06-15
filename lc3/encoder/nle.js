@@ -11,10 +11,20 @@
 //  Imported modules.
 const Lc3Nms = 
     require("./../common/nms");
+const Lc3Fs = 
+    require("./../common/fs");
+const Lc3TblNE = 
+    require("./../tables/ne");
 
 //  Imported classes.
 const LC3FrameDuration = 
     Lc3Nms.LC3FrameDuration;
+const LC3SampleRate = 
+    Lc3Fs.LC3SampleRate;
+
+//  Imported constants.
+const NE_TBL = 
+    Lc3TblNE.NE_TBL;
 
 //
 //  Constants.
@@ -44,24 +54,26 @@ const BW_STOP_TBL = [
  *  @constructor
  *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
  *    - The frame duration.
- *  @param {Number} NE
- *    - The number of encoded spectral lines.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3NoiseLevelEstimation(Nms, NE) {
+function LC3NoiseLevelEstimation(Nms, Fs) {
     //
     //  Members.
     //
 
-    //  Internal index of Nms.
+    //  Internal index of Nms, Fs.
     let index_Nms = Nms.getInternalIndex();
+    let index_Fs = Fs.getInternalIndex();
 
-    //  Algorithm contexts.
+    //  Table lookup.
+    let NE = NE_TBL[index_Nms][index_Fs];
     let bw_stop_Nms = BW_STOP_TBL[index_Nms];
-
     let NFstart = NFSTART_TBL[index_Nms];
     let NFwidth = NFWIDTH_TBL[index_Nms];
 
-    let FNF = 0;
+    //  Algorithm contexts.
+    let F_NF = 0;
 
     //
     //  Public methods.
@@ -109,11 +121,11 @@ function LC3NoiseLevelEstimation(Nms, NE) {
             LNF_denom = 1;
         }
 
-        FNF = Math.round(8 - 16 * (LNF_numer / LNF_denom));        //  Eq. 118
-        if (FNF < 0) {
-            FNF = 0;
-        } else if (FNF > 7) {
-            FNF = 7;
+        F_NF = Math.round(8 - 16 * (LNF_numer / LNF_denom));        //  Eq. 118
+        if (F_NF < 0) {
+            F_NF = 0;
+        } else if (F_NF > 7) {
+            F_NF = 7;
         }
     };
 
@@ -124,7 +136,7 @@ function LC3NoiseLevelEstimation(Nms, NE) {
      *    - The noise level.
      */
     this.getNoiseLevel = function() {
-        return FNF;
+        return F_NF;
     };
 }
 

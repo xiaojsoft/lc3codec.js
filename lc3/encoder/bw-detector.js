@@ -24,13 +24,6 @@ const LC3FrameDuration =
 //  Constants.
 //
 
-//  Bandwidth indices.
-const BW_NB = 0;
-const BW_WB = 1;
-const BW_SSWB = 2;
-const BW_SWB = 3;
-const BW_FB = 4;
-
 //  Table 3.6.
 const IBWSTART_TBL = [
     [
@@ -97,12 +90,12 @@ const L_TBL = [
  *  LC3 bandwidth detector.
  * 
  *  @constructor
- *  @param {InstanceType<typeof LC3SampleRate>} Fs 
- *    - The sample rate.
  *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
  *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3BandwidthDetector(Fs, Nms) {
+function LC3BandwidthDetector(Nms, Fs) {
     //
     //  Members.
     //
@@ -118,6 +111,7 @@ function LC3BandwidthDetector(Fs, Nms) {
     let L = null;
     let nbitsbw = null;
 
+    //  Table lookup.
     Nbw = NBW_TBL[index_Nms][index_Fs];
     Ibwstart = IBWSTART_TBL[index_Nms][index_Fs];
     Ibwstop = IBWSTOP_TBL[index_Nms][index_Fs];
@@ -144,12 +138,12 @@ function LC3BandwidthDetector(Fs, Nms) {
      *  @param {Number[]} EB 
      *    - The spectrum energy band estimation.
      *  @returns {Number}
-     *    - The bandwidth (one of BW_*).
+     *    - The bandwidth (i.e. `Pbw`).
      */
     this.detect = function(EB) {
         //  Do first stage classification.
         let bw0 = 0;
-        for (let k = Nbw - 1; k >= 0; --k) {
+        for (let k = Nbw - 1; k >= 0; --k) {                        //  Eq. 12
             let bwstart = Ibwstart[k];
             let bwstop = Ibwstop[k];
             let Esum = 0;
@@ -166,13 +160,11 @@ function LC3BandwidthDetector(Fs, Nms) {
         //  Do second stage classification.
         let bw = bw0;
         if (bw != Nbw) {
-            let Cmax = -Infinity;
+            let Cmax = -Infinity;                                   //  Eq. 13
             let Lbw0 = L[bw0];
-            for (
-                let n = Ibwstart[bw0] - Lbw0 + 1; 
-                n <= Ibwstart[bw0] + 1; 
-                ++n
-            ) {
+            let n1 = Ibwstart[bw0] - Lbw0 + 1;
+            let n2 = n1 + Lbw0;
+            for (let n = n1; n <= n2; ++n) {
                 let EB_n = EB[n];
                 if (EB_n < 1e-31) {
                     EB_n = 1e-31;
@@ -193,10 +185,5 @@ function LC3BandwidthDetector(Fs, Nms) {
 
 //  Export public APIs.
 module.exports = {
-    "BW_NB": BW_NB,
-    "BW_WB": BW_WB,
-    "BW_SSWB": BW_SSWB,
-    "BW_SWB": BW_SWB,
-    "BW_FB": BW_FB,
     "LC3BandwidthDetector": LC3BandwidthDetector
 };

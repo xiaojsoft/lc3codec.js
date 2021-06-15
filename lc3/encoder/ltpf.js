@@ -23,6 +23,8 @@ const Lc3Fft =
     require("./../math/fft");
 const Lc3TblLtpf = 
     require("./../tables/ltpf");
+const Lc3TblNF = 
+    require("./../tables/nf");
 const Lc3Error = 
     require("./../error");
 
@@ -51,6 +53,8 @@ const TAB_LTPF_INTERP_R =
     Lc3TblLtpf.TAB_LTPF_INTERP_R;
 const TAB_LTPF_INTERP_X12K8 = 
     Lc3TblLtpf.TAB_LTPF_INTERP_X12K8;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
 
 //
 //  Constants.
@@ -82,50 +86,47 @@ const NMS_TO_CORRLEN = [                                            //  Eq. 93
 ];
 
 //  H50(z) parameters.
-const H50_A1 = 1.9652933726226904;
+const H50_A1 = +1.9652933726226904;
 const H50_A2 = -0.9658854605688177;
-const H50_B0 = 0.9827947082978771;
+const H50_B0 = +0.9827947082978771;
 const H50_B1 = -1.965589416595754;
-const H50_B2 = 0.9827947082978771;
+const H50_B2 = +0.9827947082978771;
 
 //  Kmin, Kmax.
 const KMIN = 17;
 const KMAX = 114;
 const KWIDTH = (KMAX - KMIN + 1);
 const KCOEF = [                                                     //  Eq. 88
-    1.0, 0.9948453608247423, 0.9896907216494846, 
-    0.9845360824742269, 0.979381443298969, 0.9742268041237113, 
-    0.9690721649484536, 0.9639175257731959, 0.9587628865979382, 
-    0.9536082474226804, 0.9484536082474226, 0.9432989690721649, 
-    0.9381443298969072, 0.9329896907216495, 0.9278350515463918, 
-    0.9226804123711341, 0.9175257731958762, 0.9123711340206185, 
-    0.9072164948453608, 0.9020618556701031, 0.8969072164948454, 
-    0.8917525773195876, 0.8865979381443299, 0.8814432989690721, 
-    0.8762886597938144, 0.8711340206185567, 0.865979381443299, 
-    0.8608247422680413, 0.8556701030927836, 0.8505154639175257, 
-    0.845360824742268, 0.8402061855670103, 0.8350515463917526, 
-    0.8298969072164948, 0.8247422680412371, 0.8195876288659794, 
-    0.8144329896907216, 0.8092783505154639, 0.8041237113402062, 
-    0.7989690721649485, 0.7938144329896908, 0.788659793814433, 
-    0.7835051546391752, 0.7783505154639175, 0.7731958762886598, 
-    0.768041237113402, 0.7628865979381443, 0.7577319587628866, 
-    0.7525773195876289, 0.7474226804123711, 0.7422680412371134, 
-    0.7371134020618557, 0.731958762886598, 0.7268041237113403, 
-    0.7216494845360825, 0.7164948453608248, 0.711340206185567, 
-    0.7061855670103092, 0.7010309278350515, 0.6958762886597938, 
-    0.6907216494845361, 0.6855670103092784, 0.6804123711340206, 
-    0.6752577319587629, 0.6701030927835052, 0.6649484536082475, 
-    0.6597938144329897, 0.654639175257732, 0.6494845360824743, 
-    0.6443298969072164, 0.6391752577319587, 0.634020618556701, 
-    0.6288659793814433, 0.6237113402061856, 0.6185567010309279, 
-    0.6134020618556701, 0.6082474226804124, 0.6030927835051547, 
-    0.5979381443298969, 0.5927835051546392, 0.5876288659793815, 
-    0.5824742268041236, 0.5773195876288659, 0.5721649484536082, 
-    0.5670103092783505, 0.5618556701030928, 0.5567010309278351, 
-    0.5515463917525774, 0.5463917525773196, 0.5412371134020619, 
-    0.5360824742268041, 0.5309278350515464, 0.5257731958762887, 
-    0.5206185567010309, 0.5154639175257731, 0.5103092783505154, 
-    0.5051546391752577, 0.5
+    +1.000000000000000, +0.994845360824742, +0.989690721649485, +0.984536082474227,
+    +0.979381443298969, +0.974226804123711, +0.969072164948454, +0.963917525773196,
+    +0.958762886597938, +0.953608247422680, +0.948453608247423, +0.943298969072165,
+    +0.938144329896907, +0.932989690721650, +0.927835051546392, +0.922680412371134,
+    +0.917525773195876, +0.912371134020619, +0.907216494845361, +0.902061855670103,
+    +0.896907216494845, +0.891752577319588, +0.886597938144330, +0.881443298969072,
+    +0.876288659793814, +0.871134020618557, +0.865979381443299, +0.860824742268041,
+    +0.855670103092784, +0.850515463917526, +0.845360824742268, +0.840206185567010,
+    +0.835051546391753, +0.829896907216495, +0.824742268041237, +0.819587628865979,
+    +0.814432989690722, +0.809278350515464, +0.804123711340206, +0.798969072164949,
+    +0.793814432989691, +0.788659793814433, +0.783505154639175, +0.778350515463918,
+    +0.773195876288660, +0.768041237113402, +0.762886597938144, +0.757731958762887,
+    +0.752577319587629, +0.747422680412371, +0.742268041237113, +0.737113402061856,
+    +0.731958762886598, +0.726804123711340, +0.721649484536082, +0.716494845360825,
+    +0.711340206185567, +0.706185567010309, +0.701030927835051, +0.695876288659794,
+    +0.690721649484536, +0.685567010309278, +0.680412371134021, +0.675257731958763,
+    +0.670103092783505, +0.664948453608248, +0.659793814432990, +0.654639175257732,
+    +0.649484536082474, +0.644329896907216, +0.639175257731959, +0.634020618556701,
+    +0.628865979381443, +0.623711340206186, +0.618556701030928, +0.613402061855670,
+    +0.608247422680412, +0.603092783505155, +0.597938144329897, +0.592783505154639,
+    +0.587628865979381, +0.582474226804124, +0.577319587628866, +0.572164948453608,
+    +0.567010309278350, +0.561855670103093, +0.556701030927835, +0.551546391752577,
+    +0.546391752577320, +0.541237113402062, +0.536082474226804, +0.530927835051546,
+    +0.525773195876289, +0.520618556701031, +0.515463917525773, +0.510309278350515,
+    +0.505154639175258, +0.500000000000000
+];
+
+//  resfac[Fs] (see Eq. 82):
+const RESFACS = [
+    0.5, 1, 1, 1, 1, 1
 ];
 
 //
@@ -143,7 +144,7 @@ const KCOEF = [                                                     //  Eq. 88
  *  @param {InstanceType<typeof LC3SampleRate>} Fs 
  *    - The sample rate.
  */
-function LC3LongTermPostfilter(Nf, Nms, Fs) {
+function LC3LongTermPostfilter(Nms, Fs) {
     //
     //  Members.
     //
@@ -152,20 +153,20 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
     let index_Nms = Nms.getInternalIndex();
     let index_Fs = Fs.getInternalIndex();
 
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
+    let len12p8 = NMS_TO_LEN12P8[index_Nms];                        //  Eq. 80
+    let len6p4  = (len12p8 >>> 1);                                  //  Eq. 81
+    let D_LTPF = NMS_TO_DLTPF[index_Nms];
+    let P = FS_TO_P[index_Fs];
+    let P_120Div = FS_TO_120DIVP[index_Fs];
+    let resfac = RESFACS[index_Fs];
+    let reslen = ((P_120Div << 1) >>> 0) + 1;
+
     //  Algorithm contexts.
     let gain_params = new Array(2);
 
-    let len12p8 = NMS_TO_LEN12P8[index_Nms];                        //  Eq. 80
-    let len6p4  = (len12p8 >>> 1);                                  //  Eq. 81
-
-    let D_LTPF = NMS_TO_DLTPF[index_Nms];
-
-    let P = FS_TO_P[index_Fs];
-    let P_120Div = FS_TO_120DIVP[index_Fs];
-
-    let resfac = (Fs === LC3SampleRate.FS_08000 ? 0.5 : 1);         //  Eq. 82
-
-    let xs_win = new LC3SlideWindow(Nf, Nf, 0);
+    let xs_win = new LC3SlideWindow(NF, NF, 0);
     let x12p8D_win = new LC3SlideWindow(D_LTPF + len12p8, 300, 0);
     let x6p4_win = new LC3SlideWindow(len6p4, 150, 0);
 
@@ -174,7 +175,8 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
 
     let buf_12p8 = new Array(len12p8);
     let buf_6p4 = new Array(len6p4);
-    
+    let buf_resamp = new Array(reslen);
+
     let R6p4_corrfft_size = KWIDTH + len6p4 - 1;
     let R6p4_corrfft = new FFT(R6p4_corrfft_size);
     let R6p4_corrwin1_re = new Array(R6p4_corrfft_size);
@@ -183,11 +185,20 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
     let R6p4_corrwin2_im = new Array(R6p4_corrfft_size);
 
     let R12p8 = new Array(17 /*  = 2 * 8 + 1  */);
+    let R12p8_buf1 = new Array(len12p8);
+    let R12p8_buf2 = new Array(len12p8 + 17);
 
     let Tprev = KMIN;
     let Tcurr = KMIN;
 
     let corrlen = NMS_TO_CORRLEN[index_Nms];
+    let corrbuf1 = new Array(corrlen);
+    let corrbuf2 = new Array(corrlen);
+    let corrbuf3 = new Array(corrlen);
+
+    let xi_bufsz = len12p8 + 5;
+    let xi_buf1 = new Array(xi_bufsz);
+    let xi_buf2 = new Array(xi_bufsz);
 
     let pitch_present = 0;
     let pitch_int = 0;
@@ -226,359 +237,499 @@ function LC3LongTermPostfilter(Nf, Nms, Fs) {
         xs_win.append(xs);
 
         //  Resampling (3.3.9.3).
-        let resfacMulP = resfac * P;                                //  Eq. 78
-        for (let n = 0; n < len12p8; ++n) {                 
-            let t0 = 15 * n;
-            let t1 = (t0 % P);
-            let t2 = Math.trunc(t0 / P);
-            let t3 = 0;
-            for (
-                let k = -P_120Div, 
-                    h12p8_off = -120 - t1, 
-                    xs_off = t2 - 2 * P_120Div; 
-                k <= P_120Div; 
-                ++k, h12p8_off += P, ++xs_off
-            ) {
-                let h12p8_coeff;                                    //  Eq. 79
-                if (h12p8_off > -120 && h12p8_off < 120) {
-                    h12p8_coeff = TAB_RESAMP_FILTER[h12p8_off + 119];
-                } else {
-                    h12p8_coeff = 0;
-                }
+        {
+            //  The resampling shall be performed using an 
+            //  upsampling+low-pass-filtering+downsampling approach.
 
-                t3 += xs_win.get(xs_off) * h12p8_coeff;
+            //  Eq. 78
+            let t0 = resfac * P;
+            for (let n = 0, n_mul_15 = 0; n < len12p8; ++n, n_mul_15 += 15) {                 
+                let t1 = (n_mul_15 % P);
+                let t2 = Math.trunc(n_mul_15 / P);
+                let t3 = 0;
+
+                xs_win.bulkGet(buf_resamp, 0, t2 - 2 * P_120Div, reslen);
+
+                for (
+                    let k = 0, tab_off = -120 - t1; 
+                    k < reslen; 
+                    ++k, tab_off += P
+                ) {
+                    //  Eq. 79
+                    let tab_coeff;
+                    if (tab_off > -120 && tab_off < 120) {
+                        tab_coeff = TAB_RESAMP_FILTER[tab_off + 119];
+                    } else {
+                        tab_coeff = 0;
+                    }
+    
+                    t3 += buf_resamp[k] * tab_coeff;
+                }
+                buf_12p8[n] = t3 * t0;
             }
-            buf_12p8[n] = t3 * resfacMulP;
         }
         // console.log("x12.8[n]=" + buf_12p8.toString());
 
         //  High-pass filtering (3.3.9.4).
-        for (let n = 0; n < len12p8; ++n) {                         //  Eq. 83
-            let w =   buf_12p8[n] + h50_z1 * H50_A1 + h50_z2 * H50_A2;
-            let y = w * H50_B0 + h50_z1 * H50_B1 + h50_z2 * H50_B2;
-            h50_z2 = h50_z1;
-            h50_z1 = w;
-            buf_12p8[n] = y;
+        {
+            //  The resampled signal shall be high-pass filtered using a 
+            //  2-order IIR filter with a cut-off frequency of 50Hz.
+
+            //  Eq. 83
+            for (let n = 0; n < len12p8; ++n) {
+                let w =   buf_12p8[n] + h50_z1 * H50_A1 + h50_z2 * H50_A2;
+                let y = w * H50_B0 + h50_z1 * H50_B1 + h50_z2 * H50_B2;
+                h50_z2 = h50_z1;
+                h50_z1 = w;
+                buf_12p8[n] = y;
+            }
         }
-        x12p8D_win.append(buf_12p8);                                //  Eq. 84
+        
+        {
+            //  The high-pass filtered signal shall be further delayed by
+            //  D_LTPF samples:
+
+            //  Eq. 84
+            x12p8D_win.append(buf_12p8);
+        }
 
         //  Pitch detection algorithm (3.3.9.5).
-        for (let n = 0, nMul2 = 0; n < len6p4; ++n, nMul2 += 2) {   //  Eq. 85
-            buf_6p4[n] = 0.1236796411180537 * x12p8D_win.get(nMul2 - 3) + 
-                         0.2353512128364889 * x12p8D_win.get(nMul2 - 2) + 
-                         0.2819382920909148 * x12p8D_win.get(nMul2 - 1) + 
-                         0.2353512128364889 * x12p8D_win.get(nMul2) + 
-                         0.1236796411180537 * x12p8D_win.get(nMul2 + 1);
-        }
-        x6p4_win.append(buf_6p4);
+        {
+            //  The delayed 12.8kHz signal shall be downsampled by a factor
+            //  of 2 to 6.4kHz:
 
-        // let R6p4 = new Array(KWIDTH);
-        // for (let k = KMIN; k <= KMAX; ++k) {
-        //     let tmp = 0;
-        //     for (let n = 0; n < len6p4; ++n) {
-        //         tmp += x6p4_win.get(n) * x6p4_win.get(n - k);
-        //     }
-        //     R6p4[k - KMIN] = tmp;
-        // }
-        // console.log("R6.4[n]=" + R6p4.toString());
+            //  Eq. 85
+            for (let n = 0, nMul2 = 0; n < len6p4; ++n, nMul2 += 2) {
+                buf_6p4[n] = 0.1236796411180537 * x12p8D_win.get(nMul2 - 3) + 
+                             0.2353512128364889 * x12p8D_win.get(nMul2 - 2) + 
+                             0.2819382920909148 * x12p8D_win.get(nMul2 - 1) + 
+                             0.2353512128364889 * x12p8D_win.get(nMul2) + 
+                             0.1236796411180537 * x12p8D_win.get(nMul2 + 1);
+            }
+            x6p4_win.append(buf_6p4);
+        }
 
-        //  Eq. 86
-        //
-        //  The description of the algorithm below can be found at:
-        //  https://drive.google.com/file/d/1VrbLWjN4ZI1HpYDhpYuDfglhXoQnqUed/
-        x6p4_win.bulkGet(R6p4_corrwin1_re, 0, 0, len6p4);
-        x6p4_win.bulkGet(R6p4_corrwin2_re, 0, 1 - KWIDTH - KMIN, KWIDTH);
-        x6p4_win.bulkGet(R6p4_corrwin2_re, KWIDTH, 1 - KMIN, len6p4 - 1);
-        ArrayFlip(R6p4_corrwin2_re, 0, KWIDTH);
-        ArrayFlip(R6p4_corrwin2_re, KWIDTH, R6p4_corrfft_size);
-        for (let k = 0; k < len6p4; ++k) {
-            R6p4_corrwin1_im[k] = 0;
-            R6p4_corrwin2_im[k] = 0;
-        }
-        for (let k = len6p4; k < R6p4_corrfft_size; ++k) {
-            R6p4_corrwin1_re[k] = 0;
-            R6p4_corrwin1_im[k] = 0;
-            R6p4_corrwin2_im[k] = 0;
-        }
-        R6p4_corrfft.transform(R6p4_corrwin1_re, R6p4_corrwin1_im);
-        R6p4_corrfft.transform(R6p4_corrwin2_re, R6p4_corrwin2_im);
-        for (let k = 0; k < R6p4_corrfft_size; ++k) {
-            let a_re = R6p4_corrwin1_re[k], a_im = R6p4_corrwin1_im[k];
-            let b_re = R6p4_corrwin2_re[k], b_im = R6p4_corrwin2_im[k];
-            R6p4_corrwin1_re[k] = a_re * b_re - a_im * b_im;
-            R6p4_corrwin1_im[k] = a_re * b_im + a_im * b_re;
-        }
-        R6p4_corrfft.transformInverse(R6p4_corrwin1_re, R6p4_corrwin1_im);
+        let R6p4;
+        {
+            //  The autocorrelation of x6.4[n] shall be computed:
 
-        //  The first estimate of the pitch-lag T1 shall be the lag that 
-        //  maximizes the weighted autocorrelation.
-        let T1max = -Infinity, 
-            T1    = -1;
-        for (let k = 0; k < KWIDTH; ++k) {                          //  Eq. 89
-            let tmp = R6p4_corrwin1_re[k] * KCOEF[k];               //  Eq. 87
-            if (tmp > T1max) {
-                T1max = tmp;
-                T1 = KMIN + k;
+            // R6p4 = new Array(KWIDTH);
+            // for (let k = KMIN; k <= KMAX; ++k) {
+            //     let tmp = 0;
+            //     for (let n = 0; n < len6p4; ++n) {
+            //         tmp += x6p4_win.get(n) * x6p4_win.get(n - k);
+            //     }
+            //     R6p4[k - KMIN] = tmp;
+            // }
+            // console.log("R6.4[n]=" + R6p4.toString());
+
+            //  Eq. 86
+            //
+            //  The description of the algorithm below can be found at:
+            //  https://drive.google.com/file/d/1VrbLWjN4ZI1HpYDhpYuDfglhXoQnqUed/
+            x6p4_win.bulkGet(R6p4_corrwin1_re, 0, 0, len6p4);
+            x6p4_win.bulkGet(R6p4_corrwin2_re, 0, 1 - KWIDTH - KMIN, KWIDTH);
+            x6p4_win.bulkGet(R6p4_corrwin2_re, KWIDTH, 1 - KMIN, len6p4 - 1);
+            ArrayFlip(R6p4_corrwin2_re, 0, KWIDTH);
+            ArrayFlip(R6p4_corrwin2_re, KWIDTH, R6p4_corrfft_size);
+            for (let k = 0; k < len6p4; ++k) {
+                R6p4_corrwin1_im[k] = 0;
+                R6p4_corrwin2_im[k] = 0;
+            }
+            for (let k = len6p4; k < R6p4_corrfft_size; ++k) {
+                R6p4_corrwin1_re[k] = 0;
+                R6p4_corrwin1_im[k] = 0;
+                R6p4_corrwin2_im[k] = 0;
+            }
+            R6p4_corrfft.transform(R6p4_corrwin1_re, R6p4_corrwin1_im);
+            R6p4_corrfft.transform(R6p4_corrwin2_re, R6p4_corrwin2_im);
+            for (let k = 0; k < R6p4_corrfft_size; ++k) {
+                let a_re = R6p4_corrwin1_re[k], a_im = R6p4_corrwin1_im[k];
+                let b_re = R6p4_corrwin2_re[k], b_im = R6p4_corrwin2_im[k];
+                R6p4_corrwin1_re[k] = a_re * b_re - a_im * b_im;
+                R6p4_corrwin1_im[k] = a_re * b_im + a_im * b_re;
+            }
+            R6p4_corrfft.transformInverse(R6p4_corrwin1_re, R6p4_corrwin1_im);
+
+            R6p4 = R6p4_corrwin1_re;
+        }
+
+        {
+            //  The autocorrelation shall be weighted:
+
+            //  Eq. 87
+            for (let k = 0; k < KWIDTH; ++k) {
+                R6p4[k] *= KCOEF[k];
+            }
+        }
+
+        let T1 = 0;
+        {
+            //  The first estimate of the pitch-lag T1 shall be the lag that 
+            //  maximizes the weighted autocorrelation.
+
+            //  Eq. 89
+            let T1max = -Infinity;
+            for (let k = 0; k < KWIDTH; ++k) {
+                let tmp = R6p4[k];
+                if (tmp > T1max) {
+                    T1max = tmp;
+                    T1 = KMIN + k;
+                }
             }
         }
         // console.log("T1=" + T1.toString());
 
-        //  The second estimate of the pitch-lag T2 shall be the lag that 
-        //  maximizes the non-weighted autocorrelation in the neighborhood of 
-        //  the pitch-lag estimated in the previous frame.
-        let T2kmin = Math.max(KMIN, Tprev - 4),
-            T2kmax = Math.min(KMAX, Tprev + 4),
-            T2max  = -Infinity,
-            T2     = -1;
-        for (let k = T2kmin; k <= T2kmax; ++k) {                    //  Eq. 90
-            let tmp = R6p4_corrwin1_re[k - KMIN];
-            if (tmp > T2max) {
-                T2max = tmp;
-                T2 = k;
+        let T2 = 0;
+        {
+            //  The second estimate of the pitch-lag T2 shall be the lag that 
+            //  maximizes the non-weighted autocorrelation in the neighborhood of 
+            //  the pitch-lag estimated in the previous frame.
+
+            //  Eq. 90
+            let T2kmin = Math.max(KMIN, Tprev - 4),
+                T2kmax = Math.min(KMAX, Tprev + 4),
+                T2max  = -Infinity;
+            for (let k = T2kmin; k <= T2kmax; ++k) {
+                let tmp = R6p4[k - KMIN];
+                if (tmp > T2max) {
+                    T2max = tmp;
+                    T2 = k;
+                }
             }
         }
         // console.log("T2=" + T2.toString());
 
-        //  Final estimate of the pitch-lag in the current frame. 
-        let T1norm_numer = 0, T1norm_denom = 0;
-        let T2norm_numer = 0, T2norm_denom = 0;
-        {                                                       //  Eq. 91, 92
+        let normcorr = 0;
+        {
+            //  Final estimate of the pitch-lag in the current frame.
+
+            //  Eq. 91, 92
+            //
+            //  Note(s):
+            //    [1] normcorr(x6.4, corrlen, T1) = T1norm_numer / T1norm_denom
+            //    [2] normcorr(x6.4, corrlen, T2) = T2norm_numer / T2norm_denom
+            let T1norm_numer = 0, T1norm_denom = 0;
+            let T2norm_numer = 0, T2norm_denom = 0;
             let T1norm_denom1 = 0, T1norm_denom2 = 0;
             let T2norm_denom1 = 0, T2norm_denom2 = 0;
 
-            for (let n = 0, i1 = -T1, i2 = -T2; n < corrlen; ++n, ++i1, ++i2) {
-                let c1 = x6p4_win.get(n);
-                let c2 = x6p4_win.get(i1);
+            x6p4_win.bulkGet(corrbuf1, 0, 0, corrlen);
+            x6p4_win.bulkGet(corrbuf2, 0, -T1, corrlen);
+            x6p4_win.bulkGet(corrbuf3, 0, -T2, corrlen);
+
+            for (let n = 0; n < corrlen; ++n) {
+                let c1 = corrbuf1[n];
+                let c2 = corrbuf2[n];
                 T1norm_numer += c1 * c2;
                 T1norm_denom1 += c1 * c1;
                 T1norm_denom2 += c2 * c2;
 
-                c1 = x6p4_win.get(n);
-                c2 = x6p4_win.get(i2);
+                c2 = corrbuf3[n];
                 T2norm_numer += c1 * c2;
                 T2norm_denom1 += c1 * c1;
                 T2norm_denom2 += c2 * c2;
             }
 
             if (T1norm_numer < 0) {
+                //  normcorr(x6.4, corrlen, T1) = max(
+                //      0, T1norm_numer / T1norm_denom
+                //  ):
                 T1norm_numer = 0;
                 T1norm_denom = 1;
             } else {
                 T1norm_denom = Math.sqrt(T1norm_denom1 * T1norm_denom2);
+
+                //  To avoid divide-by-zero problem, ensure the denominator 
+                //  non-zero.
                 if (T1norm_denom < 1e-31) {
                     T1norm_denom = 1e-31;
                 }
             }
 
             if (T2norm_numer < 0) {
+                //  normcorr(x6.4, corrlen, T2) = max(
+                //      0, T2norm_numer / T2norm_denom
+                //  ):
                 T2norm_numer = 0;
                 T2norm_denom = 1;
             } else {
                 T2norm_denom = Math.sqrt(T2norm_denom1 * T2norm_denom2);
+
+                //  To avoid divide-by-zero problem, ensure the denominator 
+                //  non-zero.
                 if (T2norm_denom < 1e-31) {
                     T2norm_denom = 1e-31;
                 }
             }
-        }
-        // console.log("normcorr1=" + (T1norm_numer / T1norm_denom).toString());
-        // console.log("normcorr2=" + (T2norm_numer / T2norm_denom).toString());
+            // console.log("normcorr1=" + (T1norm_numer / T1norm_denom).toString());
+            // console.log("normcorr2=" + (T2norm_numer / T2norm_denom).toString());
 
-        //  The final estimate of the pitch-lag in the current frame is then 
-        //  given by:
-        let normcorr;
-        if (                                                        //  Eq. 91
-            T2norm_numer * T1norm_denom <= 
-            0.85 * T1norm_numer * T2norm_denom
-        ) {
-            Tcurr = T1;
-            normcorr = T1norm_numer / T1norm_denom;
-        } else {
-            Tcurr = T2;
-            normcorr = T2norm_numer / T2norm_denom;
+            //  The final estimate of the pitch-lag in the current frame is then 
+            //  given by:
+
+            //  Eq. 91
+            if (
+                T2norm_numer * T1norm_denom <= 
+                0.85 * T1norm_numer * T2norm_denom
+            ) {
+                Tcurr = T1;
+                normcorr = T1norm_numer / T1norm_denom;
+            } else {
+                Tcurr = T2;
+                normcorr = T2norm_numer / T2norm_denom;
+            }
         }
         // console.log("Tcurr=" + Tcurr.toString());
         // console.log("normcorr=" + normcorr.toString());
 
-        if (normcorr > 0.6) {                                       //  Eq. 94
-            pitch_present = 1;                                      //  Eq. 95
-            nbitsLTPF = 11;
+        //  LTPF Bitstream (3.3.9.6).
+        {
+            if (normcorr > 0.6) {
+                //  Eq. 94
+                pitch_present = 1;
 
-            //  LTPF pitch-lag parameter (3.3.9.7).
+                //  Eq. 95
+                nbitsLTPF = 11;
 
-            //  Get the integer part of the LTPF pitch-lag parameter.
-            let kminII = Math.max(32, 2 * Tcurr - 4);               //  Eq. 97
-            let kmaxII = Math.min(228, 2 * Tcurr + 4);
-            for (let k = kminII - 4, p = 0; k <= kmaxII + 4; ++k, ++p) {
-                let tmp = 0;
-                for (let n = 0; n < len12p8; ++n) {
-                    tmp += x12p8D_win.get(n) * x12p8D_win.get(n - k);
+                //  LTPF pitch-lag parameter (3.3.9.7).
+                let kminII = Math.max(32, 2 * Tcurr - 4);
+                let kmaxII = Math.min(228, 2 * Tcurr + 4);
+                {
+                    //  Get the integer part of the LTPF pitch-lag parameter.
+
+                    //  Eq. 97
+                    let koff = kmaxII + 4;
+                    x12p8D_win.bulkGet(R12p8_buf1, 0, 0, len12p8);
+                    x12p8D_win.bulkGet(R12p8_buf2, 0, -koff, len12p8 + 17);
+                    for (let k = kminII - 4, p = 0; k <= koff; ++k, ++p) {
+                        let tmp = 0; 
+                        for (let n = 0; n < len12p8; ++n) {
+                            tmp += R12p8_buf1[n] * R12p8_buf2[koff + n - k];
+                        }
+                        R12p8[p] = tmp;
+                    }
+
+                    //  Eq. 96
+                    let R12p8_max = -Infinity;
+                    for (let k = kminII, p = 4; k <= kmaxII; ++k, ++p) {
+                        let R12p8_p = R12p8[p];
+                        if (R12p8_p > R12p8_max) {
+                            pitch_int = k;
+                            R12p8_max = R12p8_p;
+                        }
+                    }
                 }
-                R12p8[p] = tmp;
-            }
-            // console.log("R12.8[k]=" + R12p8.toString());
+                // console.log("R12.8[k]=" + R12p8.toString());
 
-            let R12p8_max = -Infinity;                              //  Eq. 96
-            for (let k = kminII, p = 4; k <= kmaxII; ++k, ++p) {
-                let R12p8_p = R12p8[p];
-                if (R12p8_p > R12p8_max) {
-                    pitch_int = k;
-                    R12p8_max = R12p8_p;
+                {
+                    //  Get the fractional part of the LTPF pitch-lag.
+
+                    //  Eq. 98
+                    if (pitch_int >= 157) {
+                        pitch_fr = 0;
+                    } else {
+                        let dlow, dhigh, dstep;
+                        if (pitch_int >= 127 && pitch_int < 157) {
+                            //  d = -2, 0, 2
+                            dlow = -2;
+                            dhigh = 2;
+                            dstep = 2;
+                        } else if (pitch_int > 32) {
+                            //  d = -3...3
+                            dlow = -3;
+                            dhigh = 3;
+                            dstep = 1;
+                        } else {
+                            //  d = 0...3
+                            dlow = 0;
+                            dhigh = 3;
+                            dstep = 1;
+                        }
+
+                        let interp_max = -Infinity;
+                        for (let d = dlow; d <= dhigh; d += dstep) {
+                            //  Eq. 99
+                            let interp_d = 0;
+                            for (
+                                let m = -4, 
+                                    i1 = pitch_int - kminII, 
+                                    i2 = -16 - d; 
+                                m <= 4; 
+                                ++m, ++i1, i2 += 4
+                            ) {
+                                //  Eq. 100
+                                let h4_coeff;
+                                if (i2 > -16 && i2 < 16) {
+                                    h4_coeff = TAB_LTPF_INTERP_R[i2 + 15];
+                                } else {
+                                    h4_coeff = 0;
+                                }
+
+                                //  Eq. 99, R12.8[pitch_int + m] * h4[4m - d].
+                                interp_d += R12p8[i1] * h4_coeff;
+                            }
+
+                            //  Eq. 98, argmax(interp(d)).
+                            if (interp_d > interp_max) {
+                                interp_max = interp_d;
+                                pitch_fr = d;
+                            }
+                        }
+
+                        //  If pitch_fr < 0 then both pitch_int and pitch_fr 
+                        //  shall be modified.
+
+                        //  Eq. 101
+                        if (pitch_fr < 0) {
+                            --(pitch_int);
+                            pitch_fr += 4;
+                        }             
+                    }
                 }
-            }
 
-            //  Get the fractional part of the LTPF pitch-lag.
-            if (pitch_int >= 157) {                                 //  Eq. 98
-                pitch_fr = 0;
-            } else {
-                let dlow, dhigh, dstep;
-                if (pitch_int >= 127 && pitch_int < 157) {
-                    dlow = -2;
-                    dhigh = 2;
-                    dstep = 2;
-                } else if (pitch_int > 32) {
-                    dlow = -3;
-                    dhigh = 3;
-                    dstep = 1;
-                } else {
-                    dlow = 0;
-                    dhigh = 3;
-                    dstep = 1;
+                {
+                    //  Finally, the pitch-lag parameter index that is later 
+                    //  written to the output bitstream shall be:
+
+                    //  Eq. 102
+                    if (pitch_int >= 157) {
+                        pitch_index = pitch_int + 283;
+                    } else if (pitch_int >= 127) {
+                        //  pitch_index = 2 * pitch_int + floor(pitch_fr / 2) + 
+                        //                126
+                        pitch_index = 2 * pitch_int + (pitch_fr >>> 1) + 126;
+                    } else {
+                        pitch_index = 4 * pitch_int + pitch_fr - 128;
+                    }
                 }
+                // console.log("pitch_int=" + pitch_int.toString());
+                // console.log("pitch_fr=" + pitch_fr.toString());
+                // console.log("pitch_index=" + pitch_index.toString());
 
-                let interp_max = -Infinity;
-                for (let d = dlow; d <= dhigh; d += dstep) {
-                    let interp_d = 0;                               //  Eq. 99
-                    for (
-                        let m = -4, i1 = pitch_int - kminII, i2 = -16 - d; 
-                        m <= 4; 
-                        ++m, ++i1, i2 += 4
+                {
+                    //  LTPF activation bit (3.3.9.8).
+
+                    //  A normalized correlation shall first be computed:
+                    let nc_numer = 0, nc_denom1 = 0, nc_denom2 = 0;
+                    x12p8D_win.bulkGet(xi_buf1, 0, -2, xi_bufsz);
+                    x12p8D_win.bulkGet(xi_buf2, 0, -2 - pitch_int, xi_bufsz);
+                    for (let n = 0; n < len12p8; ++n) {
+                        //  Eq. 104
+                        //
+                        //  Note(s):
+                        //    [1] t1 = xi(n, 0),
+                        //    [2] t2 = xi(n - pitch_int, pitch_fr).
+                        let t1 = 0;
+                        let t2 = 0;
+                        for (let k = 0, p = -8; k <= 4; ++k, p += 4) {
+                            let hi_coeff;
+
+                            //  Eq. 105, hi(4(k - 2)).
+                            if (p > -8 && p < 8) {
+                                hi_coeff = TAB_LTPF_INTERP_X12K8[p + 7];
+                            } else {
+                                hi_coeff = 0;
+                            }
+
+                            //  Eq. 104, x12.8_D(n - (k - 2)) * hi(4(k - 2)).
+                            let xi_off = n - k + 4;
+                            t1 += hi_coeff * xi_buf1[xi_off];
+
+                            //  Eq. 105, hi(4(k - 2) - pitch_fr).
+                            let p2 = p - pitch_fr;
+                            if (p > -8 && p < 8) {
+                                hi_coeff = TAB_LTPF_INTERP_X12K8[p2 + 7];
+                            } else {
+                                hi_coeff = 0;
+                            }
+
+                            //  Eq. 105, x12.8_D(n - pitch_int - (k - 2)) * 
+                            //  hi(4(k - 2) - pitch_int).
+                            t2 += hi_coeff * xi_buf2[xi_off];
+                        }
+
+                        //  Eq. 103, xi(n, 0) * xi(n - pitch_int, pitch_fr)
+                        nc_numer += t1 * t2;
+
+                        //  Eq. 103, xi(n, 0) ^ 2
+                        nc_denom1 += t1 * t1;
+
+                        //  Eq. 103, xi(n - pitch_int, pitch_fr) ^ 2
+                        nc_denom2 += t2 * t2;
+                    }
+
+                    //  Eq. 103
+                    nc_denom1 = Math.sqrt(nc_denom1 * nc_denom2);
+                    if (nc_denom1 < 1e-31) {
+                        nc_denom1 = 1e-31;
+                    }
+                    nc_ltpf = nc_numer / nc_denom1;
+                }
+                // console.log("nc_ltpf=" + nc_ltpf.toString());
+
+                //  Calculate pitch.
+                pitch = pitch_int + pitch_fr / 4;
+                // console.log("pitch=" + pitch.toString());
+
+                //  Get gain_ltpf.
+                GetGainParameters(Nms, Fs, nbits, gain_params);
+                let gain_ltpf = gain_params[0];
+                // console.log("gain_ltpf=" + gain_ltpf.toString());
+                // console.log("gain_ind=" + gain_params[1].toString());
+
+                {
+                    //  The LTPF activation bit shall then be set according to:
+                    if (
+                        nn_flag == 0 &&     /*  The value of ltpf_active is  */
+                                            /*  set to 0 if the              */
+                                            /*  near_nyquist_flag is 1.      */
+                        gain_ltpf >= 1e-31
                     ) {
-                        interp_d += R12p8[i1] * (                  //  Eq. 100
-                            (i2 > -16 && i2 < 16) ? 
-                            TAB_LTPF_INTERP_R[i2 + 15] : 
-                            0
-                        );
+                        let us = Nms.toMicroseconds();
+                        if (
+                            (
+                                mem_ltpf_active == 0 && 
+                                (us == 10000 || mem_mem_nc_ltpf > 0.94) && 
+                                mem_nc_ltpf > 0.94 && 
+                                nc_ltpf > 0.94
+                            ) || 
+                            (
+                                mem_ltpf_active == 1 && 
+                                nc_ltpf > 0.9
+                            ) || 
+                            (
+                                mem_ltpf_active == 1 && 
+                                Math.abs(pitch - mem_pitch) < 2 && 
+                                (nc_ltpf - mem_nc_ltpf) > -0.1 && 
+                                nc_ltpf > 0.84
+                            )
+                        ) {
+                            ltpf_active = 1;
+                        } else {
+                            ltpf_active = 0;
+                        }
+                    } else {
+                        ltpf_active = 0;
                     }
-                    if (interp_d > interp_max) {
-                        interp_max = interp_d;
-                        pitch_fr = d;
-                    }
-                }
-
-                //  If pitch_fr < 0 then both pitch_int and pitch_fr shall be 
-                //  modified.
-                if (pitch_fr < 0) {                                //  Eq. 101
-                    --(pitch_int);
-                    pitch_fr += 4;
-                }             
-            }
-
-            //  Finally, the pitch-lag parameter index that is later written to 
-            //  the output bitstream shall be:
-            if (pitch_int >= 157) {                                //  Eq. 102
-                pitch_index = pitch_int + 283;
-            } else if (pitch_int >= 127) {
-                pitch_index = 2 * pitch_int + (pitch_fr >>> 1) + 126;
-            } else {
-                pitch_index = 4 * pitch_int + pitch_fr - 128;
-            }
-            // console.log("pitch_int=" + pitch_int.toString());
-            // console.log("pitch_fr=" + pitch_fr.toString());
-            // console.log("pitch_index=" + pitch_index.toString());
-
-            //  LTPF activation bit (3.3.9.8).
-            let xi_0 = new Array(len12p8);                         //  Eq. 104
-            let xi_fr = new Array(len12p8);
-            for (let n = 0; n < len12p8; ++n) {
-                let t1 = 0;
-                let t2 = 0;
-                for (
-                    let k = -2, p1 = -8, p2 = -8 - pitch_fr; 
-                    k <= 2; 
-                    ++k, p1 += 4, p2 += 4
-                ) {
-                    t1 += x12p8D_win.get(n - k) * (                //  Eq. 105
-                        (p1 > -8 && p1 < 8) ? TAB_LTPF_INTERP_X12K8[p1 + 7] : 0
-                    );
-                    t2 += x12p8D_win.get(n - pitch_int - k) * (    //  Eq. 105
-                        (p2 > -8 && p2 < 8) ? TAB_LTPF_INTERP_X12K8[p2 + 7] : 0
-                    )
-                }
-                xi_0[n] = t1;
-                xi_fr[n] = t2;
-            }
-
-            //  A normalized correlation shall first be computed as Eq. 103:
-            let nc_numer = 0, nc_denom1 = 0, nc_denom2 = 0;
-            for (let n = 0; n < len12p8; ++n) {                    //  Eq. 103
-                let t1 = xi_0[n], t2 = xi_fr[n];
-                nc_numer += t1 * t2;
-                nc_denom1 += t1 * t1;
-                nc_denom2 += t2 * t2;
-            }
-            nc_denom1 = Math.sqrt(nc_denom1 * nc_denom2);
-            if (nc_denom1 < 1e-31) {
-                nc_denom1 = 1e-31;
-            }
-            nc_ltpf = nc_numer / nc_denom1;
-            // console.log("nc_ltpf=" + nc_ltpf.toString());
-
-            //  Calculate pitch.
-            pitch = pitch_int + pitch_fr / 4;
-            // console.log("pitch=" + pitch.toString());
-
-            //  Get gain_ltpf.
-            GetGainParameters(Nms, Fs, nbits, gain_params);
-            let gain_ltpf = gain_params[0];
-            // console.log("gain_ltpf=" + gain_ltpf.toString());
-            // console.log("gain_ind=" + gain_params[1].toString());
-
-            //  The LTPF activation bit shall then be set according to:
-            if (
-                nn_flag == 0 &&     /*  The value of ltpf_active is set to 0  */
-                                    /*  if the near_nyquist_flag in Section   */
-                                    /*  3.3.4.5 is 1.                         */
-                gain_ltpf >= 1e-31
-            ) {
-                if (
-                    (
-                        mem_ltpf_active == 0 && 
-                        (
-                            Nms === LC3FrameDuration.NMS_10000US || 
-                            mem_mem_nc_ltpf > 0.94
-                        ) && 
-                        mem_nc_ltpf > 0.94 && 
-                        nc_ltpf > 0.94
-                    ) || 
-                    (
-                        mem_ltpf_active == 1 && 
-                        nc_ltpf > 0.9
-                    ) || 
-                    (
-                        mem_ltpf_active == 1 && 
-                        Math.abs(pitch - mem_pitch) < 2 && 
-                        (nc_ltpf - mem_nc_ltpf) > -0.1 && 
-                        nc_ltpf > 0.84
-                    )
-                ) {
-                    ltpf_active = 1;
-                } else {
-                    ltpf_active = 0;
                 }
             } else {
+                //  Eq. 94
+                pitch_present = 0;
+
+                //  Eq. 95
+                nbitsLTPF = 1;
+
+                //  Reset pitch variables.
+                pitch_int = 0;
+                pitch_fr = 0;
+                pitch_index = 0;
+                pitch = 0;
+
+                //  Reset LTPF variables.
+                nc_ltpf = 0;
                 ltpf_active = 0;
             }
-        } else {
-            pitch_present = 0;                                      //  Eq. 95
-            nbitsLTPF = 1;
-
-            pitch_int = 0;
-            pitch_fr = 0;
-            pitch_index = 0;
-            pitch = 0;
-
-            nc_ltpf = 0;
-            ltpf_active = 0;
         }
         // console.log("pitch_present=" + pitch_present.toString());
         // console.log("ltpf_active=" + ltpf_active.toString());

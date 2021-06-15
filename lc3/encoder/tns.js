@@ -9,110 +9,52 @@
 //
 
 //  Imported modules.
-const Lc3Nms = require("./../common/nms");
-const Lc3TblTns = require("./../tables/tns");
+const Lc3Fs = 
+    require("../common/fs");
+const Lc3Nms = 
+    require("./../common/nms");
+const Lc3TblNF = 
+    require("./../tables/nf");
+const Lc3TblTns = 
+    require("./../tables/tns");
 
 //  Imported classes.
-const LC3FrameDuration = Lc3Nms.LC3FrameDuration;
+const LC3SampleRate = 
+    Lc3Fs.LC3SampleRate;
+const LC3FrameDuration = 
+    Lc3Nms.LC3FrameDuration;
 
 //  Imported constants.
-const AC_TNS_ORDER_BITS = Lc3TblTns.AC_TNS_ORDER_BITS;
-const AC_TNS_COEF_BITS = Lc3TblTns.AC_TNS_COEF_BITS;
+const AC_TNS_ORDER_BITS = 
+    Lc3TblTns.AC_TNS_ORDER_BITS;
+const AC_TNS_COEF_BITS = 
+    Lc3TblTns.AC_TNS_COEF_BITS;
+const TNS_PARAM_NUM_TNS_FILTERS = 
+    Lc3TblTns.TNS_PARAM_NUM_TNS_FILTERS;
+const TNS_PARAM_START_FREQ = 
+    Lc3TblTns.TNS_PARAM_START_FREQ;
+const TNS_PARAM_STOP_FREQ = 
+    Lc3TblTns.TNS_PARAM_STOP_FREQ;
+const TNS_PARAM_SUB_START = 
+    Lc3TblTns.TNS_PARAM_SUB_START;
+const TNS_PARAM_SUB_STOP = 
+    Lc3TblTns.TNS_PARAM_SUB_STOP;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
 
 //
 //  Constants.
 //
-
-//  TNS parameters table (Table 3.15).
-const TNS_10_NB_NUM         = 1;
-const TNS_10_NB_STARTFREQ   = [12];
-const TNS_10_NB_STOPFREQ    = [80];
-const TNS_10_NB_SUBSTART    = [[12, 34, 57]];
-const TNS_10_NB_SUBSTOP     = [[34, 57, 80]];
-
-const TNS_10_WB_NUM         = 1;
-const TNS_10_WB_STARTFREQ   = [12];
-const TNS_10_WB_STOPFREQ    = [160];
-const TNS_10_WB_SUBSTART    = [[12, 61, 110]];
-const TNS_10_WB_SUBSTOP     = [[61, 110, 160]];
-
-const TNS_10_SSWB_NUM       = 1;
-const TNS_10_SSWB_STARTFREQ = [12];
-const TNS_10_SSWB_STOPFREQ  = [240];
-const TNS_10_SSWB_SUBSTART  = [[12, 88, 164]];
-const TNS_10_SSWB_SUBSTOP   = [[88, 164, 240]];
-
-const TNS_10_SWB_NUM        = 2;
-const TNS_10_SWB_STARTFREQ  = [120, 160];
-const TNS_10_SWB_STOPFREQ   = [160, 320];
-const TNS_10_SWB_SUBSTART   = [[12, 61, 110], [160, 213, 266]];
-const TNS_10_SWB_SUBSTOP    = [[61, 110, 160], [213, 266, 320]];
-
-const TNS_10_FB_NUM         = 2;
-const TNS_10_FB_STARTFREQ   = [12, 200];
-const TNS_10_FB_STOPFREQ    = [200, 400];
-const TNS_10_FB_SUBSTART    = [[12, 74, 137], [200, 266, 333]];
-const TNS_10_FB_SUBSTOP     = [[74, 137, 200], [266, 333, 400]];
-
-const TNS_75_NB_NUM         = 1;
-const TNS_75_NB_STARTFREQ   = [9];
-const TNS_75_NB_STOPFREQ    = [60];
-const TNS_75_NB_SUBSTART    = [[9, 26, 43]];
-const TNS_75_NB_SUBSTOP     = [[26, 43, 60]];
-
-const TNS_75_WB_NUM         = 1;
-const TNS_75_WB_STARTFREQ   = [9];
-const TNS_75_WB_STOPFREQ    = [120];
-const TNS_75_WB_SUBSTART    = [[9, 46, 83]];
-const TNS_75_WB_SUBSTOP     = [[46, 83, 120]];
-
-const TNS_75_SSWB_NUM       = 1;
-const TNS_75_SSWB_STARTFREQ = [9];
-const TNS_75_SSWB_STOPFREQ  = [180];
-const TNS_75_SSWB_SUBSTART  = [[9, 66, 123]];
-const TNS_75_SSWB_SUBSTOP   = [[66, 123, 180]];
-
-const TNS_75_SWB_NUM         = 2;
-const TNS_75_SWB_STARTFREQ   = [9, 120];
-const TNS_75_SWB_STOPFREQ    = [120, 240];
-const TNS_75_SWB_SUBSTART    = [[9, 46, 82], [120, 159, 200]];
-const TNS_75_SWB_SUBSTOP     = [[46, 82, 120], [159, 200, 240]];
-
-const TNS_75_FB_NUM          = 2;
-const TNS_75_FB_STARTFREQ    = [9, 150];
-const TNS_75_FB_STOPFREQ     = [150, 300];
-const TNS_75_FB_SUBSTART     = [[9, 56, 103], [150, 200, 250]];
-const TNS_75_FB_SUBSTOP      = [[56, 103, 150], [200, 250, 300]];
-
-const TNS_PARAMETERS = [
-    [  //  Nms = 10ms.
-        [  TNS_10_NB_NUM,   TNS_10_NB_STARTFREQ,   TNS_10_NB_STOPFREQ,   TNS_10_NB_SUBSTART,   TNS_10_NB_SUBSTOP],
-        [  TNS_10_WB_NUM,   TNS_10_WB_STARTFREQ,   TNS_10_WB_STOPFREQ,   TNS_10_WB_SUBSTART,   TNS_10_WB_SUBSTOP],
-        [TNS_10_SSWB_NUM, TNS_10_SSWB_STARTFREQ, TNS_10_SSWB_STOPFREQ, TNS_10_SSWB_SUBSTART, TNS_10_SSWB_SUBSTOP],
-        [ TNS_10_SWB_NUM,  TNS_10_SWB_STARTFREQ,  TNS_10_SWB_STOPFREQ,  TNS_10_SWB_SUBSTART,  TNS_10_SWB_SUBSTOP],
-        [  TNS_10_FB_NUM,   TNS_10_FB_STARTFREQ,   TNS_10_FB_STOPFREQ,   TNS_10_FB_SUBSTART,   TNS_10_FB_SUBSTOP]
-    ],
-    [  //  Nms = 7.5ms.
-        [  TNS_75_NB_NUM,   TNS_75_NB_STARTFREQ,   TNS_75_NB_STOPFREQ,   TNS_75_NB_SUBSTART,   TNS_75_NB_SUBSTOP],
-        [  TNS_75_WB_NUM,   TNS_75_WB_STARTFREQ,   TNS_75_WB_STOPFREQ,   TNS_75_WB_SUBSTART,   TNS_75_WB_SUBSTOP],
-        [TNS_75_SSWB_NUM, TNS_75_SSWB_STARTFREQ, TNS_75_SSWB_STOPFREQ, TNS_75_SSWB_SUBSTART, TNS_75_SSWB_SUBSTOP],
-        [ TNS_75_SWB_NUM,  TNS_75_SWB_STARTFREQ,  TNS_75_SWB_STOPFREQ,  TNS_75_SWB_SUBSTART,  TNS_75_SWB_SUBSTOP],
-        [  TNS_75_FB_NUM,   TNS_75_FB_STARTFREQ,   TNS_75_FB_STOPFREQ,   TNS_75_FB_SUBSTART,   TNS_75_FB_SUBSTOP]
-    ]
-];
-
-//  Lag-window coefficients (see Eq. 68).
-const WLAG = [
-    1.0, 0.9980280260203829, 0.9921354055113971, 0.9823915844707989, 
-    0.9689107911912967, 0.9518498073692735, 0.9314049334023056, 
-    0.9078082299969592, 0.8813231366694713
-];
 
 //  TNS_LPC_WEIGHTING_TH[Nms] = 48 * Nms.
 const TNS_LPC_WEIGHTING_TH = [
     480, //  [0] = 48 * Nms(= 10ms).
     360  //  [1] = 48 * Nms(= 7.5ms).
 ];
+
+//  RC quantization constants.
+const RCQ_C1 = 5.41126806512444158;  //  = 17 / PI
+const RCQ_C2 = 0.18479956785822313;  //  = PI / 17
 
 //
 //  Public classes.
@@ -122,53 +64,46 @@ const TNS_LPC_WEIGHTING_TH = [
  *  LC3 temporal noise shaping encoder.
  * 
  *  @constructor
- *  @param {Number} Nf 
- *    - The frame size.
  *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
  *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
+function LC3TemporalNoiseShapingEncoder(Nms, Fs) {
     //
     //  Members.
     //
 
-    //  Internal index of Nms.
+    //  Internal index of Nms, Fs.
     let index_Nms = Nms.getInternalIndex();
+    let index_Fs = Fs.getInternalIndex();
 
-    //  Algorithm contexts.
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
     let tns_lpc_weighting_th = TNS_LPC_WEIGHTING_TH[index_Nms];
 
-    let Tparam_Nms = TNS_PARAMETERS[index_Nms];
-    // let tns_nfilters = tns_params
-
-    let Rk = new Array(9);
+    //  Algorithm contexts.
+    let R = new Array(9);
     let Es = new Array(3);
     let LPCs = new Array(9);
     let LPCs_tmp1 = new Array(9);
     let LPCs_tmp2 = new Array(9);
 
-    let RC = new Array(2);
-    let RCint = new Array(2);
-    let RCq = new Array(2);
-    let RCorder = new Array(2);
-    for (let f = 0; f < 2; ++f) {
-        let RC_f = new Array(8);
-        let RCint_f = new Array(8);
-        let RCq_f = new Array(8);
-        for (let k = 0; k < 8; ++k) {
-            RC_f[k] = null;
-            RCint_f[k] = null;
-            RCq_f[k] = null;
-        }
-        RC[f] = RC_f;
-        RCint[f] = RCint_f;
-        RCq[f] = RCq_f;
-    }
+    let RC = [
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    let RCint = [
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    let RCq = [
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    let RCorder = [0, 0];
 
-    let Xf = new Array(Nf);
-    for (let k = 0; k < Nf; ++k) {
-        Xf[k] = 0;
-    }
+    let Xf = new Array(NF);
 
     let nbitsTNS = 0;
 
@@ -188,7 +123,7 @@ function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
      *  @param {Number[]} Xs 
      *    - The shaped spectrum coefficients.
      *  @param {Number} Pbw 
-     *    - The bandwidth (one of BW_*).
+     *    - The bandwidth (i.e. `Pbw`).
      *  @param {Number} nn_flag
      *    - The near Nyquist flag.
      *  @param {Number} nbits
@@ -198,158 +133,229 @@ function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
         //  tns_lpc_weighting: (Eq. 71)
         tns_lpc_weighting = (nbits < tns_lpc_weighting_th ? 1 : 0);
 
-        //  Load ac_tns_order_bits[tns_lpc_weighting].
-        let AC_TNS_ORDER_BITS_tlw = AC_TNS_ORDER_BITS[tns_lpc_weighting];
-
-        //  Reset RC[f][k].
-        for (let f = 0; f < 2; ++f) {
-            let RC_f = RC[f];
-            // let RCint_f = RCint[f];
-            // let RCq_f = RCq[f];
-            for (let k = 0; k < 8; ++k) {
-                RC_f[k] = 0;
-                // RCint_f[k] = null;
-                // RCq_f[k] = null;
-            }
-        }
-
         //  Reset st[k] and Xf[k] (see 3.3.8.4).
         for (let k = 0; k < 8; ++k) {
             st[k] = 0;
         }
-        for (let k = 0; k < Nf; ++k) {
+        for (let k = 0; k < NF; ++k) {
             Xf[k] = Xs[k];
         }
 
         //  Load TNS parameter (from Table 3.15).
-        let Tparam_Nms_Pbw         = Tparam_Nms[Pbw];
-        let Tparam_num_tns_filters = Tparam_Nms_Pbw[0];
-        let Tparam_start_freq      = Tparam_Nms_Pbw[1];
-        let Tparam_stop_freq       = Tparam_Nms_Pbw[2];
-        let Tparam_sub_start       = Tparam_Nms_Pbw[3];
-        let Tparam_sub_stop        = Tparam_Nms_Pbw[4];
-
-        num_tns_filters = Tparam_num_tns_filters;
+        num_tns_filters = TNS_PARAM_NUM_TNS_FILTERS[index_Nms][Pbw];
+        let start_freqs = TNS_PARAM_START_FREQ[index_Nms][Pbw];
+        let stop_freqs = TNS_PARAM_STOP_FREQ[index_Nms][Pbw];
+        let sub_starts = TNS_PARAM_SUB_START[index_Nms][Pbw];
+        let sub_stops = TNS_PARAM_SUB_STOP[index_Nms][Pbw];
 
         //  TNS analysis (3.3.8.2).
-        for (let f = 0; f < Tparam_num_tns_filters; ++f) {
-            //  Get e[s] (Eq. 67).
-            let Es_zero = false;
-            let sub_start = Tparam_sub_start[f];
-            let sub_stop  = Tparam_sub_stop[f];
-            for (let s = 0; s < 3; ++s) {
-                let Es_s = 0;
-                for (let n = sub_start[s], nEnd = sub_stop[s]; n < nEnd; ++n) {
-                    let Xs_n = Xs[n];
-                    Es_s += Xs_n * Xs_n;
-                }
-                Es[s] = Es_s;
-                if (Es_s < 1E-6) {
-                    Es_zero = true;
-                }
-            }
+        for (let f = 0; f < num_tns_filters; ++f) {
+            let RC_f = RC[f];
+            let sub_start = sub_starts[f];
+            let sub_stop  = sub_stops[f];
 
-            if (Es_zero) {
-                Rk[0] = 3;                                          //  Eq. 66
-                for (let k = 1; k < 9; ++k) {
-                    Rk[k] = 0;
-                }
-            } else {
-                for (let k = 0; k < 9; ++k) {                       //  Eq. 65
-                    let Rk_k = 0;
-                    for (let s = 0; s < 3; ++s) {
-                        let tmp = 0;
-                        for (
-                            let n = sub_start[s], nEnd = sub_stop[s] - k; 
-                            n < nEnd; 
-                            ++n
-                        ) {
-                            tmp += Xs[n] * Xs[n + k];
-                        }
-                        Rk_k += tmp / Es[s];
+            let Es_accmul;
+            {
+                //  Derive e(s):
+
+                //  Eq. 67
+                Es_accmul = 1;
+                for (let s = 0; s < 3; ++s) {
+                    let sum = 0;
+                    let n1 = sub_start[s], n2 = sub_stop[s];
+                    for (let n = n1; n < n2; ++n) {
+                        let tmp = Xs[n];
+                        sum += tmp * tmp;
                     }
-                    Rk[k] = Rk_k;
+                    Es[s] = sum;
+                    Es_accmul *= sum;
+
+                    //  To avoid overflow, give `Es_accmul` a limit:
+                    if (Es_accmul > 1) {
+                        Es_accmul = 1;
+                    }
+                }
+
+                if (Es_accmul < 1e-31) {
+                    //  Eq. 66
+                    R[0] = 3;
+                    R[1] = 0;
+                    R[2] = 0;
+                    R[3] = 0;
+                    R[4] = 0;
+                    R[5] = 0;
+                    R[6] = 0;
+                    R[7] = 0;
+                    R[8] = 0;
+                } else {
+                    //  Eq. 65
+                    for (let k = 0; k < 9; ++k) {
+                        let sum = 0;
+                        for (let s = 0; s < 3; ++s) {
+                            let tmp = 0;
+                            let n1 = sub_start[s], n2 = sub_stop[s] - k;
+                            for (let n = n1; n < n2; ++n) {
+                                tmp += Xs[n] * Xs[n + k];
+                            }
+                            sum += tmp / Es[s];
+                        }
+                        R[k] = sum;
+                    }
                 }
             }
-            // console.log("r[k]=" + Rk.toString());
+            // console.log("r[k]=" + R.toString());
 
-            //  The normalized autocorrelation function shall be lag-windowed.
-            for (let k = 0; k < 9; ++k) {
-                Rk[k] *= WLAG[k];                                   //  Eq. 68
+            {
+                //  The normalized autocorrelation function shall be 
+                //  lag-windowed.
+                // R[0] *= 1.0000000000000000;
+                R[1] *= 0.9980280260203829;
+                R[2] *= 0.9921354055113971;
+                R[3] *= 0.9823915844707989;
+                R[4] *= 0.9689107911912967;
+                R[5] *= 0.9518498073692735;
+                R[6] *= 0.9314049334023056;
+                R[7] *= 0.9078082299969592;
+                R[8] *= 0.8813231366694713;
             }
-            // console.log("rw[k]=" + Rk.toString());
+            // console.log("rw[k]=" + R.toString());
 
-            //  The Levinson-Durbin recursion shall be used to obtain LPC 
-            //  coefficients a[k].
-            let err = Rk[0];
-            LPCs[0] = 1;
-            for (let k = 1; k < 9; ++k) {
-                let rc = 0;
-                for (let n = 0; n < k; ++n) {
-                    rc += LPCs[n] * Rk[k - n];
+            let LPC_err;
+            {
+                let LPC_badflag = false;
+
+                //  The Levinson-Durbin recursion shall be used to obtain LPC 
+                //  coefficients a[k].
+                LPC_err = R[0];
+                LPCs[0] = 1;
+                for (let k = 1; k < 9; ++k) {
+                    let rc = 0;
+                    for (let n = 0; n < k; ++n) {
+                        rc += LPCs[n] * R[k - n];
+                    }
+                    if (LPC_err < 1e-31) {
+                        //  The autocorrelation matrix have no inverse since its
+                        //  rank is zero.
+                        LPC_badflag = true;
+                        break;
+                    }
+                    rc = (-rc) / LPC_err;
+                    LPCs_tmp1[0] = 1;
+                    for (let n = 1; n < k; ++n) {
+                        LPCs_tmp1[n] = LPCs[n] + rc * LPCs[k - n];
+                    }
+                    LPCs_tmp1[k] = rc;
+                    for (let n = 0; n <= k; ++n) {
+                        LPCs[n] = LPCs_tmp1[n];
+                    }
+                    LPC_err *= (1 - rc * rc);
                 }
-                if (err < 1E-6) {
-                    //  TODO(akita): A suspicious possible division-by-zero.
-                    //               Is this OK...?
-                    err = 1;
+
+                if (LPC_badflag) {
+                    //  On this condition, we'd better turn off the TNS filter.
+    
+                    //  If the TNS filter f is turned off, then the reflection 
+                    //  coefficients shall be set to 0.
+                    RC_f[0] = 0;
+                    RC_f[1] = 0;
+                    RC_f[2] = 0;
+                    RC_f[3] = 0;
+                    RC_f[4] = 0;
+                    RC_f[5] = 0;
+                    RC_f[6] = 0;
+                    RC_f[7] = 0;
+
+                    continue;
                 }
-                rc = (-rc) / err;
-                LPCs_tmp1[0] = 1;
-                for (let n = 1; n < k; ++n) {
-                    LPCs_tmp1[n] = LPCs[n] + rc * LPCs[k - n];
-                }
-                LPCs_tmp1[k] = rc;
-                for (let n = 0; n <= k; ++n) {
-                    LPCs[n] = LPCs_tmp1[n];
-                }
-                err *= (1 - rc * rc);
             }
             // console.log("a[k]=" + LPCs.toString());
 
-            let predGain = Rk[0] / err;                             //  Eq. 69
-            // console.log("predGain=" + predGain.toString());
+            let pred_gain;
+            {
+                //  The prediction gain shall be computed:
 
-            let RC_f = RC[f];
-            if (predGain > 1.5 && nn_flag == 0) {
-                if (tns_lpc_weighting == 1 && predGain < 2) {
-                    //  The weighting factor γ shall be computed by:
-                    let gamma = 1 - 0.3 * (2 - predGain);           //  Eq. 70
+                //  Eq. 69
+                pred_gain = R[0] / LPC_err;
+            }
+            // console.log("pred_gain=" + pred_gain.toString());
 
-                    //  The LPC coefficients shall be weighted using the 
-                    //  factor γ.
-                    let factor = 1;                                 //  Eq. 72
-                    for (let k = 0; k < 9; ++k) {
-                        LPCs[k] *= factor;
-                        factor *= gamma;
-                    }
-                }
+            {
+                if (pred_gain > 1.5 && nn_flag == 0) {
+                    if (tns_lpc_weighting == 1 && pred_gain < 2) {
+                        //  The weighting factor γ shall be computed by:
+                        let gamma = 1 - 0.3 * (2 - pred_gain);      //  Eq. 70
 
-                //  The weighted LPC coefficients shall be converted to 
-                //  reflection coefficients using the following algorithm.
-                for (let k = 0; k < 9; ++k) {
-                    LPCs_tmp1[k] = LPCs[k];
-                }
-                for (let k = 8; k >= 1; --k) {
-                    let LPCs_tmp1_k = LPCs_tmp1[k];
-                    RC_f[k - 1] = LPCs_tmp1_k;
-                    let e = 1 - LPCs_tmp1_k * LPCs_tmp1_k;
-                    for (let n = 1; n < k; ++n) {
-                        LPCs_tmp2[n] = (
-                            LPCs_tmp1[n] - LPCs_tmp1_k * LPCs_tmp1[k - n]
-                        ) / e;
+                        //  The LPC coefficients shall be weighted using the 
+                        //  factor γ.
+                        let factor = gamma;                         //  Eq. 72
+                        LPCs[1] *= factor;
+                        factor  *= gamma;
+                        LPCs[2] *= factor;
+                        factor  *= gamma;
+                        LPCs[3] *= factor;
+                        factor  *= gamma;
+                        LPCs[4] *= factor;
+                        factor  *= gamma;
+                        LPCs[5] *= factor;
+                        factor  *= gamma;
+                        LPCs[6] *= factor;
+                        factor  *= gamma;
+                        LPCs[7] *= factor;
+                        factor  *= gamma;
+                        LPCs[8] *= factor;
                     }
-                    for (let n = 1; n < k; ++n) {
-                        LPCs_tmp1[n] = LPCs_tmp2[n];
+
+                    //  The weighted LPC coefficients shall be converted to 
+                    //  reflection coefficients using the following algorithm.
+                    LPCs_tmp1[0] = LPCs[0];
+                    LPCs_tmp1[1] = LPCs[1];
+                    LPCs_tmp1[2] = LPCs[2];
+                    LPCs_tmp1[3] = LPCs[3];
+                    LPCs_tmp1[4] = LPCs[4];
+                    LPCs_tmp1[5] = LPCs[5];
+                    LPCs_tmp1[6] = LPCs[6];
+                    LPCs_tmp1[7] = LPCs[7];
+                    LPCs_tmp1[8] = LPCs[8];
+                    for (let k = 8; k >= 1; --k) {
+                        let LPCs_tmp1_k = LPCs_tmp1[k];
+                        RC_f[k - 1] = LPCs_tmp1_k;
+                        let e = 1 - LPCs_tmp1_k * LPCs_tmp1_k;
+                        for (let n = 1; n < k; ++n) {
+                            LPCs_tmp2[n] = (
+                                LPCs_tmp1[n] - LPCs_tmp1_k * LPCs_tmp1[k - n]
+                            ) / e;
+                        }
+                        for (let n = 1; n < k; ++n) {
+                            LPCs_tmp1[n] = LPCs_tmp2[n];
+                        }
                     }
-                }
-            } else {
-                //  If the TNS filter f is turned off, then the reflection 
-                //  coefficients shall be set to 0.
-                for (let k = 0; k < 8; ++k) {
-                    RC_f[k] = 0;
+                } else {
+                    //  If the TNS filter f is turned off, then the reflection 
+                    //  coefficients shall be set to 0.
+                    RC_f[0] = 0;
+                    RC_f[1] = 0;
+                    RC_f[2] = 0;
+                    RC_f[3] = 0;
+                    RC_f[4] = 0;
+                    RC_f[5] = 0;
+                    RC_f[6] = 0;
+                    RC_f[7] = 0;
                 }
             }
+        }
+        for (let f = num_tns_filters; f < 2; ++f) {
+            let RC_f = RC[f];
 
+            //  If the TNS filter f is turned off, then the reflection 
+            //  coefficients shall be set to 0.
+            RC_f[0] = 0;
+            RC_f[1] = 0;
+            RC_f[2] = 0;
+            RC_f[3] = 0;
+            RC_f[4] = 0;
+            RC_f[5] = 0;
+            RC_f[6] = 0;
+            RC_f[7] = 0;
         }
 
         //  Quantization (3.3.8.3).
@@ -358,24 +364,49 @@ function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
             let RC_f = RC[f];
             let RCint_f = RCint[f];
             let RCq_f = RCq[f];
-            for (let k = 0; k < 8; ++k) {
-                let t1 = Math.round(Math.asin(RC_f[k]) * 17 / Math.PI);
-                let t2 = t1 + 8;
-                RCint_f[k] = t2;                                    //  Eq. 73
-                RCq_f[k] = Math.sin(t1 * Math.PI / 17);             //  Eq. 74
+
+            {
+                let tmp;
+
+                //  The reflection coefficients shall be quantized using 
+                //  scalar uniform quantization in the arcsine domain.
+
+                //  Eq. 73, 74
+                tmp = Math.round(Math.asin(RC_f[0]) * RCQ_C1);
+                RCint_f[0] = tmp + 8;
+                RCq_f[0] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[1]) * RCQ_C1);
+                RCint_f[1] = tmp + 8;
+                RCq_f[1] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[2]) * RCQ_C1);
+                RCint_f[2] = tmp + 8;
+                RCq_f[2] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[3]) * RCQ_C1);
+                RCint_f[3] = tmp + 8;
+                RCq_f[3] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[4]) * RCQ_C1);
+                RCint_f[4] = tmp + 8;
+                RCq_f[4] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[5]) * RCQ_C1);
+                RCint_f[5] = tmp + 8;
+                RCq_f[5] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[6]) * RCQ_C1);
+                RCint_f[6] = tmp + 8;
+                RCq_f[6] = Math.sin(tmp * RCQ_C2);
+                tmp = Math.round(Math.asin(RC_f[7]) * RCQ_C1);
+                RCint_f[7] = tmp + 8;
+                RCq_f[7] = Math.sin(tmp * RCQ_C2);
             }
 
-            //  The order of the quantized reflection coefficients shall be 
-            //  calculated using:
-            let RCorderS1 = 7;
-            for (
-                ; 
-                RCorderS1 >= 0 && Math.abs(RCq_f[RCorderS1]) < 1e-31; 
-                --RCorderS1
-            ) {
-                //  Dummy.
+            {
+                //  The order of the quantized reflection coefficients shall be 
+                //  calculated using:
+                let k = 7;
+                while (k >= 0 && Math.abs(RCq_f[k]) < 1e-31) {
+                    --k;
+                }
+                RCorder[f] = k + 1;
             }
-            RCorder[f] = RCorderS1 + 1;
         }
 
         for (let f = 0; f < num_tns_filters; ++f) {
@@ -383,44 +414,57 @@ function LC3TemporalNoiseShapingEncoder(Nf, Nms) {
             let RCq_f = RCq[f];
             let RCorderS1 = RCorder[f] - 1;
 
-            //  The total number of bits consumed by TNS in the current frame 
-            //  shall then be computed as follows:
-            let nbitsTNSorder;                                      //  Eq. 76
-            if (RCorderS1 >= 0) {
-                nbitsTNSorder = AC_TNS_ORDER_BITS_tlw[RCorderS1];
-            } else {
-                nbitsTNSorder = 0;
-            }
+            {
+                //  The total number of bits consumed by TNS in the current frame 
+                //  shall then be computed as follows:
 
-            let nbitsTNScoef = 0;                                   //  Eq. 77
-            for (let v = 0; v <= RCorderS1; ++v) {
-                nbitsTNScoef += AC_TNS_COEF_BITS[v][RCint_f[v]];
-            }
+                //  Eq. 76
+                let nbitsTNSorder;
+                if (RCorderS1 >= 0) {
+                    nbitsTNSorder = 
+                        AC_TNS_ORDER_BITS[tns_lpc_weighting][RCorderS1];
+                } else {
+                    nbitsTNSorder = 0;
+                }
 
-            nbitsTNS += Math.ceil(                                  //  Eq. 75
-                (2048 + nbitsTNSorder + nbitsTNScoef) / 2048
-            );
+                //  Eq. 77
+                let nbitsTNScoef = 0;
+                for (let v = 0; v <= RCorderS1; ++v) {
+                    nbitsTNScoef += AC_TNS_COEF_BITS[v][RCint_f[v]];
+                }
+
+                //  Eq. 75
+                let tmp = 2048 + nbitsTNSorder + nbitsTNScoef;
+                if ((tmp & 2047) != 0) {
+                    tmp >>>= 11;
+                    ++(tmp);
+                } else {
+                    tmp >>>= 11;
+                }
+                nbitsTNS += tmp;
+            }
 
             //  Filtering (3.3.8.4).
-            //  The MDCT spectrum Xs[n] shall be analysis filtered using the 
-            //  following algorithm.
-            let start_freq_f = Tparam_start_freq[f], 
-                 stop_freq_f = Tparam_stop_freq[f];
-            if (RCorderS1 >= 0) {
-                for (let n = start_freq_f; n < stop_freq_f; ++n) {
-                    let t = Xs[n];
-                    let st_save = t;
-                    for (let k = 0; k < RCorderS1; ++k) {
-                        let RCq_f_k = RCq_f[k];
-                        let st_k = st[k];
-                        let st_tmp = RCq_f_k * t + st_k;
-                        t += RCq_f_k * st_k;
-                        st[k] = st_save;
-                        st_save = st_tmp;
+            {
+                //  The MDCT spectrum Xs[n] shall be analysis filtered using the 
+                //  following algorithm.
+                if (RCorderS1 >= 0) {
+                    let start_freq = start_freqs[f], stop_freq = stop_freqs[f];
+                    for (let n = start_freq; n < stop_freq; ++n) {
+                        let t = Xs[n];
+                        let st_save = t;
+                        for (let k = 0; k < RCorderS1; ++k) {
+                            let RCq_f_k = RCq_f[k];
+                            let st_k = st[k];
+                            let st_tmp = RCq_f_k * t + st_k;
+                            t += RCq_f_k * st_k;
+                            st[k] = st_save;
+                            st_save = st_tmp;
+                        }
+                        t += RCq_f[RCorderS1] * st[RCorderS1];
+                        st[RCorderS1] = st_save;
+                        Xf[n] = t;
                     }
-                    t += RCq_f[RCorderS1] * st[RCorderS1];
-                    st[RCorderS1] = st_save;
-                    Xf[n] = t;
                 }
             }
         }

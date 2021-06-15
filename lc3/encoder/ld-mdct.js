@@ -9,12 +9,50 @@
 //
 
 //  Imported modules.
+const Lc3Fs = 
+    require("./../common/fs");
+const Lc3Nms = 
+    require("./../common/nms");
+const Lc3SlideWin = 
+    require("./../common/slide_window");
 const Lc3Mdct = 
     require("./../math/mdct");
+const Lc3TblI = 
+    require("./../tables/i");
+const Lc3TblNB = 
+    require("./../tables/nb");
+const Lc3TblNF = 
+    require("./../tables/nf");
+const Lc3TblNnIdx = 
+    require("./../tables/nnidx");
+const Lc3TblW = 
+    require("./../tables/w");
+const Lc3TblZ = 
+    require("./../tables/z");
 
 //  Imported classes.
+const LC3SampleRate = 
+    Lc3Fs.LC3SampleRate;
+const LC3FrameDuration = 
+    Lc3Nms.LC3FrameDuration;
+const LC3SlideWindow = 
+    Lc3SlideWin.LC3SlideWindow;
 const MDCT = 
     Lc3Mdct.MDCT;
+
+//  Imported constants.
+const I_TBL = 
+    Lc3TblI.I_TBL;
+const NB_TBL = 
+    Lc3TblNB.NB_TBL;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
+const NNIDX_TBL = 
+    Lc3TblNnIdx.NNIDX_TBL;
+const W_TBL = 
+    Lc3TblW.W_TBL;
+const Z_TBL = 
+    Lc3TblZ.Z_TBL;
 
 //
 //  Constants.
@@ -31,53 +69,49 @@ const NN_thresh = 30;
  *  LC3 LD-MDCT analyzer.
  * 
  *  @constructor
- *  @param {Number} Nf 
- *    - The frame size.
- *  @param {Number} NB
- *    - The number of bands.
- *  @param {Number} Z 
- *    - The number of leading zeros in MDCT window.
- *  @param {Number[]} W
- *    - The MDCT window.
- *  @param {Number[]} Ifs
- *    - The band indices.
- *  @param {Number} nn_idx
- *    - The near Nyquist index.
+ *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
+ *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3MDCTAnalyzer(Nf, NB, Z, W, Ifs, nn_idx) {
-    //  Derive Nf * 2.
-    let NfMul2 = ((Nf << 1) >>> 0);
-
+function LC3MDCTAnalyzer(Nms, Fs) {
     //
     //  Members.
     //
 
-    //  Derive Nf - Z.
-    let NfSubZ = Nf - Z;
+    //  Internal index of Fs and Nms.
+    let index_Fs = Fs.getInternalIndex();
+    let index_Nms = Nms.getInternalIndex();
 
-    //  Derive 2Nf - Z.
-    let NfMul2_SubZ = ((Nf << 1) >>> 0) - Z;
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
+    let NF_mul_2 = ((NF << 1) >>> 0);
+    let NB = NB_TBL[index_Nms][index_Fs];
+    let Z = Z_TBL[index_Nms][index_Fs];
+    let W = W_TBL[index_Nms][index_Fs];
+    let Ifs = I_TBL[index_Nms][index_Fs];
+    let nn_idx = NNIDX_TBL[index_Nms][index_Fs];
 
     //  Derive sqrt(2 / Nf).
-    let SqrTwoDivNf = Math.sqrt(2 / Nf);
+    let SqrTwoDivNf = Math.sqrt(2 / NF);
 
     //  MDCT.
-    let mdct = new MDCT(Nf);
+    let mdct = new MDCT(NF);
 
     //  Time buffer.
-    let Tbuf = new Array(NfMul2);
+    let TbufLen = NF_mul_2 - Z;
+    let Tbuf = new LC3SlideWindow(TbufLen, 0, 0);
 
     //  Windowed time buffer.
-    let Twinbuf = new Array(NfMul2);
-    for (let k = 0; k < NfMul2; ++k) {
-        Tbuf[k] = 0;
-        Twinbuf[k] = 0;
+    let Twinbuf = new Array(NF_mul_2);
+    for (let k = 1; k <= Z; ++k) {
+        Twinbuf[NF_mul_2 - k] = 0;
     }
 
     //  Spectral coefficients.
-    let Xs = new Array(Nf);
-    for (let k = 0; k < Nf; ++k) {
-        Xs[k] = 0;
+    let X = new Array(NF);
+    for (let k = 0; k < NF; ++k) {
+        X[k] = 0;
     }
 
     //  Spectral energy band estimation.
@@ -101,31 +135,27 @@ function LC3MDCTAnalyzer(Nf, NB, Z, W, Ifs, nn_idx) {
      */
     this.update = function(xs) {
         //  Update time buffer.
-        for (let i = 0, j = Nf; i < NfSubZ; ++i, ++j) {
-            Tbuf[i] = Tbuf[j];
-        }
-        for (let i = NfSubZ, j = 0; i < NfMul2_SubZ; ++i, ++j) {
-            Tbuf[i] = xs[j];
-        }
+        Tbuf.append(xs);                                          //  Eq. 6, 7
 
         //  Get the windowed time buffer.
-        for (let n = 0; n < NfMul2; ++n) {
-            Twinbuf[n] = Tbuf[n] * W[n];
+        Tbuf.bulkGet(Twinbuf, 0, 0, TbufLen);
+        for (let n = 0; n < TbufLen; ++n) {
+            Twinbuf[n] *= W[n];
         }
 
         //  Get spectral coefficients.
-        let XsOrig = mdct.transform(Twinbuf);
-        for (let k = 0; k < Nf; ++k) {
-            Xs[k] = XsOrig[k] * SqrTwoDivNf;
+        let XsOrig = mdct.transform(Twinbuf);                        //  Eq. 8
+        for (let k = 0; k < NF; ++k) {
+            X[k] = XsOrig[k] * SqrTwoDivNf;
         }
 
         //  Do energy estimation.
-        for (let b = 0; b < NB; ++b) {
+        for (let b = 0; b < NB; ++b) {                              //  Eq. 10
             let i1 = Ifs[b];
             let i2 = Ifs[b + 1];
             let EB_b = 0;
             for (let k = i1; k < i2; ++k) {
-                let Xs_k = Xs[k];
+                let Xs_k = X[k];
                 EB_b += (Xs_k * Xs_k);
             }
             EB_b /= (i2 - i1);
@@ -133,7 +163,7 @@ function LC3MDCTAnalyzer(Nf, NB, Z, W, Ifs, nn_idx) {
         }
 
         //  Do near Nyquist detection.
-        let nn_high = 0, nn_low = 0;
+        let nn_high = 0, nn_low = 0;                                //  Eq. 11
         for (let n = nn_idx; n < NB; ++n) {
             nn_high += EB[n];
         }
@@ -154,7 +184,7 @@ function LC3MDCTAnalyzer(Nf, NB, Z, W, Ifs, nn_idx) {
      *    - The spectral coefficients.
      */
     this.getSpectralCoefficients = function() {
-        return Xs;
+        return X;
     };
 
     /**

@@ -27,34 +27,14 @@ const Lc3EcNle =
     require("./nle");
 const Lc3TblAcSpec = 
     require("./../tables/ac_spec");
+const Lc3TblNE = 
+    require("./../tables/ne");
+const Lc3TblNF = 
+    require("./../tables/nf");
 const Lc3TblSns = 
     require("./../tables/sns");
 const Lc3TblTns = 
     require("./../tables/tns");
-const Lc3TblI10 = 
-    require("./../tables/i10");
-const Lc3TblI75 = 
-    require("./../tables/i75");
-const Lc3TblW10_80 = 
-    require("./../tables/w10_80");
-const Lc3TblW10_160 = 
-    require("./../tables/w10_160");
-const Lc3TblW10_240 = 
-    require("./../tables/w10_240");
-const Lc3TblW10_320 = 
-    require("./../tables/w10_320");
-const Lc3TblW10_480 = 
-    require("./../tables/w10_480");
-const Lc3TblW75_60 = 
-    require("./../tables/w75_60");
-const Lc3TblW75_120 = 
-    require("./../tables/w75_120");
-const Lc3TblW75_180 = 
-    require("./../tables/w75_180");
-const Lc3TblW75_240 = 
-    require("./../tables/w75_240");
-const Lc3TblW75_360 = 
-    require("./../tables/w75_360");
 const Lc3Fs = 
     require("../common/fs");
 const Lc3Nms = 
@@ -105,46 +85,10 @@ const AC_TNS_COEF_CUMFREQ =
     Lc3TblTns.AC_TNS_COEF_CUMFREQ;
 const AC_TNS_COEF_FREQ = 
     Lc3TblTns.AC_TNS_COEF_FREQ;
-const W10_80 = 
-    Lc3TblW10_80.W10_80;
-const W10_160 = 
-    Lc3TblW10_160.W10_160;
-const W10_240 = 
-    Lc3TblW10_240.W10_240;
-const W10_320 = 
-    Lc3TblW10_320.W10_320;
-const W10_480 = 
-    Lc3TblW10_480.W10_480;
-const W75_60 = 
-    Lc3TblW75_60.W75_60;
-const W75_120 = 
-    Lc3TblW75_120.W75_120;
-const W75_180 = 
-    Lc3TblW75_180.W75_180;
-const W75_240 = 
-    Lc3TblW75_240.W75_240;
-const W75_360 = 
-    Lc3TblW75_360.W75_360;
-const I_8000_10 = 
-    Lc3TblI10.I_8000_10;
-const I_16000_10 = 
-    Lc3TblI10.I_16000_10;
-const I_24000_10 = 
-    Lc3TblI10.I_24000_10;
-const I_32000_10 = 
-    Lc3TblI10.I_32000_10;
-const I_48000_10 = 
-    Lc3TblI10.I_48000_10;
-const I_8000_75 = 
-    Lc3TblI75.I_8000_75;
-const I_16000_75 = 
-    Lc3TblI75.I_16000_75;
-const I_24000_75 = 
-    Lc3TblI75.I_24000_75;
-const I_32000_75 = 
-    Lc3TblI75.I_32000_75;
-const I_48000_75 = 
-    Lc3TblI75.I_48000_75;
+const NE_TBL = 
+    Lc3TblNE.NE_TBL;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
 
 //
 //  Constants.
@@ -163,86 +107,6 @@ const ACCTXMEMB_CACHE = 2;
 const ACCTXMEMB_CARRY = 3;
 const ACCTXMEMB_CARRYCOUNT = 4;
 const ACCTXMEMB_BP = 5;
-
-//  Nms, Fs to Ifs table.
-const IFS_TBL = [
-    [
-        I_8000_10, I_16000_10, I_24000_10, I_32000_10, I_48000_10, I_48000_10
-    ],
-    [
-        I_8000_75, I_16000_75, I_24000_75, I_32000_75, I_48000_75, I_48000_75
-    ]
-];
-
-//  Nms, Fs to W table.
-const W_TBL = [
-    [
-        W10_80, W10_160, W10_240, W10_320, W10_480, W10_480
-    ],
-    [
-        W75_60, W75_120, W75_180, W75_240, W75_360, W75_360
-    ]
-];
-
-//  Nms, Fs to NF table.
-const NF_TBL = [
-    [
-        80, 160, 240, 320, 480, 480
-    ],
-    [
-        60, 120, 180, 240, 360, 360
-    ]
-];
-
-//  NF (Nms, Fs) to NE table (see Eq. 9).
-const NE_TBL = [
-    [
-        80, 160, 240, 320, 400, 400
-    ],
-    [
-        60, 120, 180, 240, 300, 300
-    ]
-];
-
-//  NE (Nms, Fs) to ceil(log2(NE / 2)) table.
-const NBITSARI_TBL = [
-    [
-        6, 7, 7, 8, 8, 8
-    ],
-    [
-        5, 6, 7, 7, 8, 8
-    ]
-];
-
-//  NF (Nms, Fs) to Z table (see Eq. 3).
-const Z_TBL = [
-    [
-        30, 60, 90, 120, 180, 180
-    ],
-    [
-        14, 28, 42,  56,  84,  84
-    ]
-];
-
-//  Nms, Fs to NB table.
-const NB_TBL = [
-    [
-        64, 64, 64, 64, 64, 64
-    ],
-    [
-        60, 64, 64, 64, 64, 64
-    ]
-];
-
-//  Nms, Fs to nn_idx table (see Table 3.5).
-const NNIDX_TBL = [
-    [
-        62, 62, 62, 62, 62, 62
-    ],
-    [
-        56, 60, 60, 60, 60, 60
-    ]
-];
 
 //
 //  Public classes.
@@ -266,45 +130,32 @@ function LC3Encoder(Nms, Fs) {
     let index_Nms = Nms.getInternalIndex();
     let index_Fs = Fs.getInternalIndex();
 
-    //  Algorithm contexts.
-    let Nf = NF_TBL[index_Nms][index_Fs];
-
-    let Ifs = IFS_TBL[index_Nms][index_Fs];
-
-    let NB = NB_TBL[index_Nms][index_Fs];
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
     let NE = NE_TBL[index_Nms][index_Fs];
-    let NEDiv2 = (NE >>> 1);
+    let NE_div_2 = (NE >>> 1);
 
-    let nn_idx = NNIDX_TBL[index_Nms][index_Fs];
+    //  Algorithm contexts.
+    let mdct = new LC3MDCTAnalyzer(Nms, Fs);
 
-    let mdctW = W_TBL[index_Nms][index_Fs];
-    let mdctZ = Z_TBL[index_Nms][index_Fs];
-    let mdct = new LC3MDCTAnalyzer(Nf, NB, mdctZ, mdctW, Ifs, nn_idx);
+    let bwdet = new LC3BandwidthDetector(Nms, Fs);
 
-    let bwdet = new LC3BandwidthDetector(Fs, Nms);
+    let akdet = new LC3AttackDetector(Nms, Fs)
 
-    let akdet = new LC3AttackDetector(Fs, Nms)
-    // console.log("Nf=" + Nf);
-    // console.log("NB=" + NB.toString());
-    // console.log("NE=" + NE.toString());
-    // console.log("nn_idx=" + nn_idx);
-    // console.log("Z=" + mdctZ);
-
-    let sns = new LC3SpectralNoiseShapingEncoder(Nf, Nms, Fs, Ifs, NB);
+    let sns = new LC3SpectralNoiseShapingEncoder(Nms, Fs);
     let sns_vqp_buf = new Array(6);
 
-    let tns = new LC3TemporalNoiseShapingEncoder(Nf, Nms);
-    let ltpf_enc = new LC3LongTermPostfilter(Nf, Nms, Fs);
+    let tns = new LC3TemporalNoiseShapingEncoder(Nms, Fs);
+
+    let ltpf_enc = new LC3LongTermPostfilter(Nms, Fs);
     let ltpf_enc_param_buf = new Array(4);
 
-    let sqtz = new LC3SpectralQuantization(Nms, Fs, NE);
-    let sqtz_param_buf = new Array(8);
+    let sqtz = new LC3SpectralQuantization(Nms, Fs);
+    let sqtz_param_buf = new Array(9);
 
     let res_bits = new Array(3200);
 
-    let nle = new LC3NoiseLevelEstimation(Nms, NE);
-
-    let nbits_lastnz = NBITSARI_TBL[index_Nms][index_Fs];
+    let nle = new LC3NoiseLevelEstimation(Nms, Fs);
 
     let cur_side = new Array(CURMEMN);
     let ac_ctx = new Array(ACCTXMEMN);
@@ -321,7 +172,7 @@ function LC3Encoder(Nms, Fs) {
      *    - The frame size.
      */
     this.getFrameSize = function() {
-        return Nf;
+        return NF;
     };
 
     /**
@@ -343,7 +194,7 @@ function LC3Encoder(Nms, Fs) {
      */
     this.encode = function(xs, nbytes, bytesbuf = Buffer.alloc(400)) {
         //  Check the frame size.
-        if (xs.length != Nf) {
+        if (xs.length != NF) {
             throw new LC3IllegalParameterError(
                 "Frame size mismatches."
             );
@@ -446,7 +297,8 @@ function LC3Encoder(Nms, Fs) {
         // let modeFlag = sqtz_param_buf[4];
         let nbits_spec = sqtz_param_buf[5];
         let nbits_trunc = sqtz_param_buf[6];
-        let lsbMode = sqtz_param_buf[7];
+        let nbits_lastnz = sqtz_param_buf[7];
+        let lsbMode = sqtz_param_buf[8];
         // console.log("gg=" + gg.toString());
         // console.log("gg_ind=" + gg_ind.toString());
         // console.log("lastnz_trunc=" + lastnz_trunc.toString());
@@ -454,6 +306,7 @@ function LC3Encoder(Nms, Fs) {
         // console.log("modeFlag=" + modeFlag.toString());
         // console.log("nbits_spec=" + nbits_spec.toString());
         // console.log("nbits_trunc=" + nbits_trunc.toString());
+        // console.log("nbits_lastnz=" + nbits_lastnz.toString());
         // console.log("lsbMode=" + lsbMode);
 
         //  Residual coding (3.3.11).
@@ -648,7 +501,7 @@ function LC3Encoder(Nms, Fs) {
             let Xq_k1 = Xq[k + 1];
 
             let t = c + rateFlag;
-            if (k > NEDiv2) {
+            if (k > NE_div_2) {
                 t += 256;
             }
 
