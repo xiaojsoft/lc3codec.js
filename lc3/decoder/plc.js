@@ -5,6 +5,28 @@
 //
 
 //
+//  Imports.
+//
+
+//  Imported modules.
+const Lc3Fs = 
+    require("./../common/fs");
+const Lc3Nms = 
+    require("./../common/nms");
+const Lc3TblNF = 
+    require("./../tables/nf");
+
+//  Imported classes.
+const LC3SampleRate = 
+    Lc3Fs.LC3SampleRate;
+const LC3FrameDuration = 
+    Lc3Nms.LC3FrameDuration;
+
+//  Imported constants.
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
+
+//
 //  Public classes.
 //
 
@@ -12,13 +34,22 @@
  *  LC3 packet loss concealment (see Appendix B).
  * 
  *  @constructor
- *  @param {Number} NF 
- *    - The frame size.
+ *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
+ *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3PacketLossConcealment(NF) {
+function LC3PacketLossConcealment(Nms, Fs) {
     //
     //  Members.
     //
+
+    //  Internal index of Fs and Nms.
+    let index_Fs = Fs.getInternalIndex();
+    let index_Nms = Nms.getInternalIndex();
+
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
 
     //  Algorithm contexts.
     let plc_seed = 24607;

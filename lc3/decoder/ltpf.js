@@ -17,6 +17,8 @@ const Lc3Nms =
     require("./../common/nms");
 const Lc3SlideWin = 
     require("./../common/slide_window");
+const Lc3TblNF = 
+    require("./../tables/nf");
 const Lc3TblLtpf = 
     require("./../tables/ltpf");
 
@@ -53,6 +55,8 @@ const TAB_LTPF_DEN_32000 =
     Lc3TblLtpf.TAB_LTPF_DEN_32000;
 const TAB_LTPF_DEN_48000 = 
     Lc3TblLtpf.TAB_LTPF_DEN_48000;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
 
 //
 //  Constants.
@@ -115,10 +119,8 @@ const X_LTPF_HAT_WIN_HISTORY_SIZE = [
  *    - The frame duration.
  *  @param {InstanceType<typeof LC3SampleRate>} Fs 
  *    - The sample rate.
- *  @param {Number} NF
- *    - The frame size.
  */
-function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
+function LC3LongTermPostfilterDecoder(Nms, Fs) {
     //
     //  Members.
     //
@@ -127,18 +129,20 @@ function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
     let index_Nms = Nms.getInternalIndex();
     let index_Fs = Fs.getInternalIndex();
 
-    //  Algorithm contexts.
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
     let norm = NORM_TBL[index_Fs];
-
-    let gain_params = new Array(2);
-
-    let x_ltpf_hat = new Array(NF);
-
     let pitch_fs_factor = PITCHFS_FACTOR[index_Fs];
-
     let L_den = LDEN_TBL[index_Fs];                                //  Eq. 148
     let L_den_div2 = (L_den >>> 1);
     let L_num = L_den - 2;                                         //  Eq. 149
+    let tab_ltpf_num_fs = TAB_LTPF_NUM_TBL[index_Fs];
+    let tab_ltpf_den_fs = TAB_LTPF_DEN_TBL[index_Fs];
+
+    //  Algorithm contexts.
+    let gain_params = new Array(2);
+
+    let x_ltpf_hat = new Array(NF);
 
     let C_den_mem = new Array(L_den + 1);
     let C_den = new Array(L_den + 1);
@@ -150,9 +154,6 @@ function LC3LongTermPostfilterDecoder(Nms, Fs, NF) {
     for (let k = 0; k <= L_num; ++k) {
         C_num_mem[k] = C_num[k] = 0;
     }
-
-    let tab_ltpf_num_fs = TAB_LTPF_NUM_TBL[index_Fs];
-    let tab_ltpf_den_fs = TAB_LTPF_DEN_TBL[index_Fs];
 
     let x_hat_win = new LC3SlideWindow(NF, L_num, 0);
     let x_ltpf_hat_win = new LC3SlideWindow(

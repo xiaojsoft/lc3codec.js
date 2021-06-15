@@ -300,6 +300,12 @@ const TNS_PARAM_SUB_STOP = [
     ]
 ];
 
+//  TNS_LPC_WEIGHTING_TH[Nms] = 48 * Nms.
+const TNS_LPC_WEIGHTING_TH = [
+    480, //  [0] = 48 * Nms(= 10ms).
+    360  //  [1] = 48 * Nms(= 7.5ms).
+];
+
 //  Export public APIs.
 module.exports = {
     "AC_TNS_ORDER_BITS": AC_TNS_ORDER_BITS,
@@ -312,5 +318,6 @@ module.exports = {
     "TNS_PARAM_START_FREQ": TNS_PARAM_START_FREQ,
     "TNS_PARAM_STOP_FREQ": TNS_PARAM_STOP_FREQ,
     "TNS_PARAM_SUB_START": TNS_PARAM_SUB_START,
-    "TNS_PARAM_SUB_STOP": TNS_PARAM_SUB_STOP
+    "TNS_PARAM_SUB_STOP": TNS_PARAM_SUB_STOP,
+    "TNS_LPC_WEIGHTING_TH": TNS_LPC_WEIGHTING_TH
 };

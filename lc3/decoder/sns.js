@@ -9,27 +9,60 @@
 //
 
 //  Imported modules.
-const Lc3TblSns = require("./../tables/sns");
-const Lc3Pvq = require("./../math/pvq");
-const Lc3Mpvq = require("./../math/mpvq");
-const Lc3Error = require("./../error");
+const Lc3Fs = 
+    require("./../common/fs");
+const Lc3Nms = 
+    require("./../common/nms");
+const Lc3TblI = 
+    require("./../tables/i");
+const Lc3TblNB = 
+    require("./../tables/nb");
+const Lc3TblNF = 
+    require("./../tables/nf");
+const Lc3TblSns = 
+    require("./../tables/sns");
+const Lc3Pvq = 
+    require("./../math/pvq");
+const Lc3Mpvq = 
+    require("./../math/mpvq");
+const Lc3Error = 
+    require("./../error");
 
 //  Imported classes.
-const MPVQ = Lc3Mpvq.MPVQ;
-const LC3BugError = Lc3Error.LC3BugError;
+const LC3SampleRate = 
+    Lc3Fs.LC3SampleRate;
+const LC3FrameDuration = 
+    Lc3Nms.LC3FrameDuration;
+const MPVQ = 
+    Lc3Mpvq.MPVQ;
+const LC3BugError = 
+    Lc3Error.LC3BugError;
 
 //  Imported functions.
-const PVQNormalize = Lc3Pvq.PVQNormalize;
+const PVQNormalize = 
+    Lc3Pvq.PVQNormalize;
+
+//  Imported constants.
+const NB_TBL = 
+    Lc3TblNB.NB_TBL;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
+const I_TBL = 
+    Lc3TblI.I_TBL;
+const DCTII_16x16 = 
+    Lc3TblSns.DCTII_16x16;
+const HFCB = 
+    Lc3TblSns.HFCB;
+const LFCB = 
+    Lc3TblSns.LFCB;
+const GIJ = 
+    Lc3TblSns.GIJ;
 
 //
 //  Constants.
 //
 
-//  Minimum noise floor (= 2 ^ 32, Eq. 23).
-const DCTII_16x16 = Lc3TblSns.DCTII_16x16;
-const HFCB = Lc3TblSns.HFCB;
-const LFCB = Lc3TblSns.LFCB;
-const GIJ = Lc3TblSns.GIJ;
+//  MPVQ(16, 10).
 const MPVQ_16x10 = new MPVQ(16, 10);
 
 //
@@ -40,17 +73,24 @@ const MPVQ_16x10 = new MPVQ(16, 10);
  *  LC3 spectral noise shaping decoder.
  * 
  *  @constructor
- *  @param {Number} NF
- *    - The frame size.
- *  @param {Number} NB
- *    - The number of bands.
- *  @param {Number[]} Ifs
- *    - The Ifs table.
+ *  @param {InstanceType<typeof LC3FrameDuration>} Nms 
+ *    - The frame duration.
+ *  @param {InstanceType<typeof LC3SampleRate>} Fs 
+ *    - The sample rate.
  */
-function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
+function LC3SpectralNoiseShapingDecoder(Nms, Fs) {
     //
     //  Members.
     //
+
+    //  Internal index of Fs and Nms.
+    let index_Fs = Fs.getInternalIndex();
+    let index_Nms = Nms.getInternalIndex();
+
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
+    let NB = NB_TBL[index_Nms][index_Fs];
+    let Ifs = I_TBL[index_Nms][index_Fs];
 
     //  Algorithm contexts.
     let st1 = new Array(16);
@@ -109,142 +149,296 @@ function LC3SpectralNoiseShapingDecoder(NF, NB, Ifs) {
         Xs_hat
     ) {
         //  Stage 1 SNS VQ decoding.
+        {
+            //  The first stage indices ind_LF and ind_HF shall be converted 
+            //  into signal st1[n]:
 
-        //  The first stage indices ind_LF and ind_HF shall be converted into 
-        //  signal st1[n] according to Eq. 39 and 40 in Section 3.3.7.3.2:
-        // console.log("ind_LF=" + ind_LF);
-        // console.log("ind_HF=" + ind_HF);
-        let LFCB_ind_LF = LFCB[ind_LF], HFCB_ind_HF = HFCB[ind_HF];
-        for (let n = 0; n < 8; ++n) {
-            st1[n] = LFCB_ind_LF[n];                                //  Eq. 39
-            st1[n + 8] = HFCB_ind_HF[n];                            //  Eq. 40
+            let codebook;
+
+            //  Eq. 39
+            codebook = LFCB[ind_LF];
+            st1[ 0] = codebook[0];
+            st1[ 1] = codebook[1];
+            st1[ 2] = codebook[2];
+            st1[ 3] = codebook[3];
+            st1[ 4] = codebook[4];
+            st1[ 5] = codebook[5];
+            st1[ 6] = codebook[6];
+            st1[ 7] = codebook[7];
+
+            //  Eq. 40
+            codebook = HFCB[ind_HF];
+            st1[ 8] = codebook[0];
+            st1[ 9] = codebook[1];
+            st1[10] = codebook[2];
+            st1[11] = codebook[3];
+            st1[12] = codebook[4];
+            st1[13] = codebook[5];
+            st1[14] = codebook[6];
+            st1[15] = codebook[7];
         }
         // console.log("st1[]=" + st1.toString());
 
         //  Stage 2 SNS VQ decoding (3.4.7.2.2).
-
-        //  De-enumeration of the shape indices (3.4.7.2.2.1).
-        // console.log("shape_j=" + shape_j);
-        switch (shape_j) {
-        case 0:
-            try {
-                MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
-                MPVQ_16x10.deenumerate(6, 1, LS_indB, idxB, mpvq_buf_x6);
-            } catch(error) {
-                return false;
+        {
+            //  De-enumeration of the shape indices (3.4.7.2.2.1).
+            // console.log("shape_j=" + shape_j);
+            switch (shape_j) {
+            case 0:
+                try {
+                    MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
+                    MPVQ_16x10.deenumerate(6, 1, LS_indB, idxB, mpvq_buf_x6);
+                } catch(error) {
+                    return false;
+                }
+                y_shape_j[ 0] = mpvq_buf_x10[0];
+                y_shape_j[ 1] = mpvq_buf_x10[1];
+                y_shape_j[ 2] = mpvq_buf_x10[2];
+                y_shape_j[ 3] = mpvq_buf_x10[3];
+                y_shape_j[ 4] = mpvq_buf_x10[4];
+                y_shape_j[ 5] = mpvq_buf_x10[5];
+                y_shape_j[ 6] = mpvq_buf_x10[6];
+                y_shape_j[ 7] = mpvq_buf_x10[7];
+                y_shape_j[ 8] = mpvq_buf_x10[8];
+                y_shape_j[ 9] = mpvq_buf_x10[9];
+                y_shape_j[10] = mpvq_buf_x6[0];
+                y_shape_j[11] = mpvq_buf_x6[1];
+                y_shape_j[12] = mpvq_buf_x6[2];
+                y_shape_j[13] = mpvq_buf_x6[3];
+                y_shape_j[14] = mpvq_buf_x6[4];
+                y_shape_j[15] = mpvq_buf_x6[5];
+                break;
+            case 1:
+                try {
+                    MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
+                } catch(error) {
+                    return false;
+                }
+                y_shape_j[ 0] = mpvq_buf_x10[0];
+                y_shape_j[ 1] = mpvq_buf_x10[1];
+                y_shape_j[ 2] = mpvq_buf_x10[2];
+                y_shape_j[ 3] = mpvq_buf_x10[3];
+                y_shape_j[ 4] = mpvq_buf_x10[4];
+                y_shape_j[ 5] = mpvq_buf_x10[5];
+                y_shape_j[ 6] = mpvq_buf_x10[6];
+                y_shape_j[ 7] = mpvq_buf_x10[7];
+                y_shape_j[ 8] = mpvq_buf_x10[8];
+                y_shape_j[ 9] = mpvq_buf_x10[9];
+                y_shape_j[10] = 0;
+                y_shape_j[11] = 0;
+                y_shape_j[12] = 0;
+                y_shape_j[13] = 0;
+                y_shape_j[14] = 0;
+                y_shape_j[15] = 0;
+                break;
+            case 2:
+                try {
+                    MPVQ_16x10.deenumerate(16, 8, LS_indA, idxA, y_shape_j);
+                } catch(error) {
+                    return false;
+                }
+                break;
+            case 3:
+                try {
+                    MPVQ_16x10.deenumerate(16, 6, LS_indA, idxA, y_shape_j);
+                } catch(error) {
+                    return false;
+                }
+                break;
+            default:
+                throw new LC3BugError("Bad shape_j.");
             }
-            for (let n = 0; n < 10; ++n) {
-                y_shape_j[n] = mpvq_buf_x10[n];
-            }
-            for (let n = 10; n < 16; ++n) {
-                y_shape_j[n] = mpvq_buf_x6[n - 10];
-            }
-            break;
-        case 1:
-            try {
-                MPVQ_16x10.deenumerate(10, 10, LS_indA, idxA, mpvq_buf_x10);
-            } catch(error) {
-                return false;
-            }
-            for (let n = 0; n < 10; ++n) {
-                y_shape_j[n] = mpvq_buf_x10[n];
-            }
-            for (let n = 10; n < 16; ++n) {
-                y_shape_j[n] = 0;
-            }
-            break;
-        case 2:
-            try {
-                MPVQ_16x10.deenumerate(16, 8, LS_indA, idxA, y_shape_j);
-            } catch(error) {
-                return false;
-            }
-            break;
-        case 3:
-            try {
-                MPVQ_16x10.deenumerate(16, 6, LS_indA, idxA, y_shape_j);
-            } catch(error) {
-                return false;
-            }
-            break;
-        default:
-            throw new LC3BugError("Bad shape_j.");
         }
         // console.log("y_shape_j[]=" + y_shape_j.toString());
 
-        //  Unit energy normalization of the received shape (3.4.7.2.3).
-        PVQNormalize(y_shape_j, xq_shape_j);
+        {
+            //  Unit energy normalization of the received shape (3.4.7.2.3).
+            PVQNormalize(y_shape_j, xq_shape_j);
+        }
         // console.log("xq_shape_j[]=" + xq_shape_j.toString());
 
-        //  Reconstruction of the quantized SNS scale factors (3.4.7.2.4).
+        {
+            //  Reconstruction of the quantized SNS scale factors (3.4.7.2.4).
 
-        //  The adjustment gain value G for gain_i and shape_j shall be 
-        //  determined based on table lookup (see Table 3.11).
-        let G = GIJ[shape_j][gain_i];
-        // console.log("G=" + G.toString());
+            //  The adjustment gain value G for gain_i and shape_j shall be 
+            //  determined based on table lookup (see Table 3.11).
+            let G = GIJ[shape_j][gain_i];
+            // console.log("G=" + G.toString());
 
-        //  Finally, the synthesis of the quantized scale factor vector scfQ[n] 
-        //  shall be performed in the same way as on the encoder side in 
-        //  3.3.7.3.
-        for (let n = 0; n < 16; ++n) {
-            let tmp = 0;
-            for (let col = 0; col < 16; ++col) {
-                tmp += xq_shape_j[col] * DCTII_16x16[n][col];
+            //  Finally, the synthesis of the quantized scale factor vector 
+            //  scfQ[n] shall be performed in the same way as on the encoder 
+            //  side.
+            for (let n = 0; n < 16; ++n) {
+                let tmp = 0;
+                for (let col = 0; col < 16; ++col) {
+                    tmp += xq_shape_j[col] * DCTII_16x16[n][col];
+                }
+                scfQ[n] = st1[n] + G * tmp;
             }
-            scfQ[n] = st1[n] + G * tmp;
         }
         // console.log("scfQ[]=" + scfQ.toString());
 
         //  SNS scale factors interpolation (3.4.7.3).
-        scfQint[0] = scfQ[0];                                      //  Eq. 123
-        scfQint[1] = scfQ[0];
-        for (let n = 0; n < 15; ++n) {
-            let t1 = scfQ[n];
-            let t2 = (scfQ[n + 1] - t1) / 8;
-            let t3 = 4 * n;
-            scfQint[t3 + 2] = t1 +     t2;
-            scfQint[t3 + 3] = t1 + 3 * t2;
-            scfQint[t3 + 4] = t1 + 5 * t2;
-            scfQint[t3 + 5] = t1 + 7 * t2;
-        }
         {
-            let t1 = scfQ[15];
-            let t2 = (t1 - scfQ[14]) / 8;
+            let t1, t2;
+
+            //  The quantized scale factors scfQ(n) shall be interpolated:
+
+            //  Eq. 123
+            scfQint[0] = scfQ[0];
+            scfQint[1] = scfQ[0];
+            t1 = scfQ[ 0];
+            t2 = (scfQ[ 1] - t1) / 8;
+            scfQint[ 2] = t1 +     t2;
+            scfQint[ 3] = t1 + 3 * t2;
+            scfQint[ 4] = t1 + 5 * t2;
+            scfQint[ 5] = t1 + 7 * t2;
+
+            t1 = scfQ[ 1];
+            t2 = (scfQ[ 2] - t1) / 8;
+            scfQint[ 6] = t1 +     t2;
+            scfQint[ 7] = t1 + 3 * t2;
+            scfQint[ 8] = t1 + 5 * t2;
+            scfQint[ 9] = t1 + 7 * t2;
+
+            t1 = scfQ[ 2];
+            t2 = (scfQ[ 3] - t1) / 8;
+            scfQint[10] = t1 +     t2;
+            scfQint[11] = t1 + 3 * t2;
+            scfQint[12] = t1 + 5 * t2;
+            scfQint[13] = t1 + 7 * t2;
+
+            t1 = scfQ[ 3];
+            t2 = (scfQ[ 4] - t1) / 8;
+            scfQint[14] = t1 +     t2;
+            scfQint[15] = t1 + 3 * t2;
+            scfQint[16] = t1 + 5 * t2;
+            scfQint[17] = t1 + 7 * t2;
+
+            t1 = scfQ[ 4];
+            t2 = (scfQ[ 5] - t1) / 8;
+            scfQint[18] = t1 +     t2;
+            scfQint[19] = t1 + 3 * t2;
+            scfQint[20] = t1 + 5 * t2;
+            scfQint[21] = t1 + 7 * t2;
+
+            t1 = scfQ[ 5];
+            t2 = (scfQ[ 6] - t1) / 8;
+            scfQint[22] = t1 +     t2;
+            scfQint[23] = t1 + 3 * t2;
+            scfQint[24] = t1 + 5 * t2;
+            scfQint[25] = t1 + 7 * t2;
+
+            t1 = scfQ[ 6];
+            t2 = (scfQ[ 7] - t1) / 8;
+            scfQint[26] = t1 +     t2;
+            scfQint[27] = t1 + 3 * t2;
+            scfQint[28] = t1 + 5 * t2;
+            scfQint[29] = t1 + 7 * t2;
+
+            t1 = scfQ[ 7];
+            t2 = (scfQ[ 8] - t1) / 8;
+            scfQint[30] = t1 +     t2;
+            scfQint[31] = t1 + 3 * t2;
+            scfQint[32] = t1 + 5 * t2;
+            scfQint[33] = t1 + 7 * t2;
+
+            t1 = scfQ[ 8];
+            t2 = (scfQ[ 9] - t1) / 8;
+            scfQint[34] = t1 +     t2;
+            scfQint[35] = t1 + 3 * t2;
+            scfQint[36] = t1 + 5 * t2;
+            scfQint[37] = t1 + 7 * t2;
+
+            t1 = scfQ[ 9];
+            t2 = (scfQ[10] - t1) / 8;
+            scfQint[38] = t1 +     t2;
+            scfQint[39] = t1 + 3 * t2;
+            scfQint[40] = t1 + 5 * t2;
+            scfQint[41] = t1 + 7 * t2;
+
+            t1 = scfQ[10];
+            t2 = (scfQ[11] - t1) / 8;
+            scfQint[42] = t1 +     t2;
+            scfQint[43] = t1 + 3 * t2;
+            scfQint[44] = t1 + 5 * t2;
+            scfQint[45] = t1 + 7 * t2;
+
+            t1 = scfQ[11];
+            t2 = (scfQ[12] - t1) / 8;
+            scfQint[46] = t1 +     t2;
+            scfQint[47] = t1 + 3 * t2;
+            scfQint[48] = t1 + 5 * t2;
+            scfQint[49] = t1 + 7 * t2;
+
+            t1 = scfQ[12];
+            t2 = (scfQ[13] - t1) / 8;
+            scfQint[50] = t1 +     t2;
+            scfQint[51] = t1 + 3 * t2;
+            scfQint[52] = t1 + 5 * t2;
+            scfQint[53] = t1 + 7 * t2;
+
+            t1 = scfQ[13];
+            t2 = (scfQ[14] - t1) / 8;
+            scfQint[54] = t1 +     t2;
+            scfQint[55] = t1 + 3 * t2;
+            scfQint[56] = t1 + 5 * t2;
+            scfQint[57] = t1 + 7 * t2;
+
+            t1 = scfQ[14];
+            t2 = (scfQ[15] - t1) / 8;
+            scfQint[58] = t1 +     t2;
+            scfQint[59] = t1 + 3 * t2;
+            scfQint[60] = t1 + 5 * t2;
+            scfQint[61] = t1 + 7 * t2;
+
+            t1 = scfQ[15];
             scfQint[62] = t1 +     t2;
             scfQint[63] = t1 + 3 * t2;
         }
         // console.log("scfQint[]=" + scfQint);
 
-        //  If the configuration of the codec results in a number of bands 
-        //  NB < 64, the number of scale factors shall be reduced:
-        let scfQint_use = scfQint;
-        if (NB < 64) {
-            let i = 0, iEnd = 64 - NB, j = 0;
-            for (; i < iEnd; ++i, j += 2) {
-                scfQint_tmp[i] = 0.5 * (scfQint[j] + scfQint[j + 1]);
+        let scfQint_use;
+        {
+            //  If the configuration of the codec results in a number of bands 
+            //  NB < 64, the number of scale factors shall be reduced:
+            if (NB < 64) {
+                let i = 0, iEnd = 64 - NB, j = 0;
+                for (; i < iEnd; ++i, j += 2) {
+                    scfQint_tmp[i] = 0.5 * (scfQint[j] + scfQint[j + 1]);
+                }
+                for (; i < NB; ++i) {
+                    scfQint_tmp[i] = scfQint[iEnd + i];
+                }
+                scfQint_use = scfQint_tmp;
+            } else {
+                scfQint_use = scfQint;
             }
-            for (; i < NB; ++i) {
-                scfQint_tmp[i] = scfQint[iEnd + i];
-            }
-            scfQint_use = scfQint_tmp;
         }
 
-        //  The scale factors are then transformed back into the linear domain:
-        for (let b = 0; b < NB; ++b) {                             //  Eq. 124
-            gsns[b] = Math.pow(2, scfQint_use[b]);
-        }
-        for (let b = NB; b < 64; ++b) {
-            gsns[b] = 0;
+        {
+            //  The scale factors are then transformed back into the linear 
+            //  domain:
+
+            //  Eq. 124
+            for (let b = 0; b < NB; ++b) {
+                gsns[b] = Math.pow(2, scfQint_use[b]);
+            }
+            for (let b = NB; b < 64; ++b) {
+                gsns[b] = 0;
+            }
         }
 
-        //  Spectral Shaping (3.4.7.4).
-        for (let k = 0; k < NF; ++k) {
-            X_hat[k] = 0;
-        }
-        for (let b = 0; b < NB; ++b) {
-            let gsns_b = gsns[b];
-            for (let k = Ifs[b], kEnd = Ifs[b + 1]; k < kEnd; ++k) {
-                X_hat[k] = Xs_hat[k] * gsns_b;
+        {
+            //  Spectral Shaping (3.4.7.4).
+            for (let k = 0; k < NF; ++k) {
+                X_hat[k] = 0;
+            }
+            for (let b = 0; b < NB; ++b) {
+                let gsns_b = gsns[b];
+                for (let k = Ifs[b], kEnd = Ifs[b + 1]; k < kEnd; ++k) {
+                    X_hat[k] = Xs_hat[k] * gsns_b;
+                }
             }
         }
         // console.log("X_hat[]=" + X_hat.toString());

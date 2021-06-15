@@ -15,6 +15,8 @@ const Lc3Fs =
     require("./../common/fs");
 const Lc3TblNE = 
     require("./../tables/ne");
+const Lc3TblNLE = 
+    require("./../tables/nle");
 
 //  Imported classes.
 const LC3FrameDuration = 
@@ -25,24 +27,12 @@ const LC3SampleRate =
 //  Imported constants.
 const NE_TBL = 
     Lc3TblNE.NE_TBL;
-
-//
-//  Constants.
-//
-
-//  Nms to NFstart, NFwidth table (see Table 3.17).
-const NFSTART_TBL = [24, 18];
-const NFWIDTH_TBL = [3, 2];
-
-//  Nms, Pbw to bw_stop table (see Table 3.16).
-const BW_STOP_TBL = [
-    [
-        80, 160, 240, 320, 400
-    ],
-    [
-        60, 120, 180, 240, 300
-    ]
-];
+const NFSTART_TBL = 
+    Lc3TblNLE.NFSTART_TBL;
+const NFWIDTH_TBL = 
+    Lc3TblNLE.NFWIDTH_TBL;
+const BW_STOP_TBL = 
+    Lc3TblNLE.BW_STOP_TBL;
 
 //
 //  Public classes.

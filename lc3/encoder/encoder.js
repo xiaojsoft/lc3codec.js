@@ -36,11 +36,11 @@ const Lc3TblSns =
 const Lc3TblTns = 
     require("./../tables/tns");
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3Nms = 
-    require("../common/nms");
+    require("./../common/nms");
 const Lc3Error = 
-    require("../error");
+    require("./../error");
 
 //  Imported classes.
 const LC3SampleRate = 

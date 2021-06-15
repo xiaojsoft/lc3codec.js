@@ -10,9 +10,9 @@
 
 //  Imported modules.
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3Nms = 
-    require("../common/nms");
+    require("./../common/nms");
 
 //  Imported classes.
 const LC3SampleRate = 

@@ -1257,7 +1257,7 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
      *  @throws {LC3IllegalParameterError}
      *    - VQP size mismatches.
      *  @param {Number[]} [VQP] 
-     *    - The buffer of returned vector quantization parameters (used to 
+     *    - The buffer of returned vector quantization parameters (used for 
      *      reducing array allocation).
      *  @returns 
      *    - The vector quantization parameters (denotes as VQP[]), where:

@@ -39,18 +39,14 @@ const TNS_PARAM_SUB_START =
     Lc3TblTns.TNS_PARAM_SUB_START;
 const TNS_PARAM_SUB_STOP = 
     Lc3TblTns.TNS_PARAM_SUB_STOP;
+const TNS_LPC_WEIGHTING_TH = 
+    Lc3TblTns.TNS_LPC_WEIGHTING_TH;
 const NF_TBL = 
     Lc3TblNF.NF_TBL;
 
 //
 //  Constants.
 //
-
-//  TNS_LPC_WEIGHTING_TH[Nms] = 48 * Nms.
-const TNS_LPC_WEIGHTING_TH = [
-    480, //  [0] = 48 * Nms(= 10ms).
-    360  //  [1] = 48 * Nms(= 7.5ms).
-];
 
 //  RC quantization constants.
 const RCQ_C1 = 5.41126806512444158;  //  = 17 / PI

@@ -13,10 +13,12 @@ const Lc3TblAcSpec =
     require("./../tables/ac_spec");
 const Lc3TblNE = 
     require("./../tables/ne");
+const Lc3TblSQ = 
+    require("./../tables/sq");
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3Nms = 
-    require("../common/nms");
+    require("./../common/nms");
 const Lc3Error = 
     require("../error");
 
@@ -35,20 +37,12 @@ const AC_SPEC_BITS =
     Lc3TblAcSpec.AC_SPEC_BITS;
 const NE_TBL = 
     Lc3TblNE.NE_TBL;
+const NBITSLASTNZ_TBL = 
+    Lc3TblSQ.NBITSLASTNZ_TBL;
 
 //
 //  Constants.
 //
-
-//  NE (Nms, Fs) to ceil(log2(NE / 2)) table.
-const NBITSARI_BASE = [
-    [
-        6, 7, 7, 8, 8, 8
-    ],
-    [
-        5, 6, 7, 7, 8, 8
-    ]
-];
 
 //  Global gain adjustment tables (see 3.3.10.6).
 const GGADJ_T1 = [  80,  230,  380,  530,  680];
@@ -95,7 +89,7 @@ function LC3SpectralQuantization(Nms, Fs) {
     let NE = NE_TBL[index_Nms][index_Fs];
     let NE_div_2 = (NE >>> 1);
     let NE_div_4 = (NE >>> 2);
-    let nbits_ari_base = NBITSARI_BASE[index_Nms][index_Fs];
+    let nbits_ari_base = NBITSLASTNZ_TBL[index_Nms][index_Fs];
     let gg_off_c1 = GGOFF_C1[fsind];
     let gg_off_c2 = GGOFF_C2[fsind];
     let bitrate_c1 = BITRATE_C1[fsind];

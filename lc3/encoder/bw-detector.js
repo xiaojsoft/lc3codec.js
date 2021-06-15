@@ -10,15 +10,21 @@
 
 //  Imported modules.
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3Nms = 
-    require("../common/nms");
+    require("./../common/nms");
+const Lc3TblBW = 
+    require("./../tables/bw");
 
 //  Imported classes.
 const LC3SampleRate = 
     Lc3Fs.LC3SampleRate;
 const LC3FrameDuration = 
     Lc3Nms.LC3FrameDuration;
+
+//  Imported constants.
+const NBITSBW_TBL = 
+    Lc3TblBW.NBITSBW_TBL;
 
 //
 //  Constants.
@@ -60,10 +66,6 @@ const IBWSTOP_TBL = [
         [48, 55, 60, 63],
         [48, 55, 60, 63]
     ]
-];
-const NBITSBW_TBL = [
-    [0, 1, 2, 2, 3, 3],
-    [0, 1, 2, 2, 3, 3]
 ];
 const NBW_TBL = [
     [0, 1, 2, 3, 4, 4],

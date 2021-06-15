@@ -23,12 +23,18 @@ const Lc3Fs =
     require("./../common/fs");
 const Lc3Nms = 
     require("./../common/nms");
-const Lc3TblI10 = 
-    require("./../tables/i10");
-const Lc3TblI75 = 
-    require("./../tables/i75");
 const Lc3TblAcSpec = 
     require("./../tables/ac_spec");
+const Lc3TblBW = 
+    require("./../tables/bw");
+const Lc3TblNE = 
+    require("./../tables/ne");
+const Lc3TblNF = 
+    require("./../tables/nf");
+const Lc3TblNLE = 
+    require("./../tables/nle");
+const Lc3TblSQ = 
+    require("./../tables/sq");
 const Lc3TblTns = 
     require("./../tables/tns");
 
@@ -57,32 +63,32 @@ const AC_TNS_COEF_CUMFREQ =
     Lc3TblTns.AC_TNS_COEF_CUMFREQ;
 const AC_TNS_COEF_FREQ = 
     Lc3TblTns.AC_TNS_COEF_FREQ;
+const TNS_PARAM_START_FREQ = 
+    Lc3TblTns.TNS_PARAM_START_FREQ;
+const TNS_PARAM_STOP_FREQ = 
+    Lc3TblTns.TNS_PARAM_STOP_FREQ;
+const TNS_LPC_WEIGHTING_TH = 
+    Lc3TblTns.TNS_LPC_WEIGHTING_TH;
 const AC_SPEC_LOOKUP = 
     Lc3TblAcSpec.AC_SPEC_LOOKUP;
 const AC_SPEC_CUMFREQ = 
     Lc3TblAcSpec.AC_SPEC_CUMFREQ;
 const AC_SPEC_FREQ = 
     Lc3TblAcSpec.AC_SPEC_FREQ;
-const I_8000_10 = 
-    Lc3TblI10.I_8000_10;
-const I_16000_10 = 
-    Lc3TblI10.I_16000_10;
-const I_24000_10 = 
-    Lc3TblI10.I_24000_10;
-const I_32000_10 = 
-    Lc3TblI10.I_32000_10;
-const I_48000_10 = 
-    Lc3TblI10.I_48000_10;
-const I_8000_75 = 
-    Lc3TblI75.I_8000_75;
-const I_16000_75 = 
-    Lc3TblI75.I_16000_75;
-const I_24000_75 = 
-    Lc3TblI75.I_24000_75;
-const I_32000_75 = 
-    Lc3TblI75.I_32000_75;
-const I_48000_75 = 
-    Lc3TblI75.I_48000_75;
+const NE_TBL = 
+    Lc3TblNE.NE_TBL;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
+const NBITSLASTNZ_TBL = 
+    Lc3TblSQ.NBITSLASTNZ_TBL;
+const NBITSBW_TBL = 
+    Lc3TblBW.NBITSBW_TBL;
+const NFSTART_TBL = 
+    Lc3TblNLE.NFSTART_TBL;
+const NFWIDTH_TBL = 
+    Lc3TblNLE.NFWIDTH_TBL;
+const BW_STOP_TBL = 
+    Lc3TblNLE.BW_STOP_TBL;
 
 //
 //  Constants.
@@ -99,118 +105,6 @@ const ACCTXMEMB_LOW = 0;
 const ACCTXMEMB_RANGE = 1;
 const ACCTXMEMB_BEC = 2;
 const ACCTXMEMB_BP = 3;
-
-//  Nms, Fs to Ifs table.
-const IFS_TBL = [
-    [
-        I_8000_10, I_16000_10, I_24000_10, I_32000_10, I_48000_10, I_48000_10
-    ],
-    [
-        I_8000_75, I_16000_75, I_24000_75, I_32000_75, I_48000_75, I_48000_75
-    ]
-];
-
-//  Nms, Fs to NF table.
-const NF_TBL = [
-    [
-        80, 160, 240, 320, 480, 480
-    ],
-    [
-        60, 120, 180, 240, 360, 360
-    ]
-];
-
-//  NF (Nms, Fs) to NE table (see Eq. 9).
-const NE_TBL = [
-    [
-        80, 160, 240, 320, 400, 400
-    ],
-    [
-        60, 120, 180, 240, 300, 300
-    ]
-];
-
-//  Nms, Fs to nbitsBW table (see Table 3.6).
-const NBITSBW_TBL = [
-    [0, 1, 2, 2, 3, 3],
-    [0, 1, 2, 2, 3, 3]
-];
-
-//  Nms, Fs to NB table.
-const NB_TBL = [
-    [
-        64, 64, 64, 64, 64, 64
-    ],
-    [
-        60, 64, 64, 64, 64, 64
-    ]
-];
-
-//  NE (Nms, Fs) to ceil(log2(NE / 2)) table.
-const NBITSLASTNZ_TBL = [
-    [
-        6, 7, 7, 8, 8, 8
-    ],
-    [
-        5, 6, 7, 7, 8, 8
-    ]
-];
-
-//  TNS_LPC_WEIGHTING_TH[Nms] = 48 * Nms.
-const TNS_LPC_WEIGHTING_TH = [
-    480, //  [0] = 48 * Nms(= 10ms).
-    360  //  [1] = 48 * Nms(= 7.5ms).
-];
-
-//  Nms to NFstart, NFwidth table (see Table 3.19).
-const NFSTART_TBL = [24, 18];
-const NFWIDTH_TBL = [3, 2];
-
-//  Nms, Pbw to bw_stop table (see Table 3.18).
-const BW_STOP_TBL = [
-    [
-        80, 160, 240, 320, 400
-    ],
-    [
-        60, 120, 180, 240, 300
-    ]
-];
-
-//  Nms, Pbw to TNS start_freq[f] table.
-const TNS_STARTFREQ_TBL = [
-    [                //  Nms = 10ms:
-        [12],        //  Pbw = NB(0)
-        [12],        //  Pbw = WB(1)
-        [12],        //  Pbw = SSWB(2)
-        [12, 160],   //  Pbw = SWB(3)
-        [12, 200]    //  Pbw = FB
-    ],
-    [                //  Nms = 7.5ms:
-        [9],         //  Pbw = NB(0)
-        [9],         //  Pbw = WB(1)
-        [9],         //  Pbw = SSWB(2)
-        [9, 120],    //  Pbw = SWB(3)
-        [9, 150]     //  Pbw = FB
-    ]
-];
-
-//  Nms, Pbw to TNS stop_freq[f] table.
-const TNS_STOPFREQ_TBL = [
-    [                //  Nms = 10ms:
-        [80],        //  Pbw = NB(0)
-        [160],       //  Pbw = WB(1)
-        [240],       //  Pbw = SSWB(2)
-        [160, 320],  //  Pbw = SWB(3)
-        [200, 400]   //  Pbw = FB
-    ],
-    [                //  Nms = 7.5ms:
-        [60],        //  Pbw = NB(0)
-        [120],       //  Pbw = WB(1)
-        [180],       //  Pbw = SSWB(2)
-        [120, 240],  //  Pbw = SWB(3)
-        [150, 300]   //  Pbw = FB
-    ]
-];
 
 //
 //  Public classes.
@@ -238,10 +132,6 @@ function LC3Decoder(Nms, Fs) {
     let NF = NF_TBL[index_Nms][index_Fs];
     // console.log("NF=" + NF.toString());
 
-    let NB = NB_TBL[index_Nms][index_Fs];
-
-    let Ifs = IFS_TBL[index_Nms][index_Fs];
-
     let NE = NE_TBL[index_Nms][index_Fs];
     let NEDiv2 = (NE >>> 1);
     // console.log("NE=" + NE.toString());
@@ -264,8 +154,8 @@ function LC3Decoder(Nms, Fs) {
     let tns_RCq = [new Array(8), new Array(8)];
     let tns_S = new Array(8);
 
-    let tns_startfreq_Nms = TNS_STARTFREQ_TBL[index_Nms];
-    let tns_stopfreq_Nms = TNS_STOPFREQ_TBL[index_Nms];
+    let tns_startfreq_Nms = TNS_PARAM_START_FREQ[index_Nms];
+    let tns_stopfreq_Nms = TNS_PARAM_STOP_FREQ[index_Nms];
 
     let Xq = new Array(NE);
     let Xs = new Array(NE);
@@ -282,20 +172,30 @@ function LC3Decoder(Nms, Fs) {
     let INF = new Array(NE);
 
     //  SNS.
-    let sns = new LC3SpectralNoiseShapingDecoder(NF, NB, Ifs);
+    let sns = new LC3SpectralNoiseShapingDecoder(Nms, Fs);
 
     //  PLC.
-    let plc = new LC3PacketLossConcealment(NF);
+    let plc = new LC3PacketLossConcealment(Nms, Fs);
 
     //  LD-MDCT synthesizer.
-    let imdct = new LC3MDCTSynthesizer(Nms, Fs, NF);
+    let imdct = new LC3MDCTSynthesizer(Nms, Fs);
 
     //  LTPF (decoder-side).
-    let ltpf_dec = new LC3LongTermPostfilterDecoder(Nms, Fs, NF);
+    let ltpf_dec = new LC3LongTermPostfilterDecoder(Nms, Fs);
 
     //
     //  Public methods.
     //
+
+    /**
+     *  Get the frame size.
+     * 
+     *  @returns {Number}
+     *    - The frame size.
+     */
+    this.getFrameSize = function() {
+        return NF;
+    };
 
     /**
      *  Decode one frame.

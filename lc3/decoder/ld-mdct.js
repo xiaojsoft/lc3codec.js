@@ -9,30 +9,16 @@
 //
 
 //  Imported modules.
-const Lc3TblW10_80 = 
-    require("./../tables/w10_80");
-const Lc3TblW10_160 = 
-    require("./../tables/w10_160");
-const Lc3TblW10_240 = 
-    require("./../tables/w10_240");
-const Lc3TblW10_320 = 
-    require("./../tables/w10_320");
-const Lc3TblW10_480 = 
-    require("./../tables/w10_480");
-const Lc3TblW75_60 = 
-    require("./../tables/w75_60");
-const Lc3TblW75_120 = 
-    require("./../tables/w75_120");
-const Lc3TblW75_180 = 
-    require("./../tables/w75_180");
-const Lc3TblW75_240 = 
-    require("./../tables/w75_240");
-const Lc3TblW75_360 = 
-    require("./../tables/w75_360");
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3Nms = 
-    require("../common/nms");
+    require("./../common/nms");
+const Lc3TblNF = 
+    require("./../tables/nf");
+const Lc3TblW = 
+    require("./../tables/w");
+const Lc3TblZ = 
+    require("./../tables/z");
 const Lc3Mdct = 
     require("./../math/mdct");
 
@@ -45,51 +31,9 @@ const LC3FrameDuration =
     Lc3Nms.LC3FrameDuration;
 
 //  Imported constants.
-const W10_80 = 
-    Lc3TblW10_80.W10_80;
-const W10_160 = 
-    Lc3TblW10_160.W10_160;
-const W10_240 = 
-    Lc3TblW10_240.W10_240;
-const W10_320 = 
-    Lc3TblW10_320.W10_320;
-const W10_480 = 
-    Lc3TblW10_480.W10_480;
-const W75_60 = 
-    Lc3TblW75_60.W75_60;
-const W75_120 = 
-    Lc3TblW75_120.W75_120;
-const W75_180 = 
-    Lc3TblW75_180.W75_180;
-const W75_240 = 
-    Lc3TblW75_240.W75_240;
-const W75_360 = 
-    Lc3TblW75_360.W75_360;
-
-//
-//  Constants.
-//
-
-
-//  NF (Nms, Fs) to Z table (see Eq. 3).
-const Z_TBL = [
-    [
-        30, 60, 90, 120, 180, 180
-    ],
-    [
-        14, 28, 42,  56,  84,  84
-    ]
-];
-
-//  Nms, Fs to W table.
-const W_TBL = [
-    [
-        W10_80, W10_160, W10_240, W10_320, W10_480, W10_480
-    ],
-    [
-        W75_60, W75_120, W75_180, W75_240, W75_360, W75_360
-    ]
-];
+const NF_TBL = Lc3TblNF.NF_TBL;
+const W_TBL = Lc3TblW.W_TBL;
+const Z_TBL = Lc3TblZ.Z_TBL;
 
 //
 //  Public classes.
@@ -103,10 +47,8 @@ const W_TBL = [
  *    - The frame duration.
  *  @param {InstanceType<typeof LC3SampleRate>} Fs 
  *    - The sample rate.
- *  @param {Number} NF
- *    - The frame size.
  */
-function LC3MDCTSynthesizer(Nms, Fs, NF) {
+function LC3MDCTSynthesizer(Nms, Fs) {
     //
     //  Members.
     //
@@ -115,10 +57,12 @@ function LC3MDCTSynthesizer(Nms, Fs, NF) {
     let index_Nms = Nms.getInternalIndex();
     let index_Fs = Fs.getInternalIndex();
 
-    //  Algorithm contexts.
+    //  Table lookup.
+    let NF = NF_TBL[index_Nms][index_Fs];
     let W_N = W_TBL[index_Nms][index_Fs];
     let Z = Z_TBL[index_Nms][index_Fs];
 
+    //  Algorithm contexts.
     let NFaddZ = NF + Z;
     let NFsubZ = NF - Z;
     let NFmul2 = ((NF << 1) >>> 0);
