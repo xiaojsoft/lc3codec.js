@@ -461,8 +461,21 @@ function LC3SpectralQuantization(Nms, Fs) {
                     // c = (((c & 15) * 16) >>> 0) + t;
                     c = (((c & 15) << 4) >>> 0) + t;
                 }
-                nbits_est = Math.ceil(nbits_est / 2048) + nbits_lsb;
-                nbits_trunc = Math.ceil(nbits_trunc / 2048);
+                // nbits_est = Math.ceil(nbits_est / 2048) + nbits_lsb;
+                if ((nbits_est & 2047) != 0) {
+                    nbits_est >>>= 11;
+                    ++(nbits_est);
+                } else {
+                    nbits_est >>>= 11;
+                }
+                nbits_est += nbits_lsb;
+                // nbits_trunc = Math.ceil(nbits_trunc / 2048);
+                if ((nbits_trunc & 2047) != 0) {
+                    nbits_trunc >>>= 11;
+                    ++(nbits_trunc);
+                } else {
+                    nbits_trunc >>>= 11;
+                }
             }
             // console.log("nbits_est=" + nbits_est.toString());
             // console.log("nbits_trunc=" + nbits_trunc.toString());
