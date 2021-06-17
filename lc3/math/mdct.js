@@ -27,6 +27,11 @@ const IsUInt32 =
     Lc3UInt.IsUInt32;
 
 //
+//  Development Notes:
+//    [1] https://drive.google.com/file/d/1q0VB0fDw5i5Z02MNPd7D6jQ4LVT6ipWd/
+//
+
+//
 //  Public classes.
 //
 
