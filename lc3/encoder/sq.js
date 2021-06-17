@@ -39,6 +39,8 @@ const NE_TBL =
     Lc3TblNE.NE_TBL;
 const NBITSLASTNZ_TBL = 
     Lc3TblSQ.NBITSLASTNZ_TBL;
+const GGOFF_TBL = 
+    Lc3TblSQ.GGOFF_TBL;
 
 //
 //  Constants.
@@ -195,11 +197,7 @@ function LC3SpectralQuantization(Nms, Fs) {
             //  Compute the quantized gain index offset by:
 
             //  Eq. 110
-            gg_off = Math.trunc(nbits / gg_off_c1);
-            if (gg_off > 115) {
-                gg_off = 115;
-            }
-            gg_off = -gg_off - gg_off_c2;
+            gg_off = GGOFF_TBL[fsind][nbits - 20];
         }
         // console.log("gg_off=" + gg_off);
 
