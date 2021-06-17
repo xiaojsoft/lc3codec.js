@@ -254,6 +254,9 @@ function IMDCT(M) {
     //  Derive M0 = (1 / 2 + M / 2).
     let M0 = 0.5 + (M / 2);
 
+    //  Expansion gain factor.
+    let egf = (((M & 1) == 0) ? -1 : 1);
+
     //  Pre-twiddle factor (PRETW[n] = e ^ (j * n * M0 * 2pi / N)) 
     //  (for 0 <= n < N).
     let PRETW_re = new Array(N);
@@ -305,7 +308,7 @@ function IMDCT(M) {
         }
 
         //  Generate X'[k] = PRETW[k] * X[k] (for 0 <= k < N), 
-        //  where X[k] = X[N - 1 - k] (for M <= k < N).
+        //  where X[k] = ((-1) ^ (M + 1)) * X[N - 1 - k] (for M <= k < N).
         let Xp_re = Y;
         for (let k = 0; k < M; ++k) {
             let Xk = X[k];
@@ -314,8 +317,8 @@ function IMDCT(M) {
             Xp_im[k] = Xk * PRETW_im[k];
 
             let p = Ns1 - k;
-            Xp_re[p] = -Xk * PRETW_re[p];
-            Xp_im[p] = -Xk * PRETW_im[p];
+            Xp_re[p] = egf * Xk * PRETW_re[p];
+            Xp_im[p] = egf * Xk * PRETW_im[p];
         }
 
         //  Let X'[k] = IFFT{X'[k]}.
