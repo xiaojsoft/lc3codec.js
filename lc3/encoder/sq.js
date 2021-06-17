@@ -250,6 +250,7 @@ function LC3SpectralQuantization(Nms, Fs) {
             let fac = 256;
             gg_ind = 255;
             for (let iter = 0; iter < 8; ++iter) {
+                let gg_ind_old = gg_ind;
                 fac >>>= 1;
                 gg_ind -= fac;
                 let gg_sum = gg_ind + gg_off;
@@ -278,7 +279,8 @@ function LC3SpectralQuantization(Nms, Fs) {
                 }
                 // if (tmp > nbits_spec_2 * 1.4 * 28 / 20 && !iszero) {
                 if (tmp > nbits_spec_2 * 1.96 && !iszero) {
-                    gg_ind += fac;
+                    // gg_ind += fac;
+                    gg_ind = gg_ind_old;
                 }
             }
         }
