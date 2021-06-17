@@ -31,9 +31,12 @@ const LC3FrameDuration =
     Lc3Nms.LC3FrameDuration;
 
 //  Imported constants.
-const NF_TBL = Lc3TblNF.NF_TBL;
-const W_TBL = Lc3TblW.W_TBL;
-const Z_TBL = Lc3TblZ.Z_TBL;
+const NF_TBL = 
+    Lc3TblNF.NF_TBL;
+const W_TBL = 
+    Lc3TblW.W_TBL;
+const Z_TBL = 
+    Lc3TblZ.Z_TBL;
 
 //
 //  Public classes.
@@ -74,6 +77,8 @@ function LC3MDCTSynthesizer(Nms, Fs) {
 
     let x_hat = new Array(NF);
 
+    let t_hat = new Array(NFmul2);
+
     let imdct = new IMDCT(NF);
 
     let SqrNFmul2 = Math.sqrt(NFmul2);
@@ -95,7 +100,7 @@ function LC3MDCTSynthesizer(Nms, Fs) {
 
         //  1. Generation of time domain aliasing buffer t_hat[n].
         //  2. Windowing of time-aliased buffer.
-        let t_hat = imdct.transform(X_hat);
+        imdct.transform(X_hat, t_hat);
         for (let i = 0, j = NFmul2 - 1; i < NFmul2; ++i, --j) {
             t_hat[i] *= SqrNFmul2 *                                //  Eq. 125
                         W_N[j];                                    //  Eq. 126

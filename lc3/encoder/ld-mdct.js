@@ -144,9 +144,9 @@ function LC3MDCTAnalyzer(Nms, Fs) {
         }
 
         //  Get spectral coefficients.
-        let XsOrig = mdct.transform(Twinbuf);                        //  Eq. 8
+        mdct.transform(Twinbuf, X);                                  //  Eq. 8
         for (let k = 0; k < NF; ++k) {
-            X[k] = XsOrig[k] * SqrTwoDivNf;
+            X[k] *= SqrTwoDivNf;
         }
 
         //  Do energy estimation.
