@@ -43,6 +43,13 @@ function LC3BEC(initial = false) {
     this.mark = function() {
         marked = true;
     };
+
+    /**
+     *  Clear BEC detected mark.
+     */
+    this.clear = function() {
+        marked = false;
+    };
 }
 
 //  Export public APIs.
