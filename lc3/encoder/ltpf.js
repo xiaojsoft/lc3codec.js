@@ -13,6 +13,8 @@ const Lc3Nms =
     require("./../common/nms");
 const Lc3Fs = 
     require("./../common/fs");
+const Lc3IntUtil = 
+    require("./../common/int_util");
 const Lc3SlideWin = 
     require("./../common/slide_window");
 const Lc3ArrayUtil = 
@@ -45,6 +47,8 @@ const GetGainParameters =
     Lc3LtpfCommon.GetGainParameters;
 const ArrayFlip = 
     Lc3ArrayUtil.ArrayFlip;
+const IntDiv = 
+    Lc3IntUtil.IntDiv;
 
 //  Imported constants.
 const TAB_RESAMP_FILTER = 
@@ -246,7 +250,7 @@ function LC3LongTermPostfilter(Nms, Fs) {
             let t0 = resfac * P;
             for (let n = 0, n_mul_15 = 0; n < len12p8; ++n, n_mul_15 += 15) {                 
                 let t1 = (n_mul_15 % P);
-                let t2 = Math.trunc(n_mul_15 / P);
+                let t2 = IntDiv(n_mul_15, P);
                 let t3 = 0;
 
                 xs_win.bulkGet(buf_resamp, 0, t2 - 2 * P_120Div, reslen);

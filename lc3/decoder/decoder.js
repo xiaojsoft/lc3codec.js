@@ -23,6 +23,8 @@ const Lc3Fs =
     require("./../common/fs");
 const Lc3Nms = 
     require("./../common/nms");
+const Lc3IntUtil = 
+    require("./../common/int_util");
 const Lc3TblAcSpec = 
     require("./../tables/ac_spec");
 const Lc3TblBW = 
@@ -91,6 +93,10 @@ const NFWIDTH_TBL =
     Lc3TblNLE.NFWIDTH_TBL;
 const BW_STOP_TBL = 
     Lc3TblNLE.BW_STOP_TBL;
+
+//  Imported functions.
+const IntDiv = 
+    Lc3IntUtil.IntDiv;
 
 //
 //  Constants.
@@ -339,7 +345,7 @@ function LC3Decoder(Nms, Fs) {
                     submode_LSB = 0;
                     bec.mark();
                 } else {
-                    idxBorGainLSB = Math.trunc(cwRx / szA);
+                    idxBorGainLSB = IntDiv(cwRx, szA);
                     idxA = cwRx - idxBorGainLSB * szA;
                     idxBorGainLSB -= 2;
                     submode_LSB = (idxBorGainLSB < 0 ? 1 : 0);
