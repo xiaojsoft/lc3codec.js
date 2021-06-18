@@ -65,6 +65,8 @@ const AC_TNS_COEF_CUMFREQ =
     Lc3TblTns.AC_TNS_COEF_CUMFREQ;
 const AC_TNS_COEF_FREQ = 
     Lc3TblTns.AC_TNS_COEF_FREQ;
+const TNS_PARAM_NUM_TNS_FILTERS = 
+    Lc3TblTns.TNS_PARAM_NUM_TNS_FILTERS;
 const TNS_PARAM_START_FREQ = 
     Lc3TblTns.TNS_PARAM_START_FREQ;
 const TNS_PARAM_STOP_FREQ = 
@@ -115,6 +117,10 @@ const ACCTXMEMB_LOW = 0;
 const ACCTXMEMB_RANGE = 1;
 const ACCTXMEMB_BEC = 2;
 const ACCTXMEMB_BP = 3;
+
+//  RC quantization constants.
+// const RCQ_C1 = 5.41126806512444158;  //  = 17 / PI
+const RCQ_C2 = 0.18479956785822313;  //  = PI / 17
 
 //
 //  Public classes.
@@ -243,6 +249,12 @@ function LC3Decoder(Nms, Fs) {
         //  Initialization (3.4.2.2).
         cur_side[CURMEMB_BP] = nbytes - 1;
         cur_side[CURMEMB_BITNO] = 0;
+        // let rateFlag;
+        // if (nbits > (160 + fsInd * 160)) {
+        //     rateFlag = 512;
+        // } else {
+        //     rateFlag = 0;
+        // }
         let rateFlag = ((nbits > BITRATE_C1[fsInd]) ? 512 : 0);
         // console.log("rateFlag=" + rateFlag.toString());
 
@@ -265,6 +277,7 @@ function LC3Decoder(Nms, Fs) {
             lastnz = (((tmp_lastnz + 1) << 1) >>> 0);
             // console.log("lastnz=" + lastnz.toString());
             if (lastnz > NE) {
+                //  Consider this as bit error (BEC).
                 bec.mark();
             }
         }
@@ -289,8 +302,7 @@ function LC3Decoder(Nms, Fs) {
             tns_RCorder[f] = 0;
         }
         if (!bec.isMarked()) {
-            num_tns_filters = (Pbw < 3 ? 1 : 2);
-            // console.log("num_tns_filters=" + num_tns_filters.toString());
+            num_tns_filters = TNS_PARAM_NUM_TNS_FILTERS[index_Nms][Pbw];
             for (let f = 0; f < num_tns_filters; ++f) {
                 tns_RCorder[f] = Impl_ReadBit(bytes, cur_side);
             }
@@ -350,7 +362,7 @@ function LC3Decoder(Nms, Fs) {
                     idxBorGainLSB = IntDiv(cwRx, szA);
                     idxA = cwRx - idxBorGainLSB * szA;
                     idxBorGainLSB -= 2;
-                    submode_LSB = (idxBorGainLSB < 0 ? 1 : 0);
+                    submode_LSB = ((idxBorGainLSB < 0) ? 1 : 0);
                     idxBorGainLSB = idxBorGainLSB + 2 * submode_LSB;
                 }
                 //  End of dec_split_st2VQ_CW().
@@ -475,22 +487,20 @@ tnsloop:
         // console.log("rc_i=" + tns_RCi.toString());
 
         //  Spectral data.
-        for (let k = 0; k < NE; ++k) {
-            Xq[k] = 0;
-        }
         if (!bec.isMarked()) {
             let c = 0;
-specloop:
             for (let k = 0; k < lastnz; k += 2) {
                 let t = c + rateFlag;
                 if (k > NEDiv2) {
                     t += 256;
                 }
                 // let k0 = k, k1 = k + 1;
+                // Xq[k] = Xq[k + 1] = 0;
                 let Xq_k0 = 0, Xq_k1 = 0;
                 let lev = 0;
                 let sym = 0;
                 for (; lev < 14; ++lev) {
+                    // let pki = AC_SPEC_LOOKUP[t + Math.min(lev, 3) * 1024];
                     let pki = AC_SPEC_LOOKUP[t + ((Math.min(lev, 3) << 10) >>> 0)];
                     sym = Impl_AcDecode(bytes, ac_ctx, AC_SPEC_CUMFREQ[pki], AC_SPEC_FREQ[pki], 17);
                     if (sym < 16) {
@@ -498,8 +508,10 @@ specloop:
                     }
                     if (lsbMode == 0 || lev > 0) {
                         let bit = Impl_ReadBit(bytes, cur_side);
+                        // Xq[k] += (bit << lev);
                         Xq_k0 += ((bit << lev) >>> 0);
                         bit = Impl_ReadBit(bytes, cur_side);
+                        // Xq[k + 1] += (bit << lev);
                         Xq_k1 += ((bit << lev) >>> 0);
                     }
                 }
@@ -513,22 +525,28 @@ specloop:
 
                 let a = ((sym & 3) >>> 0);
                 let b = (sym >>> 2);
+
+                // Xq[k] += (a << lev);
                 Xq_k0 += ((a << lev) >>> 0);
+                // Xq[k + 1] += (b << lev);
                 Xq_k1 += ((b << lev) >>> 0);
 
-                if (Xq_k0 > 0) {
+                if (Xq_k0 > 0 /*  Xq[k] > 0  */) {
                     let bit = Impl_ReadBit(bytes, cur_side);
                     if (bit == 1) {
+                        // Xq[k] = -Xq[k];
                         Xq_k0 = -Xq_k0;
                     }
                 }
-                if (Xq_k1 > 0) {
+                if (Xq_k1 > 0 /*  Xq[k + 1] > 0  */) {
                     let bit = Impl_ReadBit(bytes, cur_side);
                     if (bit == 1) {
+                        // Xq[k + 1] = -Xq[k + 1];
                         Xq_k1 = -Xq_k1;
                     }
                 }
 
+                // lev = Math.min(lev, 3);
                 if (lev > 3) {
                     lev = 3;
                 }
@@ -538,6 +556,7 @@ specloop:
                     t = 12 + lev;
                 }
 
+                // c = (c & 15) * 16 + t;
                 c = (((c & 15) << 4) >>> 0) + t;
 
                 Xq[k] = Xq_k0;
@@ -547,6 +566,9 @@ specloop:
                     bec.mark();
                     break;
                 }
+            }
+            for (let k = lastnz; k < NE; ++k) {
+                Xq[k] = 0;
             }
         }
 
@@ -575,6 +597,8 @@ specloop:
         if (!bec.isMarked()) {
             if (lsbMode == 0) {
                 for (let k = 0; k < NE; ++k) {
+                    //  Note that Xq[k] is integer here, so compare with zero 
+                    //  directly is allowed here.
                     if (Xq[k] != 0) {
                         if (nResBits == nbits_residual) {
                             break;
@@ -766,7 +790,7 @@ specloop:
                 let RCi_f = tns_RCi[f];
                 let RCq_f = tns_RCq[f];
                 for (let k = 0; k < 8; ++k) {
-                    RCq_f[k] = Math.sin(((RCi_f[k] - 8) * Math.PI) / 17);
+                    RCq_f[k] = Math.sin((RCi_f[k] - 8) * RCQ_C2);
                 }
             }
             // console.log("RCq[][]=" + tns_RCq.toString());
