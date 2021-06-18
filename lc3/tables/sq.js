@@ -348,8 +348,18 @@ const GGOFF_TBL = [
     ]
 ];
 
+//  Bitrate flag calculation constants.
+
+//  BITRATE_C1[fsind] = 160 + fsind * 160:
+const BITRATE_C1 = [ 160,  320,  480,  640,  800];
+
+//  BITRATE_C2[fsind] = 480 + fsind * 160:
+const BITRATE_C2 = [ 480,  640,  800,  960, 1120];
+
 //  Export public APIs.
 module.exports = {
     "NBITSLASTNZ_TBL": NBITSLASTNZ_TBL,
-    "GGOFF_TBL": GGOFF_TBL
+    "GGOFF_TBL": GGOFF_TBL,
+    "BITRATE_C1": BITRATE_C1,
+    "BITRATE_C2": BITRATE_C2
 };

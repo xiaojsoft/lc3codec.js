@@ -85,6 +85,8 @@ const NBITSLASTNZ_TBL =
     Lc3TblSQ.NBITSLASTNZ_TBL;
 const GGOFF_TBL = 
     Lc3TblSQ.GGOFF_TBL;
+const BITRATE_C1 = 
+    Lc3TblSQ.BITRATE_C1;
 const NBITSBW_TBL = 
     Lc3TblBW.NBITSBW_TBL;
 const NFSTART_TBL = 
@@ -241,7 +243,7 @@ function LC3Decoder(Nms, Fs) {
         //  Initialization (3.4.2.2).
         cur_side[CURMEMB_BP] = nbytes - 1;
         cur_side[CURMEMB_BITNO] = 0;
-        let rateFlag = (nbits > (160 + fsInd * 160) ? 512 : 0);
+        let rateFlag = ((nbits > BITRATE_C1[fsInd]) ? 512 : 0);
         // console.log("rateFlag=" + rateFlag.toString());
 
         //  Bandwidth.

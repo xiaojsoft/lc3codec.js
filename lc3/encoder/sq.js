@@ -41,6 +41,10 @@ const NBITSLASTNZ_TBL =
     Lc3TblSQ.NBITSLASTNZ_TBL;
 const GGOFF_TBL = 
     Lc3TblSQ.GGOFF_TBL;
+const BITRATE_C1 = 
+    Lc3TblSQ.BITRATE_C1;
+const BITRATE_C2 = 
+    Lc3TblSQ.BITRATE_C2;
 
 //
 //  Constants.
@@ -50,10 +54,6 @@ const GGOFF_TBL =
 const GGADJ_T1 = [  80,  230,  380,  530,  680];
 const GGADJ_T2 = [ 500, 1025, 1550, 2075, 2600];
 const GGADJ_T3 = [ 850, 1700, 2550, 3400, 4250];
-
-//  Bitrate flag calculation constants.
-const BITRATE_C1 = [ 160,  320,  480,  640,  800];
-const BITRATE_C2 = [ 480,  640,  800,  960, 1120];
 
 //  Bit budget constants (see 3.3.10.1).
 const NBITS_SNS = 38;
