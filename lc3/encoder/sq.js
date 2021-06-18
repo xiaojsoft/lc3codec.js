@@ -51,10 +51,6 @@ const GGADJ_T1 = [  80,  230,  380,  530,  680];
 const GGADJ_T2 = [ 500, 1025, 1550, 2075, 2600];
 const GGADJ_T3 = [ 850, 1700, 2550, 3400, 4250];
 
-//  Global gain offset calculation constants.
-const GGOFF_C1 = [  10,   20,   30,   40,   50];
-const GGOFF_C2 = [ 110,  115,  120,  125,  130]
-
 //  Bitrate flag calculation constants.
 const BITRATE_C1 = [ 160,  320,  480,  640,  800];
 const BITRATE_C2 = [ 480,  640,  800,  960, 1120];
@@ -92,8 +88,6 @@ function LC3SpectralQuantization(Nms, Fs) {
     let NE_div_2 = (NE >>> 1);
     let NE_div_4 = (NE >>> 2);
     let nbits_ari_base = NBITSLASTNZ_TBL[index_Nms][index_Fs];
-    let gg_off_c1 = GGOFF_C1[fsind];
-    let gg_off_c2 = GGOFF_C2[fsind];
     let bitrate_c1 = BITRATE_C1[fsind];
     let bitrate_c2 = BITRATE_C2[fsind];
     let gg_t1_fsi = GGADJ_T1[fsind];
