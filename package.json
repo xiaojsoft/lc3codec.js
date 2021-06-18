@@ -1,6 +1,6 @@
 {
   "name": "lc3codec",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "LC3 codec encoder/decoder for Node.JS.",
   "main": "library/api.js",
   "author": "XiaoJSoft Studio.",
