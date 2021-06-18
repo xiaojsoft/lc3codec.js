@@ -81,6 +81,8 @@ const NF_TBL =
     Lc3TblNF.NF_TBL;
 const NBITSLASTNZ_TBL = 
     Lc3TblSQ.NBITSLASTNZ_TBL;
+const GGOFF_TBL = 
+    Lc3TblSQ.GGOFF_TBL;
 const NBITSBW_TBL = 
     Lc3TblBW.NBITSBW_TBL;
 const NFSTART_TBL = 
@@ -137,7 +139,6 @@ function LC3Decoder(Nms, Fs) {
     // console.log("NE=" + NE.toString());
 
     let fsInd = Fs.getSampleRateIndex();
-    let fsIndP1 = fsInd + 1;
     // console.log("fs_ind=" + fsInd.toString());
 
     let nbits_BW = NBITSBW_TBL[index_Nms][index_Fs];
@@ -739,7 +740,7 @@ specloop:
         let gg_off = 0;
         if (!bec.isMarked()) {
             //  Eq. 121
-            gg_off = -Math.min(115, Math.trunc(nbits / (10 * fsIndP1))) - 105 - 5 * fsIndP1;
+            gg_off = GGOFF_TBL[fsInd][nbits - 20];
             // console.log("gg_off=" + gg_off.toString());
 
             //  Eq. 120
