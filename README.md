@@ -8,5 +8,5 @@ This package supports [1.0](https://www.bluetooth.com/specifications/specs/low-c
 
 ### Documents
 
-Documents of this package would be put to the Wiki (for general developers, visit [Wiki on GitHub](https://github.com/TaikiAkita/lc3codec-nodejs/wiki)).
+Documents of this package would be put to the Wiki (for general developers, visit [Wiki on GitHub](https://github.com/xiaojsoft/lc3codec.js/wiki)).
 
