@@ -215,7 +215,8 @@ function LC3Decoder(Nms, Fs) {
     /**
      *  Decode one frame.
      * 
-     *  @param {Buffer} bytes 
+     *  @param {Buffer|Uint8Array|Array} bytes 
+     *    - The bytes buffer that contains the encoded frame.
      *  @param {InstanceType<typeof LC3BEC>} [bec]
      *    - The bit error condition (BEC) context.
      *  @param {Number[]} [rbuf]
@@ -893,7 +894,7 @@ tnsloop:
 /**
  *  Implementation of read_bit() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} cursor 
  *    - The cursor.
@@ -907,7 +908,7 @@ function Impl_ReadBit(bytes, cursor) {
     
     try {
         //  read_bit() implementation.
-        let bv = bytes.readUInt8(bp);
+        let bv = bytes[bp];
         let bit = ((bv & (1 << bitno)) != 0 ? 1 : 0);
 
         if (bitno >= 7) {
@@ -928,7 +929,7 @@ function Impl_ReadBit(bytes, cursor) {
 /**
  *  Implementation of read_uint() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} cursor 
  *    - The cursor.
@@ -950,7 +951,7 @@ function Impl_ReadUInt(bytes, cursor, numbits) {
             let bitrem = 8 - bitno;
             let bitnread = Math.min(bitrem, numbits);
 
-            let bv = bytes.readUInt8(bp);
+            let bv = bytes[bp];
             bv = ((bv >>> bitno) & (((1 << bitnread) >>> 0) - 1));
             value |= (bv << vshift);
 
@@ -975,7 +976,7 @@ function Impl_ReadUInt(bytes, cursor, numbits) {
 /**
  *  Implementation of ac_dec_init() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The byte buffer.
  *  @param {Array} ac_ctx 
  *    - The context.
@@ -986,7 +987,7 @@ function Impl_AcDecInit(bytes, ac_ctx, bec) {
     let st_low = 0;
     for (let i = 0; i < 3; ++i) {
         st_low <<= 8;
-        st_low  |= bytes.readUInt8(i);
+        st_low  |= bytes[i];
     }
     ac_ctx[ACCTXMEMB_LOW] = (st_low >>> 0);
     ac_ctx[ACCTXMEMB_RANGE] = 0x00ffffff;
@@ -997,7 +998,7 @@ function Impl_AcDecInit(bytes, ac_ctx, bec) {
 /**
  *  Implementation of ac_decode() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The byte buffer.
  *  @param {Array} ac_ctx 
  *    - The context.
@@ -1035,7 +1036,7 @@ function Impl_AcDecode(bytes, ac_ctx, cum_freqs, sym_freqs, numsym) {
         st_range = tmp * sym_freqs[val];
         while (st_range < 0x10000) {
             st_low <<= 8;
-            st_low  |= bytes.readUInt8(bp);
+            st_low  |= bytes[bp];
             st_low   = ((st_low & 0x00ffffff) >>> 0);
             st_range = ((st_range << 8) >>> 0);
             ++(bp);

@@ -186,13 +186,17 @@ function LC3Encoder(Nms, Fs) {
      *    - The frame.
      *  @param {Number} nbytes
      *    - The byte count.
-     *  @param {Buffer} [bytesbuf]
+     *  @param {Buffer|Uint8Array|Array} [bytesbuf]
      *    - The preallocated bytes buffer (used for reducing buffer allocation, 
      *      must contain at least `nbytes` bytes).
-     *  @returns {Buffer}
+     *  @returns {Buffer|Uint8Array|Array}
      *    - The bytes buffer that contains the encoded frame.
      */
-    this.encode = function(xs, nbytes, bytesbuf = Buffer.alloc(400)) {
+    this.encode = function(
+        xs, 
+        nbytes, 
+        bytesbuf = NewDefaultByteBuffer(400)
+    ) {
         //  Check the frame size.
         if (xs.length != NF) {
             throw new LC3IllegalParameterError(
@@ -341,7 +345,11 @@ function LC3Encoder(Nms, Fs) {
         let F_NF = nle.getNoiseLevel();
 
         //  Bitstream encoding (3.3.13).
-        let bitstream = bytesbuf.slice(0, nbytes).fill(0);
+        let bitstream = bytesbuf;
+        if (bitstream.length != nbytes) {
+            bitstream = bitstream.slice(0, nbytes);
+        }
+        bitstream = bitstream.fill(0);
 
         //  Initialization (3.3.13.2).
         cur_side[CURMEMB_BP] = nbytes - 1;
@@ -637,7 +645,7 @@ function LC3Encoder(Nms, Fs) {
 /**
  *  Implementation of write_bit_backward() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} cursor 
  *    - The cursor.
@@ -652,13 +660,13 @@ function Impl_WriteBitBackward(bytes, cursor, bit) {
     try {
         //  Write bit backward.
         let mask = ((1 << bitno) >>> 0);
-        let bv = bytes.readUInt8(bp);
+        let bv = bytes[bp];
         if (bit == 0) {
             bv &= (0xFF ^ mask);
         } else {
             bv |= mask;
         }
-        bytes.writeUInt8((bv >>> 0), bp);
+        bytes[bp] = (bv >>> 0);
         if (bitno == 7) {
             bitno = 0;
             --(bp);
@@ -675,7 +683,7 @@ function Impl_WriteBitBackward(bytes, cursor, bit) {
 /**
  *  Implementation of write_uint_backward() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} cursor 
  *    - The cursor.
@@ -695,13 +703,13 @@ function Impl_WriteUIntBackward(bytes, cursor, val, numbits) {
             let bitrem = 8 - bitno;
             let bitncopy = Math.min(bitrem, numbits);
 
-            let bv = bytes.readUInt8(bp);
+            let bv = bytes[bp];
 
             let m = ((1 << bitncopy) >>> 0) - 1;
 
             bv &= ((m << bitno) ^ 0xFF);
             bv |= ((val & m) << bitno);
-            bytes.writeUInt8((bv >>> 0), bp);
+            bytes[bp] = (bv >>> 0);
 
             val >>>= bitncopy;
             numbits -= bitncopy;
@@ -738,7 +746,7 @@ function Impl_AcEncInit(ctx) {
 /**
  *  Implementation of ac_encode() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} ctx 
  *    - The context.
@@ -771,11 +779,11 @@ function Impl_AcEncode(bytes, ctx, cum_freq, sym_freq) {
             //  ac_shift() implementation.
             if (st_low < 0x00ff0000 || st_carry == 1) {
                 if (st_cache >= 0) {
-                    bytes.writeUInt8(st_cache + st_carry, bp);
+                    bytes[bp] = st_cache + st_carry;
                     ++(bp);
                 }
                 while (st_carrycount > 0) {
-                    bytes.writeUInt8((((st_carry + 0xff) & 0xff) >>> 0), bp);
+                    bytes[bp] = (((st_carry + 0xff) & 0xff) >>> 0);
                     ++(bp);
                     --(st_carrycount);
                 }
@@ -800,7 +808,7 @@ function Impl_AcEncode(bytes, ctx, cum_freq, sym_freq) {
 /**
  *  Implementation of ac_enc_finish() function.
  * 
- *  @param {Buffer} bytes 
+ *  @param {Buffer|Uint8Array|Array} bytes 
  *    - The bytes buffer.
  *  @param {Array} ctx 
  *    - The context.
@@ -842,11 +850,11 @@ function Impl_AcEncFinish(bytes, ctx) {
             //  ac_shift() implementation.
             if (st_low < 0x00ff0000 || st_carry == 1) {
                 if (st_cache >= 0) {
-                    bytes.writeUInt8(st_cache + st_carry, bp);
+                    bytes[bp] = st_cache + st_carry;
                     ++(bp);
                 }
                 while (st_carrycount > 0) {
-                    bytes.writeUInt8((((st_carry + 0xff) & 0xff) >>> 0), bp);
+                    bytes[bp] = (((st_carry + 0xff) & 0xff) >>> 0);
                     ++(bp);
                     --(st_carrycount);
                 }
@@ -860,10 +868,10 @@ function Impl_AcEncFinish(bytes, ctx) {
         bits += 8;
         let lastbyte;
         if (st_carrycount > 0) {
-            bytes.writeUInt8(st_cache, bp);
+            bytes[bp] = st_cache;
             ++(bp);
             for (; st_carrycount > 1; --st_carrycount) {
-                bytes.writeUInt8(0xff, bp);
+                bytes[bp] = 0xff;
                 ++(bp);
             }
             lastbyte = (0xff >>> (8 - bits));
@@ -872,9 +880,9 @@ function Impl_AcEncFinish(bytes, ctx) {
         }
         let m1 = (0xff >>> bits);
         let m2 = ((0xff ^ m1) >>> 0);
-        let bv = bytes.readUInt8(bp);
+        let bv = bytes[bp];
         bv = (((bv & m1) | (lastbyte & m2)) >>> 0);
-        bytes.writeUInt8(bv, bp);
+        bytes[bp] = bv;
     } finally {
         //  Save context members.
         ctx[ACCTXMEMB_LOW] = st_low;
@@ -885,6 +893,33 @@ function Impl_AcEncFinish(bytes, ctx) {
         ctx[ACCTXMEMB_BP] = bp;
     }
 }
+
+/**
+ *  Create a new default byte buffer.
+ * 
+ *  @param {Number} sz
+ *    - The size.
+ *  @returns {Buffer|Uint8Array|Array}
+ *    - The byte buffer.
+ */
+const NewDefaultByteBuffer = (function() {
+    if (typeof(Buffer) != "undefined") {
+        //  Node.JS environment.
+        return function(sz) {
+            return Buffer.allocUnsafe(sz);
+        };
+    } else if (typeof(Uint8Array) != "undefined") {
+        //  Not in Node.JS, but Uint8Array is available.
+        return function(sz) {
+            return new Uint8Array(sz);
+        };
+    } else {
+        //  Fallback to default Array.
+        return function(sz) {
+            return new Array(sz);
+        };
+    }
+})();
 
 //  Export public APIs.
 module.exports = {
