@@ -10,7 +10,7 @@
 
 //  Imported modules.
 // const Lc3UInt = require("./../common/uint");
-const Lc3Error = require("../error");
+const Lc3Error = require("./../error");
 
 //  Imported classes.
 const LC3IllegalParameterError = Lc3Error.LC3IllegalParameterError;

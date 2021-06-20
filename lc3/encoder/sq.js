@@ -20,7 +20,7 @@ const Lc3Fs =
 const Lc3Nms = 
     require("./../common/nms");
 const Lc3Error = 
-    require("../error");
+    require("./../error");
 
 //  Imported classes.
 const LC3SampleRate = 

@@ -10,7 +10,7 @@
 
 //  Imported modules.
 const Lc3Fs = 
-    require("../common/fs");
+    require("./../common/fs");
 const Lc3LtpfCommon = 
     require("./../common/ltpf-common");
 const Lc3Nms = 

@@ -12,9 +12,9 @@
 const Lc3FFT = 
     require("./fft");
 const Lc3UInt = 
-    require("../common/uint");
+    require("./../common/uint");
 const Lc3Error = 
-    require("../error");
+    require("./../error");
 
 //  Imported classes.
 const LC3IllegalParameterError = 

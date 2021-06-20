@@ -13,10 +13,10 @@ const Lc3FftTfmCore =
     require("./fft-tfm-core");
 const Lc3Brp = 
     require("./brp");
+const Lc3ObjUtil = 
+    require("./../common/object_util");
 const Lc3Error = 
-    require("../error");
-const Util = 
-    require("util");
+    require("./../error");
 
 //  Imported classes.
 const IFFTTransformer = 
@@ -27,6 +27,8 @@ const LC3IllegalParameterError =
 //  Imported functions.
 const NewBitReversalPermutate = 
     Lc3Brp.NewBitReversalPermutate;
+const Inherits = 
+    Lc3ObjUtil.Inherits;
 
 //
 //  Constants.
@@ -251,7 +253,7 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
 //
 //  Inheritances.
 //
-Util.inherits(FFTCooleyTukeyTransformer, IFFTTransformer);
+Inherits(FFTCooleyTukeyTransformer, IFFTTransformer);
 
 //  Export public APIs.
 module.exports = {

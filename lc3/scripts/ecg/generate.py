@@ -108,7 +108,11 @@ def main() -> int:
     fp.write("//  Imports.\n")
     fp.write("//\n\n")
     fp.write("//  Imported modules.\n")
-    fp.write("const Util = require(\"util\");\n\n")
+    fp.write("const Lc3ObjUtil = require(\"./common/object_util\");\n\n")
+    fp.write("//\n")
+    fp.write("//  Imported classes.\n")
+    fp.write("//\n")
+    fp.write("const Inherits = Lc3ObjUtil.Inherits;\n\n")
     fp.write("//\n")
     fp.write("//  Classes.\n")
     fp.write("//\n\n")
@@ -156,7 +160,7 @@ def main() -> int:
     fp.write("//  Inheritances.\n")
     fp.write("//\n")
     for child, parent in inherits:
-        fp.write("Util.inherits(%s, %s);\n" % (child, parent))
+        fp.write("Inherits(%s, %s);\n" % (child, parent))
     fp.write("\n")
 
     fp.write("//  Export public APIs.\n")

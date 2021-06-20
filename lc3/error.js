@@ -9,7 +9,12 @@
 //
 
 //  Imported modules.
-const Util = require("util");
+const Lc3ObjUtil = require("./common/object_util");
+
+//
+//  Imported classes.
+//
+const Inherits = Lc3ObjUtil.Inherits;
 
 //
 //  Classes.
@@ -73,10 +78,10 @@ function LC3IllegalIndexError(message = "") {
 //
 //  Inheritances.
 //
-Util.inherits(LC3Error, Error);
-Util.inherits(LC3BugError, LC3Error);
-Util.inherits(LC3IllegalParameterError, LC3Error);
-Util.inherits(LC3IllegalIndexError, LC3Error);
+Inherits(LC3Error, Error);
+Inherits(LC3BugError, LC3Error);
+Inherits(LC3IllegalParameterError, LC3Error);
+Inherits(LC3IllegalIndexError, LC3Error);
 
 //  Export public APIs.
 module.exports = {

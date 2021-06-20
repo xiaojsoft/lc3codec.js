@@ -10,7 +10,7 @@
 
 //  Imported modules.
 const Lc3Error = 
-    require("../error");
+    require("./../error");
 const Lc3Fs = 
     require("./fs");
 const Lc3Nms = 

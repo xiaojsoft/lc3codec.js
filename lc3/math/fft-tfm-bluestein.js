@@ -13,12 +13,12 @@ const Lc3FftTfmCore =
     require("./fft-tfm-core");
 const Lc3FftTfmCooleyTukey = 
     require("./fft-tfm-cooleytukey");
+const Lc3ObjUtil = 
+    require("./../common/object_util");
 const Lc3UInt = 
-    require("../common/uint");
+    require("./../common/uint");
 const Lc3Error = 
-    require("../error");
-const Util = 
-    require("util");
+    require("./../error");
 
 //  Imported classes.
 const IFFTTransformer = 
@@ -31,6 +31,8 @@ const LC3IllegalParameterError =
 //  Imported functions.
 const IsUInt32 = 
     Lc3UInt.IsUInt32;
+const Inherits = 
+    Lc3ObjUtil.Inherits;
 
 //
 //  Public classes.
@@ -197,7 +199,7 @@ function FFTBluesteinTransformer(N) {
 //
 //  Imports.
 //
-Util.inherits(FFTBluesteinTransformer, IFFTTransformer);
+Inherits(FFTBluesteinTransformer, IFFTTransformer);
 
 //  Export public APIs.
 module.exports = {
