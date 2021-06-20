@@ -384,10 +384,16 @@ function LC3Encoder(Nms, Fs) {
 
         //  TNS activation flag.
         for (let f = 0; f < num_tns_filters; ++f) {
+            let tns_active;
+            if (tns_RCorder[f] > 0) {
+                tns_active = 1;
+            } else {
+                tns_active = 0;
+            }
             Impl_WriteBitBackward(
                 bitstream, 
                 cur_side, 
-                Math.min(tns_RCorder[f], 1)
+                tns_active
             );
         }
 
@@ -454,11 +460,10 @@ function LC3Encoder(Nms, Fs) {
 
         //  LTPF data.
         if (ltpf_pitch_present != 0) {
-            Impl_WriteUIntBackward(
-                bitstream, 
-                cur_side, 
-                ltpf_active, 
-                1
+            Impl_WriteBitBackward(
+                bitstream,
+                cur_side,
+                ltpf_active
             );
             Impl_WriteUIntBackward(
                 bitstream, 
