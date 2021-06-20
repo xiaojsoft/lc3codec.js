@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <title>LC3 Decoder Test</title>
+
+        <script type="text/javascript" src="./../../lc3.es5.min.js"></script>
+        <script>
+            //
+            //  Aliases.
+            //
+            var LC3FrameDuration = LC3.Core.LC3FrameDuration;
+            var LC3SampleRate = LC3.Core.LC3SampleRate;
+            var LC3BEC = LC3.Decoder.LC3BEC;
+            var LC3Decoder = LC3.Decoder.LC3Decoder;
+
+            //
+            //  Event Handlers.
+            //
+            function RunTest_10000US() {
+                var encoded_frames = [
+                    [167,28,42,53,175,105,14,249,190,241,203,46,135,95,5,19,215,142,60,242,205,213,173,86,182,94,225,143,193,190,128,153,48,195,141,241,136,207,128,67],
+                    [126,85,255,133,53,134,247,1,248,140,170,26,30,66,67,214,38,2,55,92,120,255,26,85,221,210,129,46,104,221,196,249,48,197,247,107,137,207,80,29]
+                ];
+
+                //  Set decoder configurations.
+                var Nms = LC3FrameDuration.NMS_10000US;
+                var Fs = LC3SampleRate.FS_16000;
+
+                //  Create decoder.
+                var dc = new LC3Decoder(Nms, Fs);
+
+                //  Decode frames.
+                var bfi = new LC3BEC();
+                var frame = new Array(dc.getFrameSize());
+                for (let i = 0; i < encoded_frames.length; ++i) {
+                    dc.decode(encoded_frames[i], bfi, frame);
+                    console.log("Frame " + (i + 1).toString() + ": " + frame.toString());
+                }
+            }
+
+            function RunTest_07500US() {
+                var encoded_frames = [
+                    [254,134,219,162,144,120,84,177,93,27,31,59,36,98,175,181,149,156,176,160,111,190,172,7,211,72,132,69,190,59],
+                    [218,82,99,87,248,102,55,207,133,225,212,50,70,194,54,109,237,169,82,88,23,24,144,108,15,107,140,199,162,21]
+                ];
+
+                //  Set decoder configurations.
+                var Nms = LC3FrameDuration.NMS_07500US;
+                var Fs = LC3SampleRate.FS_16000;
+
+                //  Create decoder.
+                var dc = new LC3Decoder(Nms, Fs);
+
+                //  Decode frames.
+                var bfi = new LC3BEC();
+                var frame = new Array(dc.getFrameSize());
+                for (let i = 0; i < encoded_frames.length; ++i) {
+                    dc.decode(encoded_frames[i], bfi, frame);
+                    console.log("Frame " + (i + 1).toString() + ": " + frame.toString());
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h2>LC3 Decoder Test</h2>
+        <p>Please open DevTools and then click following buttons:</p>
+        <button onclick="javascript: RunTest_10000US();">Run 10ms, 16ksps, 32kbps test</button>
+        <button onclick="javascript: RunTest_07500US();">Run 7.5ms, 16ksps, 32kbps test</button>
+        <p>(see Appendix C of the official LC3 specification for more information)</p>
+    </body>
+</html>
