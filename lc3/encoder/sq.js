@@ -620,7 +620,7 @@ function LC3SpectralQuantization(Nms, Fs) {
         R[8] = lsbMode;
 
         return R;
-    }
+    };
 }
 
 //  Export public APIs.

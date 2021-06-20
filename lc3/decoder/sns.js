@@ -107,7 +107,7 @@ function LC3SpectralNoiseShapingDecoder(Nms, Fs) {
 
     let gsns = new Array(64);
 
-    let X_hat = new Array(NF)
+    let X_hat = new Array(NF);
 
     //
     //  Public methods.

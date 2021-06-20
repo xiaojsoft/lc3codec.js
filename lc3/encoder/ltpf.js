@@ -778,7 +778,7 @@ function LC3LongTermPostfilter(Nms, Fs) {
         R[3] = pitch_index;
 
         return R;
-    }
+    };
 }
 
 //  Export public APIs.

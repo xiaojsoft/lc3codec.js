@@ -140,7 +140,7 @@ function LC3Encoder(Nms, Fs) {
 
     let bwdet = new LC3BandwidthDetector(Nms, Fs);
 
-    let akdet = new LC3AttackDetector(Nms, Fs)
+    let akdet = new LC3AttackDetector(Nms, Fs);
 
     let sns = new LC3SpectralNoiseShapingEncoder(Nms, Fs);
     let sns_vqp_buf = new Array(6);

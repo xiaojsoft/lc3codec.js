@@ -776,21 +776,21 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
                 //  Eq. 35
                 let dMSE_LFi;
                 codebook = LFCB[i];
-                tmp = scf[ 0] - codebook[0]
+                tmp = scf[ 0] - codebook[0];
                 dMSE_LFi  = tmp * tmp;
-                tmp = scf[ 1] - codebook[1]
+                tmp = scf[ 1] - codebook[1];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 2] - codebook[2]
+                tmp = scf[ 2] - codebook[2];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 3] - codebook[3]
+                tmp = scf[ 3] - codebook[3];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 4] - codebook[4]
+                tmp = scf[ 4] - codebook[4];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 5] - codebook[5]
+                tmp = scf[ 5] - codebook[5];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 6] - codebook[6]
+                tmp = scf[ 6] - codebook[6];
                 dMSE_LFi += tmp * tmp;
-                tmp = scf[ 7] - codebook[7]
+                tmp = scf[ 7] - codebook[7];
                 dMSE_LFi += tmp * tmp;
 
                 //  Eq. 36
@@ -1025,6 +1025,7 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
                 MPVQ_16x10.enumerate(sns_y0_setB, mpvq_enum_cache);
                 idxB = mpvq_enum_cache[1];
                 LS_indB = mpvq_enum_cache[0];
+                //  Fall through.
             case 1:
                 MPVQ_16x10.enumerate(sns_y0_setA, mpvq_enum_cache);
                 idxA = mpvq_enum_cache[1];

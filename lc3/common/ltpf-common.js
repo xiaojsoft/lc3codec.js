@@ -22,7 +22,7 @@ const LC3IllegalParameterError =
 const LC3SampleRate = 
     Lc3Fs.LC3SampleRate;
 const LC3FrameDuration = 
-    Lc3Nms.LC3FrameDuration
+    Lc3Nms.LC3FrameDuration;
 
 //
 //  Public functions.

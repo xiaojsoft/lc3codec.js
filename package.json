@@ -6,6 +6,7 @@
   "author": "XiaoJSoft Studio.",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@types/node": "^10.17.51"
+    "@types/node": "^10.17.51",
+    "eslint": "^7.29.0"
   }
 }

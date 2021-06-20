@@ -1,0 +1,40 @@
+{
+    "env": {
+        "commonjs": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "linebreak-style": [
+            "warn",
+            "unix"
+        ],
+        "quotes": [
+            "warn",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-unused-vars": [
+            "warn", 
+            {
+                "vars": "local", 
+                "args": "none", 
+                "ignoreRestSiblings": false,
+                "varsIgnorePattern": "^(LC3FrameDuration|LC3SampleRate)$"
+            }
+        ],
+        "no-fallthrough": [
+            "error",
+            {
+                "commentPattern": "Fall[\\s\\w]through\\."
+            }
+        ]
+    }
+}
