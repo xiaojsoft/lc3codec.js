@@ -191,7 +191,7 @@ function LC3SpectralQuantization(Nms, Fs) {
             //  Compute the quantized gain index offset by:
 
             //  Eq. 110
-            gg_off = GGOFF_TBL[fsind][nbits - 20];
+            gg_off = GGOFF_TBL[fsind][(nbits >>> 3) - 20];
         }
         // console.log("gg_off=" + gg_off);
 

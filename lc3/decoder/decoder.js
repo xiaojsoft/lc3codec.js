@@ -773,7 +773,7 @@ tnsloop:
         let gg_off = 0;
         if (!bec.isMarked()) {
             //  Eq. 121
-            gg_off = GGOFF_TBL[fsInd][nbits - 20];
+            gg_off = GGOFF_TBL[fsInd][nbytes - 20];
             // console.log("gg_off=" + gg_off.toString());
 
             //  Eq. 120
