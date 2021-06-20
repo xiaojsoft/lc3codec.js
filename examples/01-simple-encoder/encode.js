@@ -64,6 +64,7 @@ const CONFIG_BYTE_PER_FRAME = 80;
 
     //  Encode the audio.
     let frame = new Array(frame_size);
+    let bytebuf = Buffer.allocUnsafe(402);
     for (
         let offset = 0; 
         offset + frame_size * 2 <= pcm.length; 
@@ -75,12 +76,12 @@ const CONFIG_BYTE_PER_FRAME = 80;
         }
 
         //  Encode the frame.
-        let bytebuf = Buffer.allocUnsafe(2 + CONFIG_BYTE_PER_FRAME);
-        bytebuf.writeUInt16BE(CONFIG_BYTE_PER_FRAME, 0);
-        ec.encode(frame, CONFIG_BYTE_PER_FRAME, bytebuf.slice(2));
+        let nbytes = CONFIG_BYTE_PER_FRAME;
+        bytebuf.writeUInt16BE(nbytes, 0);
+        ec.encode(frame, nbytes, bytebuf.slice(2, 2 + nbytes));
 
         //  Write encoded frame to the output file.
-        FS.writeSync(outfd, bytebuf);
+        FS.writeSync(outfd, bytebuf, 0, 2 + nbytes);
     }
 
     //  Write ending frame.
