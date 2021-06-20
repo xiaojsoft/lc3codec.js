@@ -1,0 +1,104 @@
+//
+//  Copyright 2021 XiaoJSoft Studio. All rights reserved.
+//  Use of this source code is governed by a BSD-style license that can be
+//  found in the LICENSE.md file.
+//
+
+(function(global, namespace, modules) {
+    //
+    //  Constants.
+    //
+
+    //  Loaded modules.
+    const LOADED_MODULES = {};
+
+    //
+    //  Private functions.
+    //
+
+    /**
+     *  Get parent folder of specific module.
+     * 
+     *  @param {String} path 
+     *    - The module path.
+     */
+    function ModuleGetParentPath(path) {
+        let pos = path.lastIndexOf("/");
+        if (pos < 0) {
+            return "";
+        } else {
+            return path.substring(0, pos);
+        }
+    }
+
+    /**
+     *  Join module path.
+     * 
+     *  @throws {Error}
+     *    - Bad module path.
+     *  @param {String} base_path 
+     *    - The base module path.
+     *  @param {String} relative_path 
+     *    - The relative module path.
+     */
+    function ModuleJoinPath(base_path, relative_path) {
+        if (relative_path.length == 0) {
+            return base_path;
+        }
+        let relative_fldrs = relative_path.split("/");
+        for (let i = 0; i < relative_fldrs.length; ++i) {
+            let fldr = relative_fldrs[i];
+            if (fldr == ".") {
+                //  Nothing change.
+            } else if (fldr == "..") {
+                if (base_path.length == 0) {
+                    throw new Error("Bad module path.");
+                }
+                base_path = ModuleGetParentPath(base_path);
+            } else {
+                if (base_path.length == 0) {
+                    base_path = fldr;
+                } else {
+                    base_path = base_path + "/" + fldr;
+                }
+            }
+        }
+        return base_path;
+    }
+
+    /**
+     *  Load module.
+     * 
+     *  @throws {Error}
+     *    - Module not found.
+     *  @param {String} path 
+     *    - The module path.
+     *  @returns 
+     *    - The export dictionary of the module.
+     */
+    function ModuleLoad(path) {
+        if (!(path in modules)) {
+            throw new Error("Module not found.");
+        }
+        if (path in LOADED_MODULES) {
+            return LOADED_MODULES[path]["exports"];
+        } else {
+            let base_path = ModuleGetParentPath(path);
+            let module_dict = {
+                "exports": {}
+            };
+            LOADED_MODULES[path] = module_dict;
+            modules[path].call(global, module_dict, function(rel_path) {
+                return ModuleLoad(ModuleJoinPath(base_path, rel_path));
+            });
+            return module_dict["exports"];
+        }
+    }
+
+    //
+    //  Initializer.
+    //
+
+    //  Load entry module.
+    global[namespace] = ModuleLoad("library/api");
+})(${BUILD_GLOBAL}, "${BUILD_NAMESPACE}", ${BUILD_MODULE_DATA});

@@ -13,3 +13,6 @@
 
 #  Node-specific files.
 /node_modules/
+
+#  Built files.
+/browser/dist/*.js

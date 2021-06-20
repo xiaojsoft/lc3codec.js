@@ -1,0 +1,13 @@
+{
+    "sourceType": "script",
+    "presets": [
+        ["@babel/preset-env", {
+            "targets": {
+                "chrome": "24",
+                "ie": "11"
+            }
+        }]
+    ],
+    "compact": false,
+    "comments": false
+}
