@@ -189,6 +189,8 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
      *    - The `pitch_index` parameter.
      *  @param {Number} nbits
      *    - The bit count.
+     *  @returns {Number[]}
+     *    - The LTPFed time samples.
      */
     this.update = function(x_hat, ltpf_active, pitch_index, nbits) {
         x_hat_win.append(x_hat);
