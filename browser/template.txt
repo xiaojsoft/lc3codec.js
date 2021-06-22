@@ -100,5 +100,5 @@
     //
 
     //  Load entry module.
-    global[namespace] = ModuleLoad("library/api");
+    global[namespace] = ModuleLoad("browser/src/api");
 })(${BUILD_GLOBAL}, "${BUILD_NAMESPACE}", ${BUILD_MODULE_DATA});

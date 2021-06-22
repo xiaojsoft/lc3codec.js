@@ -57,5 +57,5 @@
     "lc3/tables/w75_360",
     "lc3/tables/z",
     "lc3/error",
-    "library/api"
+    "browser/src/api"
 ]
