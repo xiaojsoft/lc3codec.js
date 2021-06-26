@@ -21,6 +21,8 @@ const Lc3DcBec =
     require("./../lc3/decoder/bec");
 const Lc3Error = 
     require("./../lc3/error");
+const Lc3NodeWorker = 
+    require("./worker");
 
 //  Imported classes.
 const LC3SampleRate = 
@@ -39,6 +41,8 @@ const LC3IllegalParameterError =
     Lc3Error.LC3IllegalParameterError;
 const LC3IllegalIndexError = 
     Lc3Error.LC3IllegalIndexError;
+const LC3Worker = 
+    Lc3NodeWorker.LC3Worker;
 
 //  Export public APIs.
 module.exports = {
@@ -65,5 +69,8 @@ module.exports = {
             LC3IllegalParameterError,
         "LC3IllegalIndexError": 
             LC3IllegalIndexError
+    },
+    "Worker": {
+        "LC3Worker": LC3Worker
     }
 };
