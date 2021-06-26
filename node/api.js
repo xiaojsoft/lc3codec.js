@@ -41,6 +41,8 @@ const LC3IllegalParameterError =
     Lc3Error.LC3IllegalParameterError;
 const LC3IllegalIndexError = 
     Lc3Error.LC3IllegalIndexError;
+const LC3IllegalOperationError = 
+    Lc3Error.LC3IllegalOperationError;
 const LC3Worker = 
     Lc3NodeWorker.LC3Worker;
 
@@ -68,7 +70,9 @@ module.exports = {
         "LC3IllegalParameterError": 
             LC3IllegalParameterError,
         "LC3IllegalIndexError": 
-            LC3IllegalIndexError
+            LC3IllegalIndexError,
+        "LC3IllegalOperationError": 
+            LC3IllegalOperationError
     },
     "Worker": {
         "LC3Worker": LC3Worker

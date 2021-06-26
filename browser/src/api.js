@@ -39,6 +39,8 @@ const LC3IllegalParameterError =
     Lc3Error.LC3IllegalParameterError;
 const LC3IllegalIndexError = 
     Lc3Error.LC3IllegalIndexError;
+const LC3IllegalOperationError = 
+    Lc3Error.LC3IllegalOperationError;
 
 //  Export public APIs.
 module.exports = {
@@ -64,6 +66,8 @@ module.exports = {
         "LC3IllegalParameterError": 
             LC3IllegalParameterError,
         "LC3IllegalIndexError": 
-            LC3IllegalIndexError
+            LC3IllegalIndexError,
+        "LC3IllegalOperationError": 
+            LC3IllegalOperationError
     }
 };
