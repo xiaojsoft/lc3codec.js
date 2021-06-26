@@ -161,6 +161,8 @@ function LC3Encoder(Nms, Fs) {
     let ac_ctx = new Array(ACCTXMEMN);
     let lsbs = new Array(3200);
 
+    let xs_clipped = new Array(NF);
+
     //
     //  Public methods.
     //
@@ -182,7 +184,7 @@ function LC3Encoder(Nms, Fs) {
      *    - Frame size mismatches, or 
      *    - Byte count is not within specific range (20 <= nbytes <= 400), or 
      *    - Length of the buffer (i.e. bytesbuf) is smaller than the byte count.
-     *  @param {Number[]} xs 
+     *  @param {Number[]|Int16Array} xs 
      *    - The frame.
      *  @param {Number} nbytes
      *    - The byte count.
@@ -220,14 +222,20 @@ function LC3Encoder(Nms, Fs) {
         }
 
         //  Clip the input signal (Eq. 5).
-        for (let n = 0; n < NF; ++n) {
-            let tmp = xs[n];
-            if (tmp > 32767) {
-                xs[n] = 32767;
-            } else if (tmp < -32768) {
-                xs[n] = -32768;
-            } else {
-                //  Nothing.
+        if (typeof(Int16Array) != "undefined" && (xs instanceof Int16Array)) {
+            for (let n = 0; n < NF; ++n) {
+                xs_clipped[n] = xs[n];
+            }
+        } else {
+            for (let n = 0; n < NF; ++n) {
+                let tmp = xs[n];
+                if (tmp > 32767) {
+                    xs_clipped[n] = 32767;
+                } else if (tmp < -32768) {
+                    xs_clipped[n] = -32768;
+                } else {
+                    xs_clipped[n] = tmp;
+                }
             }
         }
 
@@ -235,7 +243,7 @@ function LC3Encoder(Nms, Fs) {
         let nbits = ((nbytes << 3) >>> 0);
 
         //  Low Delay MDCT analysis (3.3.4).
-        mdct.update(xs);
+        mdct.update(xs_clipped);
         let nn_flag = mdct.getNearNyquistFlag();
         // console.log("near_nyquist_flag=" + nn_flag.toString());
         let X = mdct.getSpectralCoefficients();
@@ -250,7 +258,7 @@ function LC3Encoder(Nms, Fs) {
         // console.log("nbitsBW=" + nbitsBW.toString());
 
         //  Time domain sttack detector (3.3.6).
-        akdet.update(xs, nbytes);
+        akdet.update(xs_clipped, nbytes);
         let F_att = akdet.getAttackFlag();
         // console.log("F_att=" + F_att.toString());
 
@@ -290,7 +298,7 @@ function LC3Encoder(Nms, Fs) {
         // console.log("Xf[]=" + Xf.toString());
 
         //  Long Term Postfilter (3.3.9).
-        ltpf_enc.update(xs, nbits, nn_flag);
+        ltpf_enc.update(xs_clipped, nbits, nn_flag);
         ltpf_enc.getEncoderParameters(ltpf_enc_param_buf);
         let nbitsLTPF = ltpf_enc_param_buf[0];
         // console.log("nbitsLTPF=" + nbitsLTPF.toString());

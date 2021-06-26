@@ -219,10 +219,10 @@ function LC3Decoder(Nms, Fs) {
      *    - The bytes buffer that contains the encoded frame.
      *  @param {InstanceType<typeof LC3BEC>} [bec]
      *    - The bit error condition (BEC) context.
-     *  @param {Number[]} [rbuf]
+     *  @param {Number[]|Int16Array} [rbuf]
      *    - The buffer of the returning array (used for reducing array 
      *      allocation).
-     *  @returns {Number[]}
+     *  @returns {Number[]|Int16Array}
      *    - The decoded samples.
      */
     this.decode = function(
@@ -231,9 +231,15 @@ function LC3Decoder(Nms, Fs) {
         rbuf = new Array(NF)
     ) {
         //  Ensure the returning array buffer size.
-        while (rbuf.length < NF) {
-            rbuf.push(0);
+        if (!(
+            typeof(Int16Array) != "undefined" && 
+            (rbuf instanceof Int16Array)
+        )) {
+            while (rbuf.length < NF) {
+                rbuf.push(0);
+            }
         }
+        let rbufcap = rbuf.length;
 
         let nbytes = bytes.length;
         let nbits = ((nbytes << 3) >>> 0);
@@ -872,7 +878,7 @@ tnsloop:
         // console.log("x_ltpf_hat[]=" + x_ltpf_hat.toString());
 
         //  Output signal scaling and rounding.
-        for (let i = 0; i < NF; ++i) {
+        for (let i = 0, iEnd = Math.min(NF, rbufcap); i < iEnd; ++i) {
             let tmp = x_ltpf_hat[i];
             tmp = Math.round(tmp);
             if (tmp > 32767) {
