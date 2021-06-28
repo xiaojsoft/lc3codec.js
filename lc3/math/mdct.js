@@ -29,6 +29,7 @@ const IsUInt32 =
 //
 //  Development Notes:
 //    [1] https://drive.google.com/file/d/1jp9wSUP0ICZcnVxMh7rotCDYcU5lkzdo/
+//    [2] https://drive.google.com/file/d/1-Qf3pcZ-fozD-Sddu3NgpTUZQRyZ09QC/
 //
 
 //
@@ -209,11 +210,6 @@ function MDCT(M) {
 /**
  *  IMDCT transformer.
  * 
- *  Note(s):
- *    [1] The IMDCT algorithm was derived from the book "Marina Bosi and 
- *        Richard E. Goldberg. 2002. Introduction to Digital Audio Coding and 
- *        Standards. Kluwer Academic Publishers, USA.", page 142-143.
- * 
  *  @constructor
  *  @throws {LC3IllegalParameterError}
  *    - Unit size is not an unsigned 32-bit integer, or 
@@ -242,42 +238,60 @@ function IMDCT(M) {
     //  Derive N = 2M.
     let N = ((M << 1) >>> 0);
 
-    //  Derive PI / N.
-    let PiDivN = (Math.PI) / N;
-
-    //  Derive N - 1.
+    //  Derive N - 1 = 2M - 1.
     let Ns1 = N - 1;
 
+    //  Derive M - 1.
+    let Ms1 = M - 1;
+
+    //  Xp[0...N - 1].
+    let Xp = new Array(N);
+
+    //  Xm[0...N - 1].
+    let Xm = new Array(N);
+
+    //  Z[0...M - 1], z[0...M - 1].
+    let Z_re = new Array(M);
+    let Z_im = new Array(M);
+
+    //  A[0...N - 1].
+    let A_re = new Array(N);
+    let A_im = new Array(N);
+
     //  FFT.
-    let fft = new FFT(N);
+    let fft = new FFT(M);
 
-    //  Derive M0 = (1 / 2 + M / 2).
-    let M0 = 0.5 + (M / 2);
+    //  Twiddle factors.
 
-    //  Expansion gain factor.
-    let egf = (((M & 1) == 0) ? -1 : 1);
-
-    //  Pre-twiddle factor (PRETW[n] = e ^ (j * n * M0 * 2pi / N)) 
-    //  (for 0 <= n < N).
-    let PRETW_re = new Array(N);
-    let PRETW_im = new Array(N);
-
-    //  Post-twiddle factor (PSTW[n] = e ^ (j * (n + M0) * pi / N)) 
-    //  (for 0 <= n < N).
-    let PSTW_re = new Array(N);
-    let PSTW_im = new Array(N);
-    for (let n = 0; n < N; ++n) {
-        let phi = n * M0 * 2 * PiDivN;
-        PRETW_re[n] = Math.cos(phi);
-        PRETW_im[n] = Math.sin(phi);
-
-        phi = (n + M0) * PiDivN;
-        PSTW_re[n] = Math.cos(phi);
-        PSTW_im[n] = Math.sin(phi);
+    //  TW1[k] = 0.25 * (e ^ (1j * k * PI / M)).
+    let TW1_re = new Array(M);
+    let TW1_im = new Array(M);
+    for (let k = 0; k < M; ++k) {
+        let phi = k * Math.PI / M;
+        TW1_re[k] = 0.25 * Math.cos(phi);
+        TW1_im[k] = 0.25 * Math.sin(phi);
     }
 
-    //  Imaginary parts of X'[k].
-    let Xp_im = new Array(N);
+    //  TW2[n] = (e ^ (1j * (n + 0.5) * PI / M)).
+    let TW2_re = new Array(M);
+    let TW2_im = new Array(M);
+    for (let n = 0; n < M; ++n) {
+        let phi = (n + 0.5) * Math.PI / M;
+        TW2_re[n] = Math.cos(phi);
+        TW2_im[n] = Math.sin(phi);
+    }
+
+    //  TW3[n] = (e ^ ((n + 0.5 + M * 0.5) * PI / N)).
+    let TW3_re = new Array(N);
+    let TW3_im = new Array(N);
+    for (
+        let n = 0, c = Math.PI / N, phi = 0.5 * (M + 1) * c; 
+        n < N; 
+        ++n, phi += c
+    ) {
+        TW3_re[n] = Math.cos(phi);
+        TW3_im[n] = Math.sin(phi);
+    }
 
     //
     //  Public methods.
@@ -294,7 +308,7 @@ function IMDCT(M) {
      *  @param {Number[]} Y
      *    - The array that would contain the output (transformed) block.
      */
-    this.transform = function(X, Y) {
+     this.transform = function(X, Y) {
         //  Check the block size.
         if (X.length != M) {
             throw new LC3IllegalParameterError(
@@ -307,33 +321,55 @@ function IMDCT(M) {
             );
         }
 
-        //  Generate X'[k] = PRETW[k] * X[k] (for 0 <= k < N), 
-        //  where X[k] = ((-1) ^ (M + 1)) * X[N - 1 - k] (for M <= k < N).
-        let Xp_re = Y;
-        for (let k = 0; k < M; ++k) {
-            let Xk = X[k];
-
-            Xp_re[k] = Xk * PRETW_re[k];
-            Xp_im[k] = Xk * PRETW_im[k];
-
-            let p = Ns1 - k;
-            Xp_re[p] = egf * Xk * PRETW_re[p];
-            Xp_im[p] = egf * Xk * PRETW_im[p];
+        //  Xp[0...N - 1]:
+        let Xp_factor = (((M & 1) != 0) ? 1 : -1);
+        for (let k1 = 0, k2 = Ns1; k1 < M; ++k1, --k2) {
+            Xp[k1] = X[k1];
+            Xp[k2] = Xp_factor * X[k1];
         }
 
-        //  Let X'[k] = IFFT{X'[k]}.
-        fft.transformInverse(Xp_re, Xp_im);
+        //  Xm[0...N - 1]:
+        let Xm_factor = 1;
+        for (let k = 0; k < N; k += 2) {
+            Xm[k] = Xm_factor * Xp[k];
+            Xm[k + 1] = Xm_factor * Xp[k + 1];
+            Xm_factor = -Xm_factor;
+        }
 
-        //  (Post-twiddle) Let X'[k] *= PSTW[k] (for 0 <= k < N).
-        for (let k = 0; k < N; ++k) {
-            let a_re = Xp_re[k],
-                a_im = Xp_im[k];
-            
-            let tw_re = PSTW_re[k];
-            let tw_im = PSTW_im[k];
+        //  Z[0...M - 1]:
+        for (let k = 0, u = 0; k < M; ++k, u += 2) {
+            let a_re = Xm[u], a_im = Xm[u + 1];
+            let b_re = TW1_re[k], b_im = TW1_im[k];
+            Z_re[k] = a_re * b_re - a_im * b_im;
+            Z_im[k] = a_re * b_im + a_im * b_re;
+        }
 
-            Xp_re[k] = a_re * tw_re - a_im * tw_im;
-        //    Xp_im[k] = a_re * tw_im + a_im * tw_re;
+        //  z[0...M - 1]:
+        fft.transformInverse(Z_re, Z_im);
+
+        //  A[0...N - 1]:
+        for (let k1 = 0, k2 = Ms1, k3 = M; k1 < M; ++k1, --k2, ++k3) {
+            let z1_re = Z_re[k1], z1_im = Z_im[k1];
+            let z2_re = Z_re[k2], z2_im = Z_im[k2];
+
+            let A_even_re = z1_re + z2_re;
+            let A_even_im = z1_im - z2_im;
+
+            let a_re = z1_re - z2_re, a_im = z1_im + z2_im;
+            let b_re = TW2_re[k1], b_im = TW2_im[k1];
+
+            let A_odd_re = a_re * b_re - a_im * b_im;
+            let A_odd_im = a_re * b_im + a_im * b_re;
+
+            A_re[k1] = A_even_re + A_odd_re;
+            A_im[k1] = A_even_im + A_odd_im;
+            A_re[k3] = A_even_re - A_odd_re;
+            A_im[k3] = A_even_im - A_odd_im;
+        }
+
+        //  x[0...N]:
+        for (let n = 0; n < N; ++n) {
+            Y[n] = TW3_re[n] * A_re[n] - TW3_im[n] * A_im[n];
         }
     };
 }
