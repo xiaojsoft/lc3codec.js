@@ -305,7 +305,7 @@ function IMDCT(M) {
      *  @param {Number[]} Y
      *    - The array that would contain the output (transformed) block.
      */
-     this.transform = function(X, Y) {
+    this.transform = function(X, Y) {
         //  Check the block size.
         if (X.length != M) {
             throw new LC3IllegalParameterError(
