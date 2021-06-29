@@ -247,9 +247,6 @@ function IMDCT(M) {
     //  Xp[0...N - 1].
     let Xp = new Array(N);
 
-    //  Xm[0...N - 1].
-    let Xm = new Array(N);
-
     //  Z[0...M - 1], z[0...M - 1].
     let Z_re = new Array(M);
     let Z_im = new Array(M);
@@ -328,20 +325,14 @@ function IMDCT(M) {
             Xp[k2] = Xp_factor * X[k1];
         }
 
-        //  Xm[0...N - 1]:
-        let Xm_factor = 1;
-        for (let k = 0; k < N; k += 2) {
-            Xm[k] = Xm_factor * Xp[k];
-            Xm[k + 1] = Xm_factor * Xp[k + 1];
-            Xm_factor = -Xm_factor;
-        }
-
         //  Z[0...M - 1]:
+        let Xm_factor = 1;
         for (let k = 0, u = 0; k < M; ++k, u += 2) {
-            let a_re = Xm[u], a_im = Xm[u + 1];
+            let a_re = Xm_factor * Xp[u], a_im = Xm_factor * Xp[u + 1];
             let b_re = TW1_re[k], b_im = TW1_im[k];
             Z_re[k] = a_re * b_re - a_im * b_im;
             Z_im[k] = a_re * b_im + a_im * b_re;
+            Xm_factor = -Xm_factor;
         }
 
         //  z[0...M - 1]:
