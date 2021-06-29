@@ -118,6 +118,10 @@ function FFTBluesteinTransformer(N) {
     //  B[n] = FFT{b[n]}.
     fft.transform(B_RE, B_IM);
 
+    //  A[n].
+    let A_RE = new Array(M);
+    let A_IM = new Array(M);
+
     //
     //  Public methods.
     //
@@ -139,8 +143,6 @@ function FFTBluesteinTransformer(N) {
         }
 
         //  Generate sequence a[n] = x[n] * (TW[n] ^ -1) (for 0 <= n < N).
-        let A_RE = new Array(M);
-        let A_IM = new Array(M);
         for (let n = 0; n < N; ++n) {
             let xn_re = x_re[n], 
                 xn_im = x_im[n];
