@@ -113,7 +113,17 @@ function FFTCooleyTukeyTransformer(stageCnt) {
                     ++p, ++q
                 ) {
                     //  Do 2-points Cooley-Tukey transform.
-                    FFTCooleyTukeyTransform2P(x_re, x_im, p, q, wNr_r, wNr_i);
+                    let p_r = x_re[p], p_i = x_im[p];
+                    let q_r = x_re[q], q_i = x_im[q];
+
+                    let t_r = q_r * wNr_r - q_i * wNr_i, 
+                        t_i = q_r * wNr_i + q_i * wNr_r;
+
+                    x_re[p] = p_r + t_r;
+                    x_im[p] = p_i + t_i;
+
+                    x_re[q] = p_r - t_r;
+                    x_im[q] = p_i - t_i;
 
                     //  Roll the subsup{w, N, r} coefficient.
                     let wNr_r_next = (wNr_r * wNs_r - wNr_i * wNs_i);
@@ -129,36 +139,6 @@ function FFTCooleyTukeyTransformer(stageCnt) {
 //
 //  Private functions.
 //
-
-/**
- *  Do 2-points Cooley-Tukey transform.
- * 
- *  @param {Number[]} re 
- *    - The real part of each point.
- *  @param {Number[]} im 
- *    - The imaginary part of each point.
- *  @param {Number} p
- *    - The index of the even point.
- *  @param {Number} q
- *    - The index of the odd point.
- *  @param {Number} wNr_r 
- *    - The real part of `subsup{w, N, r}`.
- *  @param {Number} wNr_i 
- *    - The imaginary part of `subsup{w, N, r}`.
- */
-function FFTCooleyTukeyTransform2P(re, im, p, q, wNr_r, wNr_i) {
-    let p_r = re[p], p_i = im[p];
-    let q_r = re[q], q_i = im[q];
-
-    let t_r = q_r * wNr_r - q_i * wNr_i, 
-        t_i = q_r * wNr_i + q_i * wNr_r;
-
-    re[p] = p_r + t_r;
-    im[p] = p_i + t_i;
-
-    re[q] = p_r - t_r;
-    im[q] = p_i - t_i;
-}
 
 /**
  *  Swap two items at specific indexes on both arrays.
@@ -204,19 +184,19 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
     if (nbits <= 1) {
         return;
     }
-    let m = (nbits >> 1);
+    let m = (nbits >>> 1);
     let mp1 = m + 1;
     // let brv_m = NewBitReversalPermutate(m);
     let inv = ((1 << nbits) >>> 0) - 1;
     let pow_2_m = ((1 << m) >>> 0);
-    let pow_2_ms1 = (pow_2_m >> 1);
+    let pow_2_ms1 = (pow_2_m >>> 1);
     if (((nbits & 1) >>> 0) == 0) {
         for (let a = 0; a < pow_2_ms1; ++a) {
             for (let b = 0; b < a; ++b) {
                 let i = ((b << m) >>> 0) + brv_m[a];
                 let ri = ((a << m) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
-                FFTArraySwap2(arr1, arr2, inv ^ ri, inv ^ i);
+                FFTArraySwap2(arr1, arr2, ((inv ^ ri) >>> 0), ((inv ^ i) >>> 0));
             }
         }
         for (let a = pow_2_ms1; a < pow_2_m; ++a) {
@@ -232,11 +212,11 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
                 let i = ((b << mp1) >>> 0) + brv_m[a];
                 let ri = ((a << mp1) >>> 0) + brv_m[b];
                 FFTArraySwap2(arr1, arr2, i, ri);
-                FFTArraySwap2(arr1, arr2, inv ^ ri, inv ^ i);
+                FFTArraySwap2(arr1, arr2, ((inv ^ ri) >>> 0), ((inv ^ i) >>> 0));
                 i += pow_2_m;
                 ri += pow_2_m;
                 FFTArraySwap2(arr1, arr2, i, ri);
-                FFTArraySwap2(arr1, arr2, inv ^ ri, inv ^ i);
+                FFTArraySwap2(arr1, arr2, ((inv ^ ri) >>> 0), ((inv ^ i) >>> 0));
             }
         }
         for (let a = pow_2_ms1; a < pow_2_m; ++a) {
