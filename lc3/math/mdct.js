@@ -251,10 +251,6 @@ function IMDCT(M) {
     let Z_re = new Array(M);
     let Z_im = new Array(M);
 
-    //  A[0...N - 1].
-    let A_re = new Array(N);
-    let A_im = new Array(N);
-
     //  FFT.
     let fft = new FFT(M);
 
@@ -338,7 +334,7 @@ function IMDCT(M) {
         //  z[0...M - 1]:
         fft.transformInverse(Z_re, Z_im);
 
-        //  A[0...N - 1]:
+        //  A[0...N - 1], x[0...N]:
         for (let k1 = 0, k2 = Ms1, k3 = M; k1 < M; ++k1, --k2, ++k3) {
             let z1_re = Z_re[k1], z1_im = Z_im[k1];
             let z2_re = Z_re[k2], z2_im = Z_im[k2];
@@ -352,15 +348,10 @@ function IMDCT(M) {
             let A_odd_re = a_re * b_re - a_im * b_im;
             let A_odd_im = a_re * b_im + a_im * b_re;
 
-            A_re[k1] = A_even_re + A_odd_re;
-            A_im[k1] = A_even_im + A_odd_im;
-            A_re[k3] = A_even_re - A_odd_re;
-            A_im[k3] = A_even_im - A_odd_im;
-        }
-
-        //  x[0...N]:
-        for (let n = 0; n < N; ++n) {
-            Y[n] = TW3_re[n] * A_re[n] - TW3_im[n] * A_im[n];
+            Y[k1] = TW3_re[k1] * (A_even_re + A_odd_re) - 
+                    TW3_im[k1] * (A_even_im + A_odd_im);
+            Y[k3] = TW3_re[k3] * (A_even_re - A_odd_re) - 
+                    TW3_im[k3] * (A_even_im - A_odd_im);
         }
     };
 }
