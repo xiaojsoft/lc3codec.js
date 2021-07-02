@@ -29,7 +29,7 @@ const IsUInt32 =
 //
 //  Development Notes:
 //    [1] https://drive.google.com/file/d/1jp9wSUP0ICZcnVxMh7rotCDYcU5lkzdo/
-//    [2] https://drive.google.com/file/d/1Pol4F7TB3XAIUARo_G05hEJBeAw94kkA/
+//    [2] https://drive.google.com/file/d/1AERz6ENDjp7eCk-hzsVtbIMVuXcweGiS/
 //
 
 //
@@ -214,11 +214,16 @@ function MDCT(M) {
  *  @throws {LC3IllegalParameterError}
  *    - Unit size is not an unsigned 32-bit integer, or 
  *    - Unit size is zero, or 
- *    - Unit size is larger than 0x80000000.
+ *    - Unit size is larger than 0x80000000, or 
+ *    - The count of dynamic gain factors is not twice of the unit size.
  *  @param {Number} M 
  *    - The unit size.
+ *  @param {Number} G_static
+ *    - The static gain factor.
+ *  @param {?(Number[])} G_dynamic
+ *    - The dynamic gain factors.
  */
-function IMDCT(M) {
+ function IMDCT(M, G_static = 1, G_dynamic = null) {
     //  Ensure the block size is an integer.
     if (!IsUInt32(M)) {
         throw new LC3IllegalParameterError(
@@ -238,6 +243,20 @@ function IMDCT(M) {
     //  Derive N = 2M.
     let N = ((M << 1) >>> 0);
 
+    //  Check the size of G_dynamic[]:
+    if (G_dynamic !== null) {
+        if (G_dynamic.length != N) {
+            throw new LC3IllegalParameterError(
+                "The count of dynamic gain factors is not twice of the unit size."
+            );
+        }
+    } else {
+        G_dynamic = new Array(N);
+        for (let i = 0; i < N; ++i) {
+            G_dynamic[i] = 1;
+        }
+    }
+
     //  Derive N - 1 = 2M - 1.
     let Ns1 = N - 1;
 
@@ -247,29 +266,30 @@ function IMDCT(M) {
     //  Xp[0...N - 1].
     let Xp = new Array(N);
 
-    //  Z[0...M - 1], z[0...M - 1].
-    let Z_re = new Array(M);
-    let Z_im = new Array(M);
+    //  U[0...M - 1], u[0...M - 1] (denoted as M[] and m[] in the development 
+    //  note).
+    let U_re = new Array(M);
+    let U_im = new Array(M);
 
     //  FFT.
     let fft = new FFT(M);
 
     //  Twiddle factors.
 
-    //  TW1[k] = 0.25 * (e ^ (1j * k * PI / M)).
+    //  TW1[k] = 0.25 * (e ^ (-1j * k * PI / M)) / M.
     let TW1_re = new Array(M);
     let TW1_im = new Array(M);
     for (let k = 0; k < M; ++k) {
-        let phi = k * Math.PI / M;
-        TW1_re[k] = 0.25 * Math.cos(phi);
-        TW1_im[k] = 0.25 * Math.sin(phi);
+        let phi = -k * Math.PI / M;
+        TW1_re[k] = 0.25 * G_static * Math.cos(phi) / M;
+        TW1_im[k] = 0.25 * G_static * Math.sin(phi) / M;
     }
 
-    //  TW2[n] = (e ^ (1j * (n + 0.5) * PI / M)).
+    //  TW2[n] = (e ^ (-1j * (n + 0.5) * PI / M)).
     let TW2_re = new Array(M);
     let TW2_im = new Array(M);
     for (let n = 0; n < M; ++n) {
-        let phi = (n + 0.5) * Math.PI / M;
+        let phi = -(n + 0.5) * Math.PI / M;
         TW2_re[n] = Math.cos(phi);
         TW2_im[n] = Math.sin(phi);
     }
@@ -321,37 +341,41 @@ function IMDCT(M) {
             Xp[k2] = Xp_factor * X[k1];
         }
 
-        //  Z[0...M - 1]:
+        //  U[0...M - 1]:
         let Xm_factor = 1;
         for (let k = 0, u = 0; k < M; ++k, u += 2) {
             let a_re = Xm_factor * Xp[u], a_im = Xm_factor * Xp[u + 1];
             let b_re = TW1_re[k], b_im = TW1_im[k];
-            Z_re[k] = a_re * b_re - a_im * b_im;
-            Z_im[k] = a_re * b_im + a_im * b_re;
+            U_re[k] = a_re * b_re - a_im * b_im;
+            U_im[k] = a_re * b_im + a_im * b_re;
             Xm_factor = -Xm_factor;
         }
 
-        //  z[0...M - 1]:
-        fft.transformInverse(Z_re, Z_im);
+        //  u[0...M - 1]:
+        fft.transform(U_re, U_im);
 
-        //  A[0...N - 1], x[0...N]:
+        //  A_conj[0...N - 1], x[0...N]:
         for (let k1 = 0, k2 = Ms1, k3 = M; k1 < M; ++k1, --k2, ++k3) {
-            let z1_re = Z_re[k1], z1_im = Z_im[k1];
-            let z2_re = Z_re[k2], z2_im = Z_im[k2];
+            let z1_re = U_re[k1], z1_im = U_im[k1];
+            let z2_re = U_re[k2], z2_im = U_im[k2];
 
-            let A_even_re = z1_re + z2_re;
-            let A_even_im = z1_im - z2_im;
+            let A_conj_even_re = z1_re + z2_re;
+            let A_conj_even_im = z1_im - z2_im;
 
-            let a_re = z1_re - z2_re, a_im = z1_im + z2_im;
+            let a_re = z2_re - z1_re, a_im = -(z2_im + z1_im);
             let b_re = TW2_re[k1], b_im = TW2_im[k1];
 
-            let A_odd_re = a_re * b_re - a_im * b_im;
-            let A_odd_im = a_re * b_im + a_im * b_re;
+            let A_conj_odd_re = a_re * b_re - a_im * b_im;
+            let A_conj_odd_im = a_re * b_im + a_im * b_re;
 
-            Y[k1] = TW3_re[k1] * (A_even_re + A_odd_re) - 
-                    TW3_im[k1] * (A_even_im + A_odd_im);
-            Y[k3] = TW3_re[k3] * (A_even_re - A_odd_re) - 
-                    TW3_im[k3] * (A_even_im - A_odd_im);
+            Y[k1] = (
+                TW3_re[k1] * (A_conj_even_re + A_conj_odd_re) + 
+                TW3_im[k1] * (A_conj_even_im + A_conj_odd_im)
+            ) * G_dynamic[k1];
+            Y[k3] = (
+                TW3_re[k3] * (A_conj_even_re - A_conj_odd_re) + 
+                TW3_im[k3] * (A_conj_even_im - A_conj_odd_im)
+            ) * G_dynamic[k3];
         }
     };
 }
