@@ -33,8 +33,8 @@ const LC3FrameDuration =
 //  Imported constants.
 const NF_TBL = 
     Lc3TblNF.NF_TBL;
-const W_TBL = 
-    Lc3TblW.W_TBL;
+const W_FLIPPED_TBL = 
+    Lc3TblW.W_FLIPPED_TBL;
 const Z_TBL = 
     Lc3TblZ.Z_TBL;
 
@@ -62,7 +62,7 @@ function LC3MDCTSynthesizer(Nms, Fs) {
 
     //  Table lookup.
     let NF = NF_TBL[index_Nms][index_Fs];
-    let W_N = W_TBL[index_Nms][index_Fs];
+    let W_FLIPPED = W_FLIPPED_TBL[index_Nms][index_Fs];
     let Z = Z_TBL[index_Nms][index_Fs];
 
     //  Algorithm contexts.
@@ -79,9 +79,7 @@ function LC3MDCTSynthesizer(Nms, Fs) {
 
     let t_hat = new Array(NFmul2);
 
-    let imdct = new IMDCT(NF);
-
-    let SqrNFmul2 = Math.sqrt(NFmul2);
+    let imdct = new IMDCT(NF, Math.sqrt(NFmul2), W_FLIPPED);
 
     //
     //  Public methods.
@@ -101,10 +99,6 @@ function LC3MDCTSynthesizer(Nms, Fs) {
         //  1. Generation of time domain aliasing buffer t_hat[n].
         //  2. Windowing of time-aliased buffer.
         imdct.transform(X_hat, t_hat);
-        for (let i = 0, j = NFmul2 - 1; i < NFmul2; ++i, --j) {
-            t_hat[i] *= SqrNFmul2 *                                //  Eq. 125
-                        W_N[j];                                    //  Eq. 126
-        }
         // console.log("t_hat[]=" + t_hat.toString());
 
         //  3. Conduct overlap-add operation to get reconstructed time samples 

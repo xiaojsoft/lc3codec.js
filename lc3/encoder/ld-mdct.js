@@ -92,11 +92,8 @@ function LC3MDCTAnalyzer(Nms, Fs) {
     let Ifs = I_TBL[index_Nms][index_Fs];
     let nn_idx = NNIDX_TBL[index_Nms][index_Fs];
 
-    //  Derive sqrt(2 / Nf).
-    let SqrTwoDivNf = Math.sqrt(2 / NF);
-
     //  MDCT.
-    let mdct = new MDCT(NF);
+    let mdct = new MDCT(NF, Math.sqrt(2 / NF), W);
 
     //  Time buffer.
     let TbufLen = NF_mul_2 - Z;
@@ -139,15 +136,9 @@ function LC3MDCTAnalyzer(Nms, Fs) {
 
         //  Get the windowed time buffer.
         Tbuf.bulkGet(Twinbuf, 0, 0, TbufLen);
-        for (let n = 0; n < TbufLen; ++n) {
-            Twinbuf[n] *= W[n];
-        }
 
         //  Get spectral coefficients.
         mdct.transform(Twinbuf, X);                                  //  Eq. 8
-        for (let k = 0; k < NF; ++k) {
-            X[k] *= SqrTwoDivNf;
-        }
 
         //  Do energy estimation.
         for (let b = 0; b < NB; ++b) {                              //  Eq. 10

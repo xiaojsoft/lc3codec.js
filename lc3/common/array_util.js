@@ -17,6 +17,8 @@
  *    - The start position of the range (inclusive).
  *  @param {Number} [end] 
  *    - The end position of the range (exclusive).
+ *  @returns {Array}
+ *    - The array (returned directly for chaining operation).
  */
 function ArrayFlip(arr, start = 0, end = arr.length) {
     let left = start, right = end - 1;
@@ -28,6 +30,7 @@ function ArrayFlip(arr, start = 0, end = arr.length) {
         ++(left);
         --(right);
     }
+    return arr;
 }
 
 //  Export public APIs.

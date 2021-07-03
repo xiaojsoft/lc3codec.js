@@ -29,6 +29,8 @@ const Lc3TblW75_240 =
     require("./w75_240");
 const Lc3TblW75_360 = 
     require("./w75_360");
+const Lc3ArrayUtil = 
+    require("./../common/array_util");
 
 //  Imported constants.
 const W10_80 = 
@@ -52,6 +54,10 @@ const W75_240 =
 const W75_360 = 
     Lc3TblW75_360.W75_360;
 
+//  Imported functions.
+const ArrayFlip = 
+    Lc3ArrayUtil.ArrayFlip;
+
 //
 //  Constants.
 //
@@ -65,8 +71,27 @@ const W_TBL = [
         W75_60, W75_120, W75_180, W75_240, W75_360, W75_360
     ]
 ];
+const W_FLIPPED_TBL = [
+    [
+        ArrayFlip(W10_80.slice()), 
+        ArrayFlip(W10_160.slice()), 
+        ArrayFlip(W10_240.slice()), 
+        ArrayFlip(W10_320.slice()), 
+        ArrayFlip(W10_480.slice()), 
+        ArrayFlip(W10_480.slice())
+    ],
+    [
+        ArrayFlip(W75_60.slice()), 
+        ArrayFlip(W75_120.slice()), 
+        ArrayFlip(W75_180.slice()), 
+        ArrayFlip(W75_240.slice()), 
+        ArrayFlip(W75_360.slice()), 
+        ArrayFlip(W75_360.slice())
+    ]
+];
 
 //  Export public APIs.
 module.exports = {
-    "W_TBL": W_TBL
+    "W_TBL": W_TBL,
+    "W_FLIPPED_TBL": W_FLIPPED_TBL
 };
