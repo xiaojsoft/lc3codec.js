@@ -237,6 +237,8 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
     let t2rot_setA = new Array(10);
     let t2rot_setB = new Array(6);
 
+    let pvq_cache_s = new Array(16);
+
     let sns_y0_setA = new Array(10);
     let sns_y0_setB = new Array(6);
     let sns_y0 = new Array(16);
@@ -904,11 +906,11 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
 
         //  Shape candidates (3.3.6.3.3.4).
         {
-            PVQSearch(10, 10, t2rot_setA, sns_y0_setA);
-            PVQSearch( 6,  1, t2rot_setB, sns_y0_setB);
-            // PVQSearch(10, 10, t2rot_setA, sns_y1_setA);
-            PVQSearch(16,  8,      t2rot,      sns_y2);
-            PVQSearch(16,  6,      t2rot,      sns_y3);
+            PVQSearch(10, 10, t2rot_setA, sns_y0_setA, pvq_cache_s);
+            PVQSearch( 6,  1, t2rot_setB, sns_y0_setB, pvq_cache_s);
+            // PVQSearch(10, 10, t2rot_setA, sns_y1_setA, pvq_cache_s);
+            PVQSearch(16,  8,      t2rot,      sns_y2, pvq_cache_s);
+            PVQSearch(16,  6,      t2rot,      sns_y3, pvq_cache_s);
 
             sns_y0[ 0] = sns_y0_setA[0];
             sns_y0[ 1] = sns_y0_setA[1];

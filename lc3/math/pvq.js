@@ -38,7 +38,8 @@ const IsUInt32 =
  *    - N is not an unsigned 32-bit integer, or 
  *    - K is not a non-negative integer, or 
  *    - Vector size mismatches (with N), or 
- *    - Point buffer size mismatches (with N).
+ *    - Point buffer size mismatches (with N), or 
+ *    - Sign buffer size is too small (lower than N).
  *  @param {Number} N 
  *    - The parameter N.
  *  @param {Number} K 
@@ -48,10 +49,12 @@ const IsUInt32 =
  *  @param {?(Number[])} [R]
  *    - The point buffer (used for reducing array allocation, set to NULL if 
  *      not needed).
+ *  @param {Number[]} [S]
+ *    - The sign buffer.
  *  @returns {Number[]}
  *    - The point within PVQ(N, K).
  */
-function PVQSearch(N, K, X, R = null) {
+function PVQSearch(N, K, X, R = null, S = new Array(N)) {
     //  Check N.
     if (!IsUInt32(N)) {
         throw new LC3IllegalParameterError(
@@ -85,8 +88,14 @@ function PVQSearch(N, K, X, R = null) {
         R = new Array(N);
     }
 
+    //  Check the size of S.
+    if (S.length < N) {
+        throw new LC3IllegalParameterError(
+            "Sign buffer size is too small (lower than N)."
+        );
+    }
+
     //  Prepare S[n] = sgn(X[n]), XabsSum = sum(|X[n]|).
-    let S = new Array(N);
     let XabsSum = 0;
     for (let i = 0; i < N; ++i) {
         if (X[i] < 0) {
