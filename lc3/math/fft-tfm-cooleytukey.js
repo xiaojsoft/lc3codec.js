@@ -169,7 +169,7 @@ function FFTArraySwap2(arr1, arr2, i1, i2) {
  * 
  *  Note(s):
  *    [1] The description algorithm used here can be downloaded from:
- *        https://drive.google.com/file/d/1ud9FRlrhxiSA0QxsL4JBgU0iBpifMm_6/
+ *        https://drive.google.com/file/d/1ESvZy5U__Uir3hePc3CGgHdBmflf47jA/
  * 
  *  @param {Number[]} arr1 
  *    - The first array.
@@ -191,7 +191,7 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
     let pow_2_m = ((1 << m) >>> 0);
     let pow_2_ms1 = (pow_2_m >>> 1);
     if (((nbits & 1) >>> 0) == 0) {
-        for (let a = 0; a < pow_2_ms1; ++a) {
+        for (let a = 1; a < pow_2_ms1; ++a) {
             for (let b = 0; b < a; ++b) {
                 let i = ((b << m) >>> 0) + brv_m[a];
                 let ri = ((a << m) >>> 0) + brv_m[b];
@@ -207,7 +207,7 @@ function FFTArrayBitReversalShuffle2(arr1, arr2, nbits, brv_m) {
             }
         }
     } else {
-        for (let a = 0; a < pow_2_ms1; ++a) {
+        for (let a = 1; a < pow_2_ms1; ++a) {
             for (let b = 0; b < a; ++b) {
                 let i = ((b << mp1) >>> 0) + brv_m[a];
                 let ri = ((a << mp1) >>> 0) + brv_m[b];

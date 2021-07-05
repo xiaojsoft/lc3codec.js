@@ -27,7 +27,7 @@ const LC3IllegalParameterError = Lc3Error.LC3IllegalParameterError;
  * 
  *  Note(s):
  *    [1] The description algorithm used here can be downloaded from:
- *        https://drive.google.com/file/d/1ud9FRlrhxiSA0QxsL4JBgU0iBpifMm_6/
+ *        https://drive.google.com/file/d/1ESvZy5U__Uir3hePc3CGgHdBmflf47jA/
  * 
  *  @param {Number} nbits
  *    - The bit count (0 <= `nbits` < 32).
