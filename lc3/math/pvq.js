@@ -101,7 +101,7 @@ function PVQSearch(N, K, X, R = null) {
     //  Preproject (when K/N > 0.5).
     let k_begin = 0;
     let C_last = 0, E_last = 0;
-    if (2 * K > N) {
+    if (2 * K > N && XabsSum >= 1E-2) {
         let factor = (K - 1) / XabsSum;
         for (let i = 0; i < N; ++i) {
             let Ri = Math.floor(X[i] * factor);
