@@ -119,6 +119,16 @@ function PVQSearch(N, K, X, R = null, S = new Array(N)) {
             E_last += Ri * Ri;
             k_begin += Ri;
         }
+        if (k_begin >= K) {
+            //  For security, undo preprojection if the count of preprojected 
+            //  pulses is not less than K.
+            k_begin = 0;
+            C_last = 0;
+            E_last = 0;
+            for (let i = 0; i < N; ++i) {
+                R[i] = 0;
+            }
+        }
     } else {
         for (let i = 0; i < N; ++i) {
             R[i] = 0;
