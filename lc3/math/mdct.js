@@ -291,7 +291,7 @@ function MDCT(M, C = 1, W = null) {
 
     //  Twiddle factors.
 
-    //  TW1[k] = 0.25 * (e ^ (-1j * k * PI / M)) / M.
+    //  TW1[k] = 0.25 * G_static * (e ^ (-1j * k * PI / M)) / M.
     let TW1_re = new Array(M);
     let TW1_im = new Array(M);
     for (let k = 0; k < M; ++k) {
