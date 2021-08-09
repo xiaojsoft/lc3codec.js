@@ -91,35 +91,6 @@ function FFT(N) {
         //  Apply transform.
         transformer.transform(x_re, x_im);
     };
-
-    /**
-     *  Apply inverse transform.
-     * 
-     *  @throws {LC3IllegalParameterError}
-     *    - Incorrect block size.
-     *  @param {Number[]} x_re 
-     *    - The real part of each point.
-     *  @param {Number[]} x_im 
-     *    - The imaginary part of each point.
-     */
-    this.transformInverse = function(x_re, x_im) {
-        //  Check the size.
-        if (x_re.length != N || x_im.length != N) {
-            throw new LC3IllegalParameterError("Incorrect block size.");
-        }
-
-        //  This algorithm was taken from official solution #2 of problem 9.1 of
-        //  the book "Discrete-Time Signal Processing (Third Edition)" written 
-        //  by Alan V. Oppenheim and Ronald W. Schafer.
-        for (let i = 0; i < N; ++i) {
-            x_im[i] = -x_im[i];
-        }
-        transformer.transform(x_re, x_im);
-        for (let i = 0; i < N; ++i) {
-            x_re[i] /= N;
-            x_im[i]  = (-x_im[i]) / N;
-        }
-    };
 }
 
 //  Export public APIs.
