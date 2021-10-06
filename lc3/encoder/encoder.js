@@ -353,6 +353,9 @@ function LC3Encoder(Nms, Fs) {
         let F_NF = nle.getNoiseLevel();
 
         //  Bitstream encoding (3.3.13).
+        //
+        //  Incorporated errata:
+        //    [1] https://www.bluetooth.org/errata/errata_view.cfm?errata_id=16703
         let bitstream = bytesbuf;
         if (bitstream.length != nbytes) {
             bitstream = bitstream.slice(0, nbytes);
