@@ -19,6 +19,10 @@ const Lc3DcDecoder =
     require("./../../lc3/decoder/decoder");
 const Lc3DcBec = 
     require("./../../lc3/decoder/bec");
+const Lc3MathFftTfmCore = 
+    require("./../../lc3/math/fft-tfm-core");
+const Lc3MathFft = 
+    require("./../../lc3/math/fft");
 const Lc3Error = 
     require("./../../lc3/error");
 
@@ -41,6 +45,16 @@ const LC3IllegalIndexError =
     Lc3Error.LC3IllegalIndexError;
 const LC3IllegalOperationError = 
     Lc3Error.LC3IllegalOperationError;
+const IFFTTransformer = 
+    Lc3MathFftTfmCore.IFFTTransformer;
+const IFFTTransformerFactory = 
+    Lc3MathFftTfmCore.IFFTTransformerFactory;
+
+//  Imported functions.
+const SetCustomTransformer = 
+    Lc3MathFft.SetCustomTransformer;
+const UnsetCustomTransformer = 
+    Lc3MathFft.UnsetCustomTransformer;
 
 //  Export public APIs.
 module.exports = {
@@ -69,5 +83,19 @@ module.exports = {
             LC3IllegalIndexError,
         "LC3IllegalOperationError": 
             LC3IllegalOperationError
+    },
+    "Extension": {
+        "FFT": {
+            "Classes": {
+                "IFFTTransformer": 
+                    IFFTTransformer,
+                "IFFTTransformerFactory": 
+                    IFFTTransformerFactory
+            },
+            "SetCustomTransformer": 
+                SetCustomTransformer,
+            "UnsetCustomTransformer": 
+                UnsetCustomTransformer
+        }
     }
 };

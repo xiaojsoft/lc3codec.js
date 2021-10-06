@@ -33,7 +33,34 @@ function IFFTTransformer() {
     };
 }
 
+/**
+ *  Interface of FFT transformer factories.
+ * 
+ *  @constructor
+ */
+function IFFTTransformerFactory() {
+    //
+    //  Public methods.
+    //
+
+    /**
+     *  Create a transformer.
+     * 
+     *  @throws {LC3IllegalParameterError}
+     *    - Block size is not an unsigned 32-bit integer, or
+     *    - Block size is larger than 0x80000000.
+     *  @param {Number} N
+     *    - The block size.
+     *  @returns {InstanceType<typeof IFFTTransformer>}
+     *    - The transformer.
+     */
+    this.create = function(N) {
+        throw new Error("Not implemented.");
+    };
+}
+
 //  Export public APIs.
 module.exports = {
-    "IFFTTransformer": IFFTTransformer
+    "IFFTTransformer": IFFTTransformer,
+    "IFFTTransformerFactory": IFFTTransformerFactory
 };

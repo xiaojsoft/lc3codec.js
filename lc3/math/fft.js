@@ -9,6 +9,8 @@
 //
 
 //  Imported modules.
+const Lc3FftTfmCore = 
+    require("./fft-tfm-core");
 const Lc3FftTfmBluestein = 
     require("./fft-tfm-bluestein");
 const Lc3FftTfmCooleyTukey = 
@@ -19,6 +21,8 @@ const Lc3Error =
     require("./../error");
 
 //  Imported classes.
+const IFFTTransformerFactory = 
+    Lc3FftTfmCore.IFFTTransformerFactory;
 const FFTBluesteinTransformer = 
     Lc3FftTfmBluestein.FFTBluesteinTransformer;
 const FFTCooleyTukeyTransformer = 
@@ -29,6 +33,17 @@ const LC3IllegalParameterError =
 //  Imported functions.
 const IsUInt32 = 
     Lc3UInt.IsUInt32;
+
+//
+//  Globals.
+//
+
+/**
+ *  User-custom FFT transformer factory.
+ * 
+ *  @type {?(InstanceType<typeof IFFTTransformerFactory>)}
+ */
+let g_CustomTransformerFactory = null;
 
 //
 //  Public classes.
@@ -59,13 +74,17 @@ function FFT(N) {
 
     //  FFT transformer.
     let transformer = null;
-    for (let i = 31; i > 0; --i) {
-        if (N == ((1 << i) >>> 0)) {
-            transformer = new FFTCooleyTukeyTransformer(i);
+    if (g_CustomTransformerFactory !== null) {
+        transformer = g_CustomTransformerFactory.create(N);
+    } else {
+        for (let i = 31; i > 0; --i) {
+            if (N == ((1 << i) >>> 0)) {
+                transformer = new FFTCooleyTukeyTransformer(i);
+            }
         }
-    }
-    if (transformer === null) {
-        transformer = new FFTBluesteinTransformer(N);
+        if (transformer === null) {
+            transformer = new FFTBluesteinTransformer(N);
+        }
     }
 
     //
@@ -93,7 +112,41 @@ function FFT(N) {
     };
 }
 
+//
+//  Public functions.
+//
+
+/**
+ *  Assign a FFT transformer as user-custom FFT transformer.
+ * 
+ *  @throws {LC3IllegalParameterError}
+ *    - Bad transformer factory object.
+ *  @param {InstanceType<typeof IFFTTransformerFactory>} factory
+ *    - The transformer factory object.
+ */
+function SetCustomTransformer(factory) {
+    //  Check factory object type.
+    if (!(factory instanceof IFFTTransformerFactory)) {
+        throw new LC3IllegalParameterError(
+            "Bad transformer factory object."
+        );
+    }
+
+    //  Save the factory object.
+    g_CustomTransformerFactory = factory;
+}
+
+/**
+ *  Unset the assigned user-custom FFT transformer.
+ */
+function UnsetCustomTransformer() {
+    //  Clear the factory object.
+    g_CustomTransformerFactory = null;
+}
+
 //  Export public APIs.
 module.exports = {
-    "FFT": FFT
+    "FFT": FFT,
+    "SetCustomTransformer": SetCustomTransformer,
+    "UnsetCustomTransformer": UnsetCustomTransformer
 };
