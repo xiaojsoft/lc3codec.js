@@ -19,8 +19,8 @@ const Lc3SlideWin =
     require("./../common/slide_window");
 const Lc3LtpfCommon = 
     require("./../common/ltpf-common");
-const Lc3FftTfmCooleyTukey = 
-    require("./../math/fft-tfm-cooleytukey");
+const Lc3Fft = 
+    require("./../math/fft");
 const Lc3TblLtpf = 
     require("./../tables/ltpf");
 const Lc3TblNF = 
@@ -37,14 +37,16 @@ const LC3SampleRate =
     Lc3Fs.LC3SampleRate;
 const LC3SlideWindow = 
     Lc3SlideWin.LC3SlideWindow;
-const FFTCooleyTukeyTransformer = 
-    Lc3FftTfmCooleyTukey.FFTCooleyTukeyTransformer;
+const FFT = 
+    Lc3Fft.FFT;
 
 //  Imported functions.
 const GetGainParameters = 
     Lc3LtpfCommon.GetGainParameters;
 const IntDiv = 
     Lc3IntUtil.IntDiv;
+const FindBestCorrelationSize = 
+    Lc3Fft.FindBestCorrelationSize;
 
 //  Imported constants.
 const TAB_RESAMP_FILTER = 
@@ -178,18 +180,8 @@ function LC3LongTermPostfilter(Nms, Fs) {
     let buf_downsamp = new Array(5);
     let buf_resamp = new Array(reslen);
 
-    let R6p4_corrfft_nstage;
-    let R6p4_corrfft_size;
-    {
-        let R6p4_corrfft_size_min = KWIDTH + len6p4 - 1;
-        R6p4_corrfft_nstage = 1;
-        R6p4_corrfft_size = 2;
-        while (R6p4_corrfft_size < R6p4_corrfft_size_min) {
-            R6p4_corrfft_size = ((R6p4_corrfft_size << 1) >>> 0);
-            ++(R6p4_corrfft_nstage);
-        }
-    }
-    let R6p4_corrfft = new FFTCooleyTukeyTransformer(R6p4_corrfft_nstage);
+    let R6p4_corrfft_size = FindBestCorrelationSize(KWIDTH + len6p4 - 1);
+    let R6p4_corrfft = new FFT(R6p4_corrfft_size);
     let R6p4_corrfft_c0 = KWIDTH - 1;
     let R6p4_corrfft_c1 = R6p4_corrfft_size - R6p4_corrfft_c0;
     let R6p4_corrfft_c2 = -KMIN;

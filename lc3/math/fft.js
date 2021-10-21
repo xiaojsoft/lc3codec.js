@@ -211,9 +211,55 @@ function UnsetCustomTransformer() {
     g_CustomTransformerFactory = null;
 }
 
+/**
+ *  Find the best FFT size that is suitable for correlation computation.
+ * 
+ *  @param {Number} minsz
+ *    - The minimum size.
+ *  @returns {Number}
+ *    - The correlation size.
+ */
+function FindBestCorrelationSize(minsz) {
+    if (
+        minsz ==  1 || minsz ==  2 || minsz == 4 || minsz == 8 || 
+        minsz == 16 || minsz == 32
+    ) {
+        return minsz;
+    } else if (minsz <= 60) {
+        return 60;
+    } else if (minsz == 64) {
+        return 64;
+    } else if (minsz <= 80) {
+        return 80;
+    } else if (minsz <= 120) {
+        return 120;
+    } else if (minsz == 128) {
+        return 128;
+    } else if (minsz <= 160) {
+        return 160;
+    } else if (minsz <= 180) {
+        return 180;
+    } else if (minsz <= 240) {
+        return 240;
+    } else if (minsz == 256) {
+        return 256;
+    } else if (minsz <= 320) {
+        return 320;
+    } else if (minsz <= 480) {
+        return 480;
+    } else {
+        let ret = 512;
+        while (ret < minsz) {
+            ret = ((ret << 1) >>> 0);
+        }
+        return ret;
+    }
+}
+
 //  Export public APIs.
 module.exports = {
     "FFT": FFT,
     "SetCustomTransformer": SetCustomTransformer,
-    "UnsetCustomTransformer": UnsetCustomTransformer
+    "UnsetCustomTransformer": UnsetCustomTransformer,
+    "FindBestCorrelationSize": FindBestCorrelationSize
 };
