@@ -21,6 +21,8 @@ const Lc3TblNF =
     require("./../tables/nf");
 const Lc3TblSns = 
     require("./../tables/sns");
+const Lc3Dct2_16 = 
+    require("./../math/dct2-16");
 const Lc3Pvq = 
     require("./../math/pvq");
 const Lc3Mpvq = 
@@ -41,6 +43,8 @@ const LC3BugError =
 //  Imported functions.
 const PVQNormalize = 
     Lc3Pvq.PVQNormalize;
+const DCTIIInverse_16 = 
+    Lc3Dct2_16.DCTIIInverse_16;
 
 //  Imported constants.
 const NB_TBL = 
@@ -49,8 +53,6 @@ const NF_TBL =
     Lc3TblNF.NF_TBL;
 const I_TBL = 
     Lc3TblI.I_TBL;
-const DCTII_16x16 = 
-    Lc3TblSns.DCTII_16x16;
 const HFCB = 
     Lc3TblSns.HFCB;
 const LFCB = 
@@ -268,13 +270,40 @@ function LC3SpectralNoiseShapingDecoder(Nms, Fs) {
             //  Finally, the synthesis of the quantized scale factor vector 
             //  scfQ[n] shall be performed in the same way as on the encoder 
             //  side.
-            for (let n = 0; n < 16; ++n) {
-                let tmp = 0;
-                for (let col = 0; col < 16; ++col) {
-                    tmp += xq_shape_j[col] * DCTII_16x16[n][col];
-                }
-                scfQ[n] = st1[n] + G * tmp;
-            }
+            let c1 = 0.25 * G, c2 = 0.3535533905932738 * G;
+            scfQ[ 0] = xq_shape_j[ 0] * c1;
+            scfQ[ 1] = xq_shape_j[ 1] * c2;
+            scfQ[ 2] = xq_shape_j[ 2] * c2;
+            scfQ[ 3] = xq_shape_j[ 3] * c2;
+            scfQ[ 4] = xq_shape_j[ 4] * c2;
+            scfQ[ 5] = xq_shape_j[ 5] * c2;
+            scfQ[ 6] = xq_shape_j[ 6] * c2;
+            scfQ[ 7] = xq_shape_j[ 7] * c2;
+            scfQ[ 8] = xq_shape_j[ 8] * c2;
+            scfQ[ 9] = xq_shape_j[ 9] * c2;
+            scfQ[10] = xq_shape_j[10] * c2;
+            scfQ[11] = xq_shape_j[11] * c2;
+            scfQ[12] = xq_shape_j[12] * c2;
+            scfQ[13] = xq_shape_j[13] * c2;
+            scfQ[14] = xq_shape_j[14] * c2;
+            scfQ[15] = xq_shape_j[15] * c2;
+            DCTIIInverse_16(scfQ, scfQ);
+            scfQ[ 0] += st1[ 0];
+            scfQ[ 1] += st1[ 1];
+            scfQ[ 2] += st1[ 2];
+            scfQ[ 3] += st1[ 3];
+            scfQ[ 4] += st1[ 4];
+            scfQ[ 5] += st1[ 5];
+            scfQ[ 6] += st1[ 6];
+            scfQ[ 7] += st1[ 7];
+            scfQ[ 8] += st1[ 8];
+            scfQ[ 9] += st1[ 9];
+            scfQ[10] += st1[10];
+            scfQ[11] += st1[11];
+            scfQ[12] += st1[12];
+            scfQ[13] += st1[13];
+            scfQ[14] += st1[14];
+            scfQ[15] += st1[15];
         }
         // console.log("scfQ[]=" + scfQ.toString());
 

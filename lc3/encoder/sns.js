@@ -21,6 +21,8 @@ const Lc3TblNF =
     require("./../tables/nf");
 const Lc3TblSns = 
     require("./../tables/sns");
+const Lc3Dct2_16 = 
+    require("./../math/dct2-16");
 const Lc3Pvq = 
     require("./../math/pvq");
 const Lc3Mpvq = 
@@ -45,6 +47,10 @@ const PVQSearch =
     Lc3Pvq.PVQSearch;
 const PVQNormalize = 
     Lc3Pvq.PVQNormalize;
+const DCTIIForward_16 = 
+    Lc3Dct2_16.DCTIIForward_16;
+const DCTIIInverse_16 = 
+    Lc3Dct2_16.DCTIIInverse_16;
 
 //  Imported constants.
 const I_TBL = 
@@ -53,8 +59,6 @@ const NF_TBL =
     Lc3TblNF.NF_TBL;
 const NB_TBL = 
     Lc3TblNB.NB_TBL;
-const DCTII_16x16 = 
-    Lc3TblSns.DCTII_16x16;
 const HFCB = 
     Lc3TblSns.HFCB;
 const LFCB = 
@@ -887,14 +891,23 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
         //  Stage 2 target preparation (3.3.7.3.3.3).
         {
             //  Eq. 43
-            for (let n = 0; n < 16; ++n) {
-                let tmp = 0;
-                for (let row = 0; row < 16; ++row) {
-                    tmp += r1[row] * DCTII_16x16[row][n];
-                }
-                t2rot[n] = tmp;
-            }
-
+            DCTIIForward_16(r1, t2rot);
+            t2rot[ 0] *= 0.25;
+            t2rot[ 1] *= 0.3535533905932738;
+            t2rot[ 2] *= 0.3535533905932738;
+            t2rot[ 3] *= 0.3535533905932738;
+            t2rot[ 4] *= 0.3535533905932738;
+            t2rot[ 5] *= 0.3535533905932738;
+            t2rot[ 6] *= 0.3535533905932738;
+            t2rot[ 7] *= 0.3535533905932738;
+            t2rot[ 8] *= 0.3535533905932738;
+            t2rot[ 9] *= 0.3535533905932738;
+            t2rot[10] *= 0.3535533905932738;
+            t2rot[11] *= 0.3535533905932738;
+            t2rot[12] *= 0.3535533905932738;
+            t2rot[13] *= 0.3535533905932738;
+            t2rot[14] *= 0.3535533905932738;
+            t2rot[15] *= 0.3535533905932738;
             for (let n = 0; n < 10; ++n) {
                 t2rot_setA[n] = t2rot[n];
             }
@@ -1083,13 +1096,40 @@ function LC3SpectralNoiseShapingEncoder(Nms, Fs) {
             //  Eq. 62
             let vec = sns_xq[shape_j];
             let gain = GIJ[shape_j][gain_i];
-            for (let n = 0; n < 16; ++n) {
-                let scfQ_n = st1[n];
-                for (let col = 0; col < 16; ++col) {
-                    scfQ_n += gain * vec[col] * DCTII_16x16[n][col];
-                }
-                scfQ[n] = scfQ_n;
-            }
+            let c1 = 0.25 * gain, c2 = 0.3535533905932738 * gain;
+            scfQ[ 0] = vec[ 0] * c1;
+            scfQ[ 1] = vec[ 1] * c2;
+            scfQ[ 2] = vec[ 2] * c2;
+            scfQ[ 3] = vec[ 3] * c2;
+            scfQ[ 4] = vec[ 4] * c2;
+            scfQ[ 5] = vec[ 5] * c2;
+            scfQ[ 6] = vec[ 6] * c2;
+            scfQ[ 7] = vec[ 7] * c2;
+            scfQ[ 8] = vec[ 8] * c2;
+            scfQ[ 9] = vec[ 9] * c2;
+            scfQ[10] = vec[10] * c2;
+            scfQ[11] = vec[11] * c2;
+            scfQ[12] = vec[12] * c2;
+            scfQ[13] = vec[13] * c2;
+            scfQ[14] = vec[14] * c2;
+            scfQ[15] = vec[15] * c2;
+            DCTIIInverse_16(scfQ, scfQ);
+            scfQ[ 0] += st1[ 0];
+            scfQ[ 1] += st1[ 1];
+            scfQ[ 2] += st1[ 2];
+            scfQ[ 3] += st1[ 3];
+            scfQ[ 4] += st1[ 4];
+            scfQ[ 5] += st1[ 5];
+            scfQ[ 6] += st1[ 6];
+            scfQ[ 7] += st1[ 7];
+            scfQ[ 8] += st1[ 8];
+            scfQ[ 9] += st1[ 9];
+            scfQ[10] += st1[10];
+            scfQ[11] += st1[11];
+            scfQ[12] += st1[12];
+            scfQ[13] += st1[13];
+            scfQ[14] += st1[14];
+            scfQ[15] += st1[15];
         }
         // console.log("scfQ=" + scfQ.toString());
 
