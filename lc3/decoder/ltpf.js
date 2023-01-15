@@ -100,10 +100,10 @@ const TAB_LTPF_DEN_TBL = [
 //  History size of x_ltpf_hat[] window.
 const X_LTPF_HAT_WIN_HISTORY_SIZE = [
     [
-        300, 300, 300, 320, 480, 480
+        300, 300, 360, 480, 720, 720
     ],
     [
-        300, 300, 360, 480, 720, 720
+        300, 300, 300, 320, 480, 480
     ]
 ];
 
