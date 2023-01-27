@@ -23,6 +23,7 @@
     "lc3/encoder/sq",
     "lc3/encoder/tns",
     "lc3/math/brp",
+    "lc3/math/dct2-16",
     "lc3/math/fft-mx-60",
     "lc3/math/fft-mx-80",
     "lc3/math/fft-mx-120",
