@@ -28,9 +28,9 @@ const IsUInt32 =
 
 //
 //  Development Notes:
-//    [1] https://drive.google.com/file/d/1jp9wSUP0ICZcnVxMh7rotCDYcU5lkzdo/
-//    [2] https://drive.google.com/file/d/1EUS6p3WhfqA4IE1IYL21B9nY2xo1VuJc/
-//    [3] https://drive.google.com/file/d/1ga7sLNzTg9zVpe9M8302xDqsUXynaI1z/
+//    [1] ./../../dev/notes/lc3mdct-devnotes-r3.pdf
+//    [2] ./../../dev/notes/imdct_fast_r16.pdf
+//    [3] ./../../dev/notes/mdct_fast_r4.pdf
 //
 
 //

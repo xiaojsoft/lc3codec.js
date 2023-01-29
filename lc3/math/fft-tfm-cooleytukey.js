@@ -168,8 +168,8 @@ function FFTArraySwap2(arr1, arr2, i1, i2) {
  *  Do bit reversal shuffle on both arrays.
  * 
  *  Note(s):
- *    [1] The description algorithm used here can be downloaded from:
- *        https://drive.google.com/file/d/1ESvZy5U__Uir3hePc3CGgHdBmflf47jA/
+ *    [1] The description algorithm used here can be retrieved from:
+ *        ./../../dev/notes/brp-draft_r12.pdf
  * 
  *  @param {Number[]} arr1 
  *    - The first array.

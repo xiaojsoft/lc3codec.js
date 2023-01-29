@@ -26,8 +26,8 @@ const LC3IllegalParameterError = Lc3Error.LC3IllegalParameterError;
  *  Generate bit reversal permutate.
  * 
  *  Note(s):
- *    [1] The description algorithm used here can be downloaded from:
- *        https://drive.google.com/file/d/1ESvZy5U__Uir3hePc3CGgHdBmflf47jA/
+ *    [1] The description algorithm used here can be retrieved from:
+ *        ./../../dev/notes/brp-draft_r12.pdf
  * 
  *  @param {Number} nbits
  *    - The bit count (0 <= `nbits` < 32).

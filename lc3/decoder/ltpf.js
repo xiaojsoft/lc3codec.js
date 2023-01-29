@@ -98,6 +98,9 @@ const TAB_LTPF_DEN_TBL = [
 ];
 
 //  History size of x_ltpf_hat[] window.
+//
+//  Development Note(s):
+//    [1] ./../../dev/notes/x_ltpf_hat_win_R1.pdf
 const X_LTPF_HAT_WIN_HISTORY_SIZE = [
     [
         //  Nms = 10ms.

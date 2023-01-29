@@ -334,7 +334,7 @@ function LC3LongTermPostfilter(Nms, Fs) {
             //  Eq. 86
             //
             //  The description of the algorithm below can be found at:
-            //    [1] https://drive.google.com/file/d/1DMC3CMr2-ojaDi3TKPNQfuN_Dy_S0tXx/
+            //    [1] ./../../dev/notes/eq86_r6.pdf
             x6p4_win.bulkGet(
                 R6p4_corrwin1_re, 
                 0, 
