@@ -184,6 +184,22 @@ function LC3LongTermPostfilterDecoder(Nms, Fs) {
     //
 
     /**
+     *  Get the memorized pitch information.
+     * 
+     *  @param {[Number, Number]} [buf] 
+     *    - The array for storing the pitch information.
+     *  @returns {[Number, Number]}
+     *    - The array that contains the pitch information.
+     *      - [0]: p_int_mem
+     *      - [1]: p_fr_mem
+     */
+    this.getPitch = function(buf = new Array(2)) {
+        buf[0] = p_int_mem;
+        buf[1] = p_fr_mem;
+        return buf;
+    };
+
+    /**
      *  Update with one frame.
      * 
      *  @param {Number[]} x_hat 
